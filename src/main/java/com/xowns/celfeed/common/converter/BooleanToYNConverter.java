@@ -1,4 +1,4 @@
-package com.xowns.celfeed.converter;
+package com.xowns.celfeed.common.converter;
 
 import jakarta.persistence.AttributeConverter;
 
