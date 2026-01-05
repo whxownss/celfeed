@@ -3,6 +3,8 @@ package com.xowns.celfeed.service;
 import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.dto.MemberDTO;
 import com.xowns.celfeed.dto.MemberResponse;
+import com.xowns.celfeed.exception.ApiException;
+import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,14 +16,14 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public void validateDuplicateNickname(String nickname) {
-        if (!memberRepository.existsByNickname(nickname)) {
-
+        if (memberRepository.existsByNickname(nickname)) {
+            throw new ApiException(ErrorCode.DUPLICATE_NICKNAME);
         }
     }
 
     public void validateDuplicateEmail(String email) {
-        if (!memberRepository.existsByEmail(email)) {
-
+        if (memberRepository.existsByEmail(email)) {
+            throw new ApiException(ErrorCode.DUPLICATE_EMAIL);
         }
     }
 
