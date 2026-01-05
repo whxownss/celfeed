@@ -1,6 +1,6 @@
 package com.xowns.celfeed.domain;
 
-import com.xowns.celfeed.converter.BooleanToYNConverter;
+import com.xowns.celfeed.common.converter.BooleanToYNConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
