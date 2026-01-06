@@ -17,13 +17,13 @@ public class MemberService {
 
     public void validateDuplicateNickname(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
-            throw new ApiException(ErrorCode.DUPLICATE_NICKNAME);
+            throw new ApiException(ErrorCode.DUPLICATE_NICKNAME, nickname);
         }
     }
 
     public void validateDuplicateEmail(String email) {
         if (memberRepository.existsByEmail(email)) {
-            throw new ApiException(ErrorCode.DUPLICATE_EMAIL);
+            throw new ApiException(ErrorCode.DUPLICATE_EMAIL, email);
         }
     }
 
@@ -35,6 +35,4 @@ public class MemberService {
         Member savedMember = memberRepository.save(memberDTO.toEntity());
         return MemberResponse.from(savedMember);
     }
-
-
 }
