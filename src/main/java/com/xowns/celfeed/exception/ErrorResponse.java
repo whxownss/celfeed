@@ -4,15 +4,15 @@ import lombok.Getter;
 
 @Getter
 public class ErrorResponse {
-    private Object errorData;
     private String errorMessage;
+    private Object errorData;
 
-    private ErrorResponse(Object errorData, String errorMessage) {
-        this.errorData = errorData;
+    private ErrorResponse(String errorMessage, Object errorData) {
         this.errorMessage = errorMessage;
+        this.errorData = errorData;
     }
 
-    public static ErrorResponse of(Object errorData, String errorMessage) {
-        return new ErrorResponse(errorData, errorMessage);
+    public static ErrorResponse of(String errorMessage, Object errorData) {
+        return new ErrorResponse(errorMessage, errorData);
     }
 }

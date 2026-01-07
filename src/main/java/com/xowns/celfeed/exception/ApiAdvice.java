@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ApiAdvice {
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(e.getErrorData(), errorCode.getMessage()));
+                .body(ErrorResponse.of(errorCode.getMessage(), e.getErrorData()));
     }
 
     @ExceptionHandler
@@ -52,7 +53,7 @@ public class ApiAdvice {
 
         return ResponseEntity
                 .status(BAD_REQUEST)
-                .body(ErrorResponse.of(errorData, "유효한 값을 입력해 주세요."));
+                .body(ErrorResponse.of("유효한 값을 입력해 주세요.", errorData));
     }
 
     private int priorityOf(FieldError fieldError) {
@@ -61,9 +62,20 @@ public class ApiAdvice {
 
         return switch (code) { // 최선인가...
             case "NotBlank" -> 1;
-            case "Size" -> 2;
+            case "Size", "Email" -> 2;
             default -> Integer.MAX_VALUE;
         };
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        // MissingServletRequestParameterException 이것도?
+        Map<String, Object> errorData = new HashMap<>();
+        errorData.put(e.getName(), e.getValue());
+
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(ErrorResponse.of("요청 값의 형식이 올바르지 않습니다.", errorData));
     }
 
     @ExceptionHandler
@@ -74,7 +86,7 @@ public class ApiAdvice {
 
         return ResponseEntity
                 .status(BAD_REQUEST)
-                .body(ErrorResponse.of(errorData, "요청 형식이 올바르지 않습니다."));
+                .body(ErrorResponse.of("요청 본문의 형식이 올바르지 않습니다.", errorData));
     }
 
     @ExceptionHandler
@@ -82,7 +94,7 @@ public class ApiAdvice {
         log.error("handle DataAccessException=", e);
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(e.getMessage(), "서버 내부에 오류가 발생하였습니다."));
+                .body(ErrorResponse.of("서버 내부에 오류가 발생하였습니다.", "서버 내부 오류"));
     }
 
     @ExceptionHandler
@@ -90,6 +102,6 @@ public class ApiAdvice {
         log.error("handle Exception=", e);
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(e.getMessage(), "알 수 없는 오류가 발생하였습니다."));
+                .body(ErrorResponse.of("알 수 없는 오류가 발생하였습니다.", "알 수 없는 오류"));
     }
 }
