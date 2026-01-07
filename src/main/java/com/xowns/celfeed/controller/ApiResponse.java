@@ -4,15 +4,15 @@ import lombok.Getter;
 
 @Getter
 public class ApiResponse<T> {
-    private T data;
     private String message;
+    private T data;
 
-    private ApiResponse(T data, String message) {
-        this.data = data;
+    private ApiResponse(String message, T data) {
         this.message = message;
+        this.data = data;
     }
 
-    public static <D> ApiResponse<D> of(D data, String message) {
-        return new ApiResponse<>(data, message);
+    public static <D> ApiResponse<D> of(String message, D data) {
+        return new ApiResponse<>(message, data);
     }
 }
