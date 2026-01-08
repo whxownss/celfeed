@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: develop
   datasource:
     url: jdbc:mysql://localhost:3306/celfeed
     username: root

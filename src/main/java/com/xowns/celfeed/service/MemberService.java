@@ -3,11 +3,17 @@ package com.xowns.celfeed.service;
 import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.dto.MemberDTO;
 import com.xowns.celfeed.dto.MemberResponse;
+import com.xowns.celfeed.dto.PageDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +33,23 @@ public class MemberService {
         }
     }
 
-    public MemberResponse join(MemberDTO memberDTO) {
-
+    public Long join(MemberDTO memberDTO) {
         validateDuplicateNickname(memberDTO.getNickname());
         validateDuplicateEmail(memberDTO.getEmail());
 
         Member savedMember = memberRepository.save(memberDTO.toEntity());
-        return MemberResponse.from(savedMember);
+        return savedMember.getId();
+    }
+
+    public MemberResponse findOne(Long memberId) {
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND, memberId));
+
+        return MemberResponse.of(findMember);
+    }
+
+    public PageDTO<MemberResponse> findAll(Pageable pageable) {
+        Page<MemberResponse> page = memberRepository.findAll(pageable).map(MemberResponse::of);
+        return PageDTO.of(page);
     }
 }
