@@ -6,21 +6,12 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Getter
-public class PageDTO<T> {
-    private List<T> content;
-    private int currentPage;
-    private boolean hasPrevious;
-    private boolean hasNext;
-    private int pageSize;
+public class PageDTO<T> extends SliceDTO<T> {
     private int totalPages;
     private long totalElements;
 
     private PageDTO(Page<T> page) {
-        this.content = page.getContent();
-        this.currentPage = page.getNumber();
-        this.hasPrevious = page.hasPrevious();
-        this.hasNext = page.hasNext();
-        this.pageSize = page.getSize();
+        super(page);
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
     }

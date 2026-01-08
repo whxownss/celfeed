@@ -4,6 +4,7 @@ import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.dto.MemberDTO;
 import com.xowns.celfeed.dto.MemberResponse;
 import com.xowns.celfeed.dto.PageDTO;
+import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,10 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.of("회원 목록 조회 성공", memberService.findAll(pageable)));
     }
 
-
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<SliceDTO<MemberResponse>>> searchMembersByNickname(@RequestParam String nickname, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.of("회원 목록 검색 성공", memberService.findAllByNickname(nickname, pageable)));
+    }
 }
 
 

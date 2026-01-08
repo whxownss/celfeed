@@ -4,12 +4,12 @@ import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.dto.MemberDTO;
 import com.xowns.celfeed.dto.MemberResponse;
 import com.xowns.celfeed.dto.PageDTO;
+import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -51,5 +51,11 @@ public class MemberService {
     public PageDTO<MemberResponse> findAll(Pageable pageable) {
         Page<MemberResponse> page = memberRepository.findAll(pageable).map(MemberResponse::of);
         return PageDTO.of(page);
+    }
+
+    public SliceDTO<MemberResponse> findAllByNickname(String nickname, Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("nickname").ascending());
+        Slice<MemberResponse> slice = memberRepository.findByNicknameStartingWith(nickname, pageRequest).map(MemberResponse::of);
+        return SliceDTO.of(slice);
     }
 }
