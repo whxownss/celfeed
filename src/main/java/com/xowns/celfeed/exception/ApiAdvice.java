@@ -26,7 +26,7 @@ public class ApiAdvice {
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode.getMessage(), e.getErrorData()));
+                .body(ErrorResponse.of(errorCode.getMessage()));
     }
 
     @ExceptionHandler
@@ -94,7 +94,7 @@ public class ApiAdvice {
         log.error("handle DataAccessException=", e);
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of("서버 내부에 오류가 발생하였습니다.", "서버 내부 오류"));
+                .body(ErrorResponse.of("서버 내부에 오류가 발생하였습니다."));
     }
 
     @ExceptionHandler
@@ -102,6 +102,6 @@ public class ApiAdvice {
         log.error("handle Exception=", e);
         return ResponseEntity
                 .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of("알 수 없는 오류가 발생하였습니다.", "알 수 없는 오류"));
+                .body(ErrorResponse.of("알 수 없는 오류가 발생하였습니다."));
     }
 }
