@@ -3,6 +3,8 @@ package com.xowns.celfeed.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -92,9 +94,18 @@ public class ApiAdvice {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException e) {
         log.error("handle DataAccessException=", e);
+
+        HttpStatus httpStatus = INTERNAL_SERVER_ERROR;
+        String errorMessage = "서버 내부에 오류가 발생하였습니다.";
+
+        if (e instanceof DataIntegrityViolationException divException) {
+            httpStatus = CONFLICT;
+            errorMessage = "이미 존재하는 리소스입니다.";
+        }
+
         return ResponseEntity
-                .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of("서버 내부에 오류가 발생하였습니다."));
+                .status(httpStatus)
+                .body(ErrorResponse.of(errorMessage));
     }
 
     @ExceptionHandler

@@ -27,10 +27,10 @@ public class Member extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(10)", nullable = false)
     private MemberRole role;
 
-    public Member(String nickname, String email, String password) {
+    public Member(String nickname, String email, String password, MemberRole role) {
         this.nickname = nickname;
         this.email = email;
         this.password = password;
-        this.role = MemberRole.FAN;
+        this.role = role;
     }
 }
