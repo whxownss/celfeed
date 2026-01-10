@@ -3,12 +3,12 @@ package com.xowns.celfeed.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.xowns.celfeed.domain.Member;
 import lombok.Getter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
 @Getter
 public class MemberResponse {
+    private Long id;
     private String nickname;
     private String email;
     private String role;
@@ -16,7 +16,8 @@ public class MemberResponse {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
-    private MemberResponse(String nickname, String email, String role, LocalDateTime createdAt) {
+    private MemberResponse(Long id, String nickname, String email, String role, LocalDateTime createdAt) {
+        this.id = id;
         this.nickname = nickname;
         this.email = email;
         this.role = role;
@@ -24,6 +25,6 @@ public class MemberResponse {
     }
 
     public static MemberResponse of(Member member) {
-        return new MemberResponse(member.getNickname(), member.getEmail(), member.getRole().name(), member.getCreatedAt());
+        return new MemberResponse(member.getId(), member.getNickname(), member.getEmail(), member.getRole().name(), member.getCreatedAt());
     }
 }

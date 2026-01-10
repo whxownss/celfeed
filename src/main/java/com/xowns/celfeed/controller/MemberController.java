@@ -21,19 +21,19 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/validation/nickname")
-    public ResponseEntity<ApiResponse<String>> validateNickname(@RequestParam String nickname) {
+    public ResponseEntity<ApiResponse> validateNickname(@RequestParam String nickname) {
         memberService.validateDuplicateNickname(nickname);
         return ResponseEntity.ok(ApiResponse.of("사용 가능한 닉네임입니다."));
     }
 
     @GetMapping("/validation/email")
-    public ResponseEntity<ApiResponse<String>> validateEmail(@RequestParam String email) {
+    public ResponseEntity<ApiResponse> validateEmail(@RequestParam String email) {
         memberService.validateDuplicateNickname(email);
         return ResponseEntity.ok(ApiResponse.of("사용 가능한 이메일입니다."));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> createMember(@Valid @RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<ApiResponse<Long>> createMember(@Valid @RequestBody MemberCreateRequest memberDTO) {
         ApiResponse<Long> apiResponse = ApiResponse.of("성공적으로 가입되었습니다.", memberService.join(memberDTO));
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
@@ -54,15 +54,15 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@Valid @RequestBody MemberLoginDTO memberLoginDTO, HttpSession session) {
-        Long memberId = memberService.login(memberLoginDTO);
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpSession session) {
+        Long memberId = memberService.login(memberLoginRequest);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
         return ResponseEntity.ok(ApiResponse.of("로그인 성공"));
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();

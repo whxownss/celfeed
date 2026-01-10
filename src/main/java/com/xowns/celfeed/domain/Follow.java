@@ -10,6 +10,14 @@ import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_follow",
+                        columnNames = {"from_id", "to_id"}
+                )
+        }
+)
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
 public class Follow extends BaseCreateEntity {

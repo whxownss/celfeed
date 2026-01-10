@@ -1,6 +1,7 @@
 package com.xowns.celfeed.dto;
 
 import com.xowns.celfeed.domain.Member;
+import com.xowns.celfeed.domain.MemberRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,7 +9,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter @ToString
-public class MemberDTO {
+public class MemberCreateRequest {
 
     @NotBlank(message = "닉네임은 필수값입니다.")
     @Size(min = 2, max = 15, message = "닉네임은 2자 이상 15자 이내로 입력해주세요.")
@@ -23,6 +24,6 @@ public class MemberDTO {
     private String password;
 
     public Member toEntity() {
-        return new Member(nickname, email, password);
+        return new Member(nickname, email, password, MemberRole.FAN);
     }
 }

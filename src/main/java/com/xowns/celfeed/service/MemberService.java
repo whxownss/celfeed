@@ -1,6 +1,7 @@
 package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.domain.Member;
+import com.xowns.celfeed.domain.MemberRole;
 import com.xowns.celfeed.dto.*;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
@@ -9,12 +10,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -31,7 +34,8 @@ public class MemberService {
         }
     }
 
-    public Long join(MemberDTO memberDTO) {
+    @Transactional
+    public Long join(MemberCreateRequest memberDTO) {
         validateDuplicateNickname(memberDTO.getNickname());
         validateDuplicateEmail(memberDTO.getEmail());
 
@@ -52,14 +56,16 @@ public class MemberService {
     }
 
     public SliceDTO<MemberResponse> findAllByNickname(String nickname, Pageable pageable) {
-        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("nickname").ascending());
-        Slice<MemberResponse> slice = memberRepository.findByNicknameStartingWith(nickname, pageRequest).map(MemberResponse::of);
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                                                    Sort.by("nickname").ascending());
+        Slice<MemberResponse> slice = memberRepository.findByNicknameStartingWithAndRole(nickname, MemberRole.CELEB, pageRequest)
+                                                    .map(MemberResponse::of);
         return SliceDTO.of(slice);
     }
 
-    public Long login(MemberLoginDTO memberLoginDTO) {
-        Member loginMember = memberRepository.findByEmail(memberLoginDTO.getEmail())
-                .filter(member -> memberLoginDTO.getPassword().equals(member.getPassword()))
+    public Long login(MemberLoginRequest memberLoginRequest) {
+        Member loginMember = memberRepository.findByEmail(memberLoginRequest.getEmail())
+                .filter(member -> memberLoginRequest.getPassword().equals(member.getPassword()))
                 .orElseThrow(() -> new ApiException(ErrorCode.LOGIN_FAIL));
 
         return loginMember.getId();

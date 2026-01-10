@@ -1,7 +1,5 @@
 package com.xowns.celfeed.service;
 
-import com.xowns.celfeed.dto.MemberDTO;
-import com.xowns.celfeed.dto.MemberResponse;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.MemberRepository;

@@ -1,6 +1,7 @@
 package com.xowns.celfeed;
 
 import com.xowns.celfeed.domain.Member;
+import com.xowns.celfeed.domain.MemberRole;
 import com.xowns.celfeed.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -13,7 +14,7 @@ public class TestDataInit {
     @EventListener(ApplicationReadyEvent.class)
     public void initMemberData() {
         for (int i = 1; i <= 50; i++) {
-            memberRepository.save(new Member("kanye" + i, "naver" + i, "1234123"));
+            memberRepository.save(new Member("kanye" + i, "naver" + i, "1234123", MemberRole.CELEB));
         }
     }
 }
