@@ -1,4 +1,4 @@
-package com.xowns.celfeed.dto;
+package com.xowns.celfeed.dto.member;
 
 import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.domain.MemberRole;
@@ -24,6 +24,6 @@ public class MemberRequest {
     private String password;
 
     public Member toEntity() {
-        return new Member(nickname, email, password, MemberRole.FAN);
+        return Member.create(nickname, email, password, MemberRole.FAN);
     }
 }

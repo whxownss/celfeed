@@ -3,17 +3,16 @@ package com.xowns.celfeed.service;
 import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.domain.MemberRole;
 import com.xowns.celfeed.dto.*;
+import com.xowns.celfeed.dto.member.MemberLoginRequest;
+import com.xowns.celfeed.dto.member.MemberRequest;
+import com.xowns.celfeed.dto.member.MemberResponse;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.MemberRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -2,7 +2,7 @@ package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.domain.Follow;
 import com.xowns.celfeed.domain.Member;
-import com.xowns.celfeed.dto.MemberResponse;
+import com.xowns.celfeed.dto.member.MemberResponse;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
@@ -39,7 +39,7 @@ public class FollowService {
             return optionalFollow.get().getId();
         }
 
-        Follow savedFollow = followRepository.save(new Follow(fromMember, toMember));
+        Follow savedFollow = followRepository.save(Follow.create(fromMember, toMember));
         return savedFollow.getId();
     }
 

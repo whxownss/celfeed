@@ -1,4 +1,4 @@
-package com.xowns.celfeed.dto;
+package com.xowns.celfeed.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.xowns.celfeed.domain.Post;

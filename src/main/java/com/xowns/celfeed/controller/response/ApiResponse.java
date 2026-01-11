@@ -1,4 +1,4 @@
-package com.xowns.celfeed.controller;
+package com.xowns.celfeed.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
