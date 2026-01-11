@@ -1,4 +1,4 @@
-package com.xowns.celfeed.dto;
+package com.xowns.celfeed.dto.member;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

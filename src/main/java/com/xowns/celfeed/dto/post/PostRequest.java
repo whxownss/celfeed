@@ -1,4 +1,4 @@
-package com.xowns.celfeed.dto;
+package com.xowns.celfeed.dto.post;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

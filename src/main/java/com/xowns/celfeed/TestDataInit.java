@@ -14,7 +14,7 @@ public class TestDataInit {
     @EventListener(ApplicationReadyEvent.class)
     public void initMemberData() {
         for (int i = 1; i <= 50; i++) {
-            memberRepository.save(new Member("kanye" + i, "naver" + i, "1234123", MemberRole.CELEB));
+            memberRepository.save(Member.create("kanye" + i, "naver" + i, "1234123", MemberRole.CELEB));
         }
     }
 }

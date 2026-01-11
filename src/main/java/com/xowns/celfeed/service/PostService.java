@@ -2,8 +2,8 @@ package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.domain.Member;
 import com.xowns.celfeed.domain.Post;
-import com.xowns.celfeed.dto.PostRequest;
-import com.xowns.celfeed.dto.PostResponse;
+import com.xowns.celfeed.dto.post.PostRequest;
+import com.xowns.celfeed.dto.post.PostResponse;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;

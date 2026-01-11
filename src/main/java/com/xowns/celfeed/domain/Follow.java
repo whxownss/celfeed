@@ -33,8 +33,12 @@ public class Follow extends BaseCreateEntity {
     @JoinColumn(name = "to_id", nullable = false)
     private Member toMember;
 
-    public Follow(Member fromMember, Member toMember) {
+    private Follow(Member fromMember, Member toMember) {
         this.fromMember = fromMember;
         this.toMember = toMember;
+    }
+
+    public static Follow create(Member fromMember, Member toMember) {
+        return new Follow(fromMember, toMember);
     }
 }
