@@ -35,11 +35,11 @@ public class MemberService {
     }
 
     @Transactional
-    public Long join(MemberCreateRequest memberDTO) {
-        validateDuplicateNickname(memberDTO.getNickname());
-        validateDuplicateEmail(memberDTO.getEmail());
+    public Long join(MemberRequest memberRequest) {
+        validateDuplicateNickname(memberRequest.getNickname());
+        validateDuplicateEmail(memberRequest.getEmail());
 
-        Member savedMember = memberRepository.save(memberDTO.toEntity());
+        Member savedMember = memberRepository.save(memberRequest.toEntity());
         return savedMember.getId();
     }
 
@@ -51,16 +51,16 @@ public class MemberService {
     }
 
     public PageDTO<MemberResponse> findAll(Pageable pageable) {
-        Page<MemberResponse> page = memberRepository.findAll(pageable).map(MemberResponse::of);
-        return PageDTO.of(page);
+        Page<MemberResponse> members = memberRepository.findAll(pageable).map(MemberResponse::of);
+        return PageDTO.of(members);
     }
 
     public SliceDTO<MemberResponse> findAllByNickname(String nickname, Pageable pageable) {
-        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                                                    Sort.by("nickname").ascending());
-        Slice<MemberResponse> slice = memberRepository.findByNicknameStartingWithAndRole(nickname, MemberRole.CELEB, pageRequest)
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("nickname").ascending());
+
+        Slice<MemberResponse> members = memberRepository.findByNicknameStartingWithAndRole(nickname, MemberRole.CELEB, pageable)
                                                     .map(MemberResponse::of);
-        return SliceDTO.of(slice);
+        return SliceDTO.of(members);
     }
 
     public Long login(MemberLoginRequest memberLoginRequest) {

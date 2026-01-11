@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter @ToString
-public class MemberCreateRequest {
+public class MemberRequest {
 
     @NotBlank(message = "닉네임은 필수값입니다.")
-    @Size(min = 2, max = 15, message = "닉네임은 2자 이상 15자 이내로 입력해주세요.")
+    @Size(min = 2, max = 15, message = "닉네임은 2자 이상 15자 이내로 입력해 주세요.")
     private String nickname;
 
     @NotBlank(message = "이메일은 필수값입니다.")
@@ -20,7 +20,7 @@ public class MemberCreateRequest {
     private String email;
 
     @NotBlank(message = "비밀번호는 필수값입니다.")
-    @Size(min = 7, max = 20, message = "비밀번호는 7자 이상 20자 이내로 입력해주세요.")
+    @Size(min = 7, max = 20, message = "비밀번호는 7자 이상 20자 이내로 입력해 주세요.")
     private String password;
 
     public Member toEntity() {
