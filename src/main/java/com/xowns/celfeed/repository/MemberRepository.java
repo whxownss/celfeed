@@ -15,5 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Slice<Member> findByNicknameStartingWithAndRole(String nickname, MemberRole role, Pageable pageable);
 
     Optional<Member> findByEmail(String email);
-
 }
+
