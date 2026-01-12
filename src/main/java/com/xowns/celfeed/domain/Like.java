@@ -10,7 +10,15 @@ import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@Table(name = "likes")
+@Table(
+        name = "likes",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_likes",
+                        columnNames = {"post_id", "member_id"}
+                )
+        }
+)
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
 public class Like extends BaseCreateEntity {
@@ -26,8 +34,12 @@ public class Like extends BaseCreateEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public Like(Post post, Member member) {
+    private Like(Post post, Member member) {
         this.post = post;
         this.member = member;
+    }
+
+    public static Like create(Post post, Member member) {
+        return new Like(post, member);
     }
 }
