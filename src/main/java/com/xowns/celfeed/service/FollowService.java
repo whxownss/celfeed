@@ -25,14 +25,14 @@ public class FollowService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long followMember(Long memberId, Long targetMemberId) {
+    public Long followMember(Long loginId, Long targetMemberId) {
 
-        if (memberId.equals(targetMemberId)) {
+        if (loginId.equals(targetMemberId)) {
             throw new ApiException(ErrorCode.SELF_FOLLOW_NOT_ALLOWED);
         }
 
-        Member fromMember = findMember(memberId);
-        Member toMember = findMember(targetMemberId);
+        Member fromMember = getMemberOrThrow(loginId);
+        Member toMember = getMemberOrThrow(targetMemberId);
 
         Optional<Follow> optionalFollow = followRepository.findByFromMemberAndToMember(fromMember, toMember);
         if (optionalFollow.isPresent()) {
@@ -44,24 +44,24 @@ public class FollowService {
     }
 
     @Transactional
-    public void unfollowMember(Long memberId, Long targetMemberId) {
-        Member fromMember = findMember(memberId);
-        Member toMember = findMember(targetMemberId);
+    public void unfollowMember(Long loginId, Long targetMemberId) {
+        Member fromMember = getMemberOrThrow(loginId);
+        Member toMember = getMemberOrThrow(targetMemberId);
 
         followRepository.findByFromMemberAndToMember(fromMember, toMember)
                 .ifPresent(followRepository::delete);
     }
 
-    public SliceDTO<MemberResponse> getFollowingMembers(Long memberId, Pageable pageable) {
-        Member fromMember = findMember(memberId);
+    public SliceDTO<MemberResponse> getFollowingMembers(Long loginId, Pageable pageable) {
+        Member fromMember = getMemberOrThrow(loginId);
         Slice<MemberResponse> followingSlice = followRepository.findByFromMember(fromMember, pageable)
                 .map(follow -> MemberResponse.of(follow.getToMember()));
 
         return SliceDTO.of(followingSlice);
     }
 
-    public SliceDTO<MemberResponse> getFollowerMembers(Long memberId, Pageable pageable) {
-        Member toMember = findMember(memberId);
+    public SliceDTO<MemberResponse> getFollowerMembers(Long loginId, Pageable pageable) {
+        Member toMember = getMemberOrThrow(loginId);
         Slice<MemberResponse> followerSlice = followRepository.findByToMember(toMember, pageable)
                 .map(follow -> MemberResponse.of(follow.getFromMember()));
 
@@ -69,7 +69,7 @@ public class FollowService {
     }
 
     // ====
-    private Member findMember(Long memberId) {
+    private Member getMemberOrThrow(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
     }

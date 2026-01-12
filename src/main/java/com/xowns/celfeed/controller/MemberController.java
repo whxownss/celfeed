@@ -24,13 +24,13 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/validation/nickname")
-    public ResponseEntity<ApiResponse> validateNickname(@RequestParam String nickname) {
+    public ResponseEntity<ApiResponse<Void>> validateNickname(@RequestParam String nickname) {
         memberService.validateDuplicateNickname(nickname);
         return ResponseEntityUtils.ok("사용 가능한 닉네임입니다.");
     }
 
     @GetMapping("/validation/email")
-    public ResponseEntity<ApiResponse> validateEmail(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<Void>> validateEmail(@RequestParam String email) {
         memberService.validateDuplicateNickname(email);
         return ResponseEntityUtils.ok("사용 가능한 이메일입니다.");
     }
@@ -56,7 +56,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpSession session) {
+    public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpSession session) {
         Long memberId = memberService.login(memberLoginRequest);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
@@ -64,7 +64,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();

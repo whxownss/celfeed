@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 public abstract class ResponseEntityUtils {
 
-    public static ResponseEntity<ApiResponse> ok(String message) {
+    public static ResponseEntity<ApiResponse<Void>> ok(String message) {
         return ResponseEntity.ok(ApiResponse.of(message));
     }
 
@@ -13,7 +13,7 @@ public abstract class ResponseEntityUtils {
         return ResponseEntity.ok(ApiResponse.of(message, data));
     }
 
-    public static ResponseEntity<ApiResponse> create(String message) {
+    public static ResponseEntity<ApiResponse<Void>> create(String message) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(message));
     }
 
