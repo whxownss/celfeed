@@ -1,20 +1,17 @@
 package com.xowns.celfeed.service;
 
-import com.xowns.celfeed.domain.Like;
-import com.xowns.celfeed.domain.Member;
-import com.xowns.celfeed.domain.Post;
+import com.xowns.celfeed.domain.*;
+import com.xowns.celfeed.dto.NotificationBulkDTO;
 import com.xowns.celfeed.dto.post.PostDetailResponse;
 import com.xowns.celfeed.dto.post.PostRequest;
 import com.xowns.celfeed.dto.post.PostResponse;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
-import com.xowns.celfeed.repository.LikeRepository;
-import com.xowns.celfeed.repository.MemberRepository;
-import com.xowns.celfeed.repository.PostQueryRepository;
-import com.xowns.celfeed.repository.PostRepository;
+import com.xowns.celfeed.repository.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,22 +19,47 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostService {
 
     private final PostRepository postRepository;
     private final PostQueryRepository postQueryRepository;
-    private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+
+    private final MemberRepository memberRepository;
+    private final NotificationRepository notificationRepository;
+    private final NotificationBulkRepository notificationBulkRepository;
+    private final FollowRepository followRepository;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
+
+        log.info("==== 알림 생성 ====");
+        Member postMember = savedPost.getMember();
+        List<Follow> followers = followRepository.findByToMember(postMember);
+
+        List<NotificationBulkDTO> bulkList = followers.stream()
+                .map(follower ->
+                        new NotificationBulkDTO(
+                                follower.getFromMember().getId(),
+                                postMember.getId(),
+                                NotificationType.WRITE_POST.name(),
+                                NotificationTargetType.POST.name(),
+                                savedPost.getId()
+                        )
+                )
+                .toList();
+        notificationBulkRepository.batchInsert(bulkList);
+
         return savedPost.getId();
     }
 
@@ -92,6 +114,11 @@ public class PostService {
         }
 
         Like savedLike = likeRepository.save(Like.create(findPost, member));
+
+        log.info("==== 알림 생성 ====");
+        Notification notification = Notification.create(findPost.getMember(), member, NotificationType.LIKE_POST, NotificationTargetType.POST, findPost.getId());
+        notificationRepository.save(notification);
+
         return savedLike.getId();
     }
 

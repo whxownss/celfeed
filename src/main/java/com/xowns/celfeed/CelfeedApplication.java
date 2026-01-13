@@ -1,5 +1,6 @@
 package com.xowns.celfeed;
 
+import com.xowns.celfeed.repository.FollowRepository;
 import com.xowns.celfeed.repository.LikeRepository;
 import com.xowns.celfeed.repository.MemberRepository;
 import com.xowns.celfeed.repository.PostRepository;
@@ -17,7 +18,7 @@ public class CelfeedApplication {
 
 	@Bean
 	@Profile("develop")
-	public TestDataInit testDataInit(MemberRepository memberRepository, PostRepository postRepository, LikeRepository likeRepository) {
-		return new TestDataInit(memberRepository, postRepository, likeRepository);
+	public TestDataInit testDataInit(MemberRepository memberRepository, PostRepository postRepository, LikeRepository likeRepository, FollowRepository followRepository) {
+		return new TestDataInit(memberRepository, postRepository, likeRepository, followRepository);
 	}
 }

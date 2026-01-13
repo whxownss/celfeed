@@ -30,6 +30,10 @@ public class Notification extends BaseCreateEntity {
     @Column(columnDefinition = "VARCHAR(20)", nullable = false)
     private NotificationType type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(10)", nullable = false)
+    private NotificationTargetType targetType;
+
     @Column(nullable = false)
     private Long targetId;
 
@@ -37,11 +41,16 @@ public class Notification extends BaseCreateEntity {
     @Convert(converter = BooleanToYNConverter.class)
     private boolean isRead;
 
-    public Notification(Member receiver, Member actor, NotificationType type, Long targetId, boolean isRead) {
+    private Notification(Member receiver, Member actor, NotificationType type, NotificationTargetType targetType, Long targetId, boolean isRead) {
         this.receiver = receiver;
         this.actor = actor;
         this.type = type;
+        this.targetType = targetType;
         this.targetId = targetId;
         this.isRead = isRead;
+    }
+
+    public static Notification create(Member receiver, Member actor, NotificationType type, NotificationTargetType targetType, Long targetId) {
+        return new Notification(receiver, actor, type, targetType, targetId, false);
     }
 }
