@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
@@ -18,4 +19,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("select f from Follow f join fetch f.fromMember where f.toMember = :toMember")
     Slice<Follow> findByToMember(@Param("toMember") Member toMember, Pageable pageable);
+
+    @Query("select f from Follow f join fetch f.fromMember where f.toMember = :toMember")
+    List<Follow> findByToMember(@Param("toMember") Member toMember);
 }
