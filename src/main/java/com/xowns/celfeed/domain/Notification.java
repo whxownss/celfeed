@@ -53,4 +53,16 @@ public class Notification extends BaseCreateEntity {
     public static Notification create(Member receiver, Member actor, NotificationType type, NotificationTargetType targetType, Long targetId) {
         return new Notification(receiver, actor, type, targetType, targetId, false);
     }
+
+    public String createMessage() {
+        return "[" + actor.getNickname() + "]" + type.getMessage();
+    }
+
+    public String createTarget() {
+        return targetType.getTargetURI() + targetId;
+    }
+
+    public void read() {
+        isRead = true;
+    }
 }

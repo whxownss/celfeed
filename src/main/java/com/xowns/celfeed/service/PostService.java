@@ -1,7 +1,6 @@
 package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.domain.*;
-import com.xowns.celfeed.dto.NotificationBulkDTO;
 import com.xowns.celfeed.dto.post.PostDetailResponse;
 import com.xowns.celfeed.dto.post.PostRequest;
 import com.xowns.celfeed.dto.post.PostResponse;
@@ -9,7 +8,6 @@ import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.*;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -19,8 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,9 +30,7 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    private final NotificationRepository notificationRepository;
-    private final NotificationBulkRepository notificationBulkRepository;
-    private final FollowRepository followRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
@@ -44,21 +38,7 @@ public class PostService {
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
         log.info("==== 알림 생성 ====");
-        Member postMember = savedPost.getMember();
-        List<Follow> followers = followRepository.findByToMember(postMember);
-
-        List<NotificationBulkDTO> bulkList = followers.stream()
-                .map(follower ->
-                        new NotificationBulkDTO(
-                                follower.getFromMember().getId(),
-                                postMember.getId(),
-                                NotificationType.WRITE_POST.name(),
-                                NotificationTargetType.POST.name(),
-                                savedPost.getId()
-                        )
-                )
-                .toList();
-        notificationBulkRepository.batchInsert(bulkList);
+        notificationService.requestWritePost(savedPost.getId());
 
         return savedPost.getId();
     }
@@ -116,8 +96,7 @@ public class PostService {
         Like savedLike = likeRepository.save(Like.create(findPost, member));
 
         log.info("==== 알림 생성 ====");
-        Notification notification = Notification.create(findPost.getMember(), member, NotificationType.LIKE_POST, NotificationTargetType.POST, findPost.getId());
-        notificationRepository.save(notification);
+        notificationService.requestLikePost(findPost.getId(), member.getId());
 
         return savedLike.getId();
     }

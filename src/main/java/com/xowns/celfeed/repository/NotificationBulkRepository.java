@@ -1,6 +1,6 @@
 package com.xowns.celfeed.repository;
 
-import com.xowns.celfeed.dto.NotificationBulkDTO;
+import com.xowns.celfeed.dto.notification.NotificationBulkDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
