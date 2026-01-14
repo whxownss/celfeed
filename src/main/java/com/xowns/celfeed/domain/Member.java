@@ -8,7 +8,9 @@ import static lombok.AccessLevel.*;
 
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Getter @ToString
+@Getter
+@ToString(of = {"id", "nickname", "email", "role"})
+@EqualsAndHashCode(callSuper = false, of = {"nickname"})
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = IDENTITY)

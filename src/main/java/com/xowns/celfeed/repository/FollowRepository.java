@@ -20,6 +20,5 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Query("select f from Follow f join fetch f.fromMember where f.toMember = :toMember")
     Slice<Follow> findByToMember(@Param("toMember") Member toMember, Pageable pageable);
 
-    @Query("select f from Follow f join fetch f.fromMember where f.toMember = :toMember")
     List<Follow> findByToMember(@Param("toMember") Member toMember);
 }

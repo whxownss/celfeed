@@ -56,7 +56,8 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpSession session) {
+    public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpServletRequest request) {
+        HttpSession session = request.getSession(true);
         Long memberId = memberService.login(memberLoginRequest);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
