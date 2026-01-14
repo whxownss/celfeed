@@ -26,7 +26,6 @@ public class FollowService {
 
     @Transactional
     public Long followMember(Long loginId, Long targetMemberId) {
-
         if (loginId.equals(targetMemberId)) {
             throw new ApiException(ErrorCode.SELF_FOLLOW_NOT_ALLOWED);
         }
@@ -34,13 +33,12 @@ public class FollowService {
         Member fromMember = getMemberOrThrow(loginId);
         Member toMember = getMemberOrThrow(targetMemberId);
 
-        Optional<Follow> optionalFollow = followRepository.findByFromMemberAndToMember(fromMember, toMember);
-        if (optionalFollow.isPresent()) {
-            return optionalFollow.get().getId();
-        }
-
-        Follow savedFollow = followRepository.save(Follow.create(fromMember, toMember));
-        return savedFollow.getId();
+        return followRepository.findByFromMemberAndToMember(fromMember, toMember)
+                .map(Follow::getId)
+                .orElseGet(() -> {
+                    Follow follow = Follow.create(fromMember, toMember);
+                    return followRepository.save(follow).getId();
+                });
     }
 
     @Transactional

@@ -37,7 +37,7 @@ public class NotificationService {
         if (post == null) return;
 
         Member receiver = post.getMember();
-        if (actor == receiver) return;
+        if (actor.equals(receiver)) return;
 
         createNotification(receiver, actor, NotificationType.LIKE_POST, NotificationTargetType.POST, post.getId());
     }
@@ -78,11 +78,10 @@ public class NotificationService {
     }
 
     public SliceDTO<NotificationResponse> findAll(Long loginId, Pageable pageable) {
-        Member receiver = memberRepository.findById(loginId)
-                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+        Member receiver = getMemberOrThrow(loginId);
 
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                Sort.by("createdAt").descending());
+                                                    Sort.by("createdAt").descending());
         Slice<NotificationResponse> notifications = notificationRepository.findAllByReceiver(receiver, pageRequest)
                 .map(NotificationResponse::of);
 
@@ -91,25 +90,25 @@ public class NotificationService {
 
     @Transactional
     public void readNotification(Long loginId, Long notificationId) {
-        Member loginMember = memberRepository.findById(loginId)
-                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+        Member loginMember = getMemberOrThrow(loginId);
 
         notificationRepository.findById(notificationId)
-                .ifPresent(notification -> {
-                    if (notification.getReceiver() != loginMember) return;
-                    notification.read();
-                });
+                .filter(notification -> loginMember.equals(notification.getReceiver()))
+                .ifPresent(Notification::read);
     }
 
     @Transactional
     public void deleteNotification(Long loginId, Long notificationId) {
-        Member loginMember = memberRepository.findById(loginId)
-                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+        Member loginMember = getMemberOrThrow(loginId);
 
         notificationRepository.findById(notificationId)
-                .ifPresent(notification -> {
-                    if (notification.getReceiver() != loginMember) return;
-                    notificationRepository.delete(notification);
-                });
+                .filter(notification ->  loginMember.equals(notification.getReceiver()))
+                .ifPresent(notificationRepository::delete);
+    }
+
+    // ====
+    private Member getMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

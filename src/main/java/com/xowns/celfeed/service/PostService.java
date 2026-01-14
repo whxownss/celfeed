@@ -43,11 +43,6 @@ public class PostService {
         return savedPost.getId();
     }
 
-    public PostResponse findOne(Long postId) {
-        Post findPost = getPostOrThrow(postId);
-        return PostResponse.of(findPost);
-    }
-
     public PostDetailResponse findOneDetail(Long loginId, Long postId) {
         return postQueryRepository.findByDetail(loginId, postId, false)
                 .orElseThrow(() -> new ApiException(ErrorCode.POST_NOT_FOUND));
@@ -72,15 +67,20 @@ public class PostService {
     public SliceDTO<PostResponse> findAll(Long memberId, Pageable pageable) {
         Member member = getMemberOrThrow(memberId);
 
-        if (pageable.getSort().isUnsorted()) {
-            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                    Sort.by("createdAt").descending());
-        }
-
-        Slice<PostResponse> posts = postRepository.findAllByMember(member, false, pageable)
+        Slice<PostResponse> posts = postRepository.findAllByMember(member, false, applyDefaultSort(pageable))
                 .map(PostResponse::of);
 
         return SliceDTO.of(posts);
+    }
+
+    private Pageable applyDefaultSort(Pageable pageable) {
+        return pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("createdAt").descending()
+                );
     }
 
     @Transactional
@@ -88,17 +88,16 @@ public class PostService {
         Member member = getMemberOrThrow(loginId);
         Post findPost = getPostOrThrow(postId);
 
-        Optional<Like> optionalLike = likeRepository.findByPostAndMember(findPost, member);
-        if (optionalLike.isPresent()) {
-            return optionalLike.get().getId();
-        }
+         return likeRepository.findByPostAndMember(findPost, member)
+                 .map(Like::getId)
+                 .orElseGet(() -> {
+                     Like savedLike = likeRepository.save(Like.create(findPost, member));
 
-        Like savedLike = likeRepository.save(Like.create(findPost, member));
+                     log.info("==== 알림 생성 ====");
+                     notificationService.requestLikePost(findPost.getId(), member.getId());
 
-        log.info("==== 알림 생성 ====");
-        notificationService.requestLikePost(findPost.getId(), member.getId());
-
-        return savedLike.getId();
+                     return savedLike.getId();
+                 });
     }
 
     @Transactional
@@ -117,7 +116,7 @@ public class PostService {
     }
 
     private Post getPostOrThrow(Long postId) {
-        return postRepository.findById(postId, false)
+        return postRepository.findByIdAndIsDeleted(postId, false)
                 .orElseThrow(() -> new ApiException(ErrorCode.POST_NOT_FOUND));
     }
 

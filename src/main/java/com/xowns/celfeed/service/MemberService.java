@@ -55,10 +55,13 @@ public class MemberService {
     }
 
     public SliceDTO<MemberResponse> findAllByNickname(String nickname, Pageable pageable) {
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("nickname").ascending());
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                                    Sort.by("nickname").ascending());
 
-        Slice<MemberResponse> members = memberRepository.findByNicknameStartingWithAndRole(nickname, MemberRole.CELEB, pageable)
-                                                    .map(MemberResponse::of);
+        Slice<MemberResponse> members =
+                memberRepository.findByNicknameStartingWithAndRole(nickname, MemberRole.CELEB, pageable)
+                                .map(MemberResponse::of);
+
         return SliceDTO.of(members);
     }
 
