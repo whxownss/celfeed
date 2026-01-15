@@ -18,5 +18,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByIdAndMember(Long postId, Member member);
 
     @Query("select p from Post p join fetch p.member where p.member = :member and p.isDeleted = :isDeleted")
-    Slice<Post> findAllByMember(@Param("member") Member member, @Param("isDeleted") boolean isDeleted, Pageable pageable);
+    Slice<Post> findByMember(@Param("member") Member member, @Param("isDeleted") boolean isDeleted, Pageable pageable);
 }

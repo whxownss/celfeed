@@ -44,7 +44,6 @@ public class TestDataInit {
                     receiver,
                     actor,
                     NotificationType.LIKE_POST,
-                    NotificationTargetType.POST,
                     post.getId()
             );
             notificationRepository.save(notification);
@@ -63,7 +62,6 @@ public class TestDataInit {
                     receiver,
                     actor,
                     NotificationType.WRITE_POST,
-                    NotificationTargetType.POST,
                     post2.getId()
             );
             notificationRepository.save(notification);
