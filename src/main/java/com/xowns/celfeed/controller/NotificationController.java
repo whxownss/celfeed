@@ -7,9 +7,12 @@ import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,5 +36,16 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<Void>> deleteNotification(@Login Long loginId, @PathVariable Long notificationId) {
         notificationService.deleteNotification(loginId, notificationId);
         return ResponseEntityUtils.ok("알림 삭제");
+    }
+
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
+                                String lastEventId, @Login Long loginId) {
+
+
+        SseEmitter emitter = notificationService.subscribe(loginId, lastEventId);
+
+
+        return emitter;
     }
 }

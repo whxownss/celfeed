@@ -38,7 +38,7 @@ public class PostService {
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
         log.info("==== 알림 생성 ====");
-        notificationService.requestWritePost(savedPost.getId());
+        notificationService.requestWritePostNotification(savedPost.getId());
 
         return savedPost.getId();
     }
@@ -67,7 +67,7 @@ public class PostService {
     public SliceDTO<PostResponse> findAll(Long memberId, Pageable pageable) {
         Member member = getMemberOrThrow(memberId);
 
-        Slice<PostResponse> posts = postRepository.findAllByMember(member, false, applyDefaultSort(pageable))
+        Slice<PostResponse> posts = postRepository.findByMember(member, false, applyDefaultSort(pageable))
                 .map(PostResponse::of);
 
         return SliceDTO.of(posts);
@@ -94,7 +94,7 @@ public class PostService {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
 
                      log.info("==== 알림 생성 ====");
-                     notificationService.requestLikePost(findPost.getId(), member.getId());
+                     notificationService.requestLikePostNotification(findPost.getId(), member.getId());
 
                      return savedLike.getId();
                  });
