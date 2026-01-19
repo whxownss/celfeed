@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootApplication
 public class CelfeedApplication {
@@ -14,8 +15,21 @@ public class CelfeedApplication {
 	}
 
 	@Bean
-	@Profile("develop")
-	public TestDataInit testDataInit(MemberRepository memberRepository, PostRepository postRepository, LikeRepository likeRepository, FollowRepository followRepository, NotificationRepository notificationRepository) {
-		return new TestDataInit(memberRepository, postRepository, likeRepository, followRepository, notificationRepository);
+	@Profile("dev")
+	public TestDataInit testDataInit(MemberRepository memberRepository,
+									 PostRepository postRepository,
+									 LikeRepository likeRepository,
+									 FollowRepository followRepository,
+									 NotificationRepository notificationRepository,
+									 JdbcTemplate jdbcTemplate) {
+
+		return new TestDataInit(
+				memberRepository,
+				postRepository,
+				likeRepository,
+				followRepository,
+				notificationRepository,
+				jdbcTemplate
+		);
 	}
 }

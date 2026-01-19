@@ -1,4 +1,4 @@
-package com.xowns.celfeed.controller;
+package com.xowns.celfeed.repository;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
