@@ -1,6 +1,6 @@
 package com.xowns.celfeed.service;
 
-import com.xowns.celfeed.controller.EmitterRepository;
+import com.xowns.celfeed.repository.EmitterRepository;
 import com.xowns.celfeed.domain.*;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.dto.notification.NotificationBulkDTO;
@@ -9,6 +9,7 @@ import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -20,7 +21,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -156,9 +156,7 @@ public class NotificationService {
     }
 
     private void sendNotifications(List<Notification> sendData) {
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         sendData.forEach(data -> sendNotification(data.getReceiver().getId(), NotificationResponse.of(data)));
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     }
 
     private void sendToClient(SseEmitter emitter, String emitterId, Object data) {

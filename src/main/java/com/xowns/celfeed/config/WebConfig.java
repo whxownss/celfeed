@@ -1,6 +1,7 @@
 package com.xowns.celfeed.config;
 
 import com.xowns.celfeed.common.argumentresolver.LoginMemberArgumentResolver;
+import com.xowns.celfeed.common.interceptor.LogInterceptor;
 import com.xowns.celfeed.common.interceptor.LoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -19,12 +20,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginCheckInterceptor())
+        registry.addInterceptor(new LogInterceptor())
                 .order(1)
-                .addPathPatterns("/api/**")
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/*.ico", "/error");
+
+        registry.addInterceptor(new LoginCheckInterceptor())
+                .order(2)
+                .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/", "/css/**", "/*.ico", "/error",
-                        "/api/members/login", "/api/members/logout"
+                        "/api/members/login", "/api/members/logout",
+                        "/internal/**"
                 );
     }
 }

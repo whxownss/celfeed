@@ -42,10 +42,6 @@ public class NotificationController {
     public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
                                 String lastEventId, @Login Long loginId) {
 
-
-        SseEmitter emitter = notificationService.subscribe(loginId, lastEventId);
-
-
-        return emitter;
+        return notificationService.subscribe(1L, lastEventId);
     }
 }
