@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -58,10 +60,12 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
+    @Async
     @Transactional
     public void requestWritePostNotification(Long postId) {
+        log.info("@@@@@@@@@ 들어옴");
         Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) return;
+        if (post != null) throw new IllegalStateException("예외");
 
         Member postMember = post.getMember();
         List<Follow> followers = followRepository.findByToMember(postMember);

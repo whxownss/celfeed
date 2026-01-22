@@ -27,15 +27,14 @@ spring:
       repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
         enabled: false
   session:
-#    store-type: redis 없어도 되네?
     redis:
-      namespace: celfeed:session # 왜 안바뀌지?
+      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
+#    store-type: redis 없어도 되네?
 
 logging.level:
   xowns.celfeed: info
   org.hibernate.SQL: debug
   org.springframework.transaction.interceptor: TRACE
-  org.springframework.session: DEBUG
   org.springframework.data.redis: DEBUG
 
 management:
