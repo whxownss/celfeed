@@ -12,10 +12,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
@@ -57,8 +59,9 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpServletRequest request) {
-        HttpSession session = request.getSession(true);
         Long memberId = memberService.login(memberLoginRequest);
+
+        HttpSession session = request.getSession(true);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
         return ResponseEntityUtils.ok("로그인 성공");

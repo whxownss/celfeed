@@ -35,6 +35,7 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
 
+    @Transactional
     public void requestLikePostNotification(Long postId, Long actorId) {
         Member actor = memberRepository.findById(actorId).orElse(null);
         if (actor == null) return;
@@ -51,13 +52,13 @@ public class NotificationService {
         sendNotification(receiver.getId(), NotificationResponse.of(savedNotification));
     }
 
-    @Transactional
     private Notification createNotification(Member receiver, Member actor, NotificationType type, Long targetId) {
 
         Notification notification = Notification.create(receiver, actor, type, targetId);
         return notificationRepository.save(notification);
     }
 
+    @Transactional
     public void requestWritePostNotification(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) return;
@@ -84,7 +85,6 @@ public class NotificationService {
         sendNotifications(sendData);
     }
 
-    @Transactional
     private void createNotifications(List<NotificationBulkDTO> bulkList) {
         notificationBulkRepository.batchInsert(bulkList);
     }
