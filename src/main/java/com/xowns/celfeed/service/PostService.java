@@ -8,7 +8,6 @@ import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.*;
-import com.xowns.celfeed.service.notificationsender.NotificationSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Profile("dev")
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -33,14 +31,14 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    private final NotificationSender notificationSender;
+    private final NotificationService notificationService;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-        notificationSender.sendWritePost(savedPost.getId());
+        notificationService.requestWritePostNotification(savedPost.getId());
 
         return savedPost.getId();
     }
@@ -94,7 +92,7 @@ public class PostService {
                  .map(Like::getId)
                  .orElseGet(() -> {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
-                     notificationSender.sendLikePost(findPost.getId(), member.getId());
+                     notificationService.requestLikePostNotification(findPost.getId(), member.getId());
 
                      return savedLike.getId();
                  });

@@ -19,10 +19,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: root
+      repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
+        enabled: false
+  session:
+#    store-type: redis 없어도 되네?
+    redis:
+      namespace: celfeed:session # 왜 안바뀌지?
 
 logging.level:
   xowns.celfeed: info
   org.hibernate.SQL: debug
+  org.springframework.transaction.interceptor: TRACE
+  org.springframework.session: DEBUG
+  org.springframework.data.redis: DEBUG
 
 management:
   info:
