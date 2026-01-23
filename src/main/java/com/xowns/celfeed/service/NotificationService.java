@@ -30,68 +30,7 @@ import java.util.Map;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final NotificationBulkRepository notificationBulkRepository;
-    private final EmitterRepository emitterRepository;
-
-    private final PostRepository postRepository;
     private final MemberRepository memberRepository;
-    private final FollowRepository followRepository;
-
-    @Transactional
-    public void requestLikePostNotification(Long postId, Long actorId) {
-        Member actor = memberRepository.findById(actorId).orElse(null);
-        if (actor == null) return;
-
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) return;
-
-        Member receiver = post.getMember();
-        if (actor.equals(receiver)) return;
-
-        Notification savedNotification =
-                createNotification(receiver, actor, NotificationType.LIKE_POST, post.getId());
-
-        sendNotification(receiver.getId(), NotificationResponse.of(savedNotification));
-    }
-
-    private Notification createNotification(Member receiver, Member actor, NotificationType type, Long targetId) {
-
-        Notification notification = Notification.create(receiver, actor, type, targetId);
-        return notificationRepository.save(notification);
-    }
-
-    @Async
-    @Transactional
-    public void requestWritePostNotification(Long postId) {
-        log.info("@@@@@@@@@ 들어옴");
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post != null) throw new IllegalStateException("예외");
-
-        Member postMember = post.getMember();
-        List<Follow> followers = followRepository.findByToMember(postMember);
-        if (followers.isEmpty()) return;
-
-        List<NotificationBulkDTO> bulkList = followers.stream()
-                .map(follower ->
-                        new NotificationBulkDTO(
-                                follower.getFromMember().getId(),
-                                postMember.getId(),
-                                NotificationType.WRITE_POST.name(),
-                                post.getId()
-                        )
-                ).toList();
-        createNotifications(bulkList);
-
-        // 10만건 기준 1442ms, (type, targetId)로 방금 저장한거만 가져오기
-        List<Notification> sendData =
-                notificationRepository.findByTypeAndTargetId(NotificationType.WRITE_POST, post.getId());
-
-        sendNotifications(sendData);
-    }
-
-    private void createNotifications(List<NotificationBulkDTO> bulkList) {
-        notificationBulkRepository.batchInsert(bulkList);
-    }
 
     public SliceDTO<NotificationResponse> findAll(Long loginId, Pageable pageable) {
         Member receiver = getMemberOrThrow(loginId);
@@ -126,53 +65,5 @@ public class NotificationService {
     private Member getMemberOrThrow(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
-    }
-
-    // ===============
-
-    private static final Long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
-
-    public SseEmitter subscribe(Long loginId, String lastEventId) {
-        String emitterId = loginId + "_" + System.currentTimeMillis();
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
-
-        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
-
-        sendToClient(emitter, emitterId, "알림 구독 성공");
-
-        if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(loginId));
-            events.entrySet().stream()
-                    .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                    .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
-        }
-
-        return emitter;
-    }
-
-    private void sendNotification(Long memberId, NotificationResponse data) {
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(memberId));
-        emitters.forEach((emitterId, emitter) -> {
-            emitterRepository.saveEventCache(emitterId, data);
-            sendToClient(emitter, emitterId, data);
-        });
-    }
-
-    private void sendNotifications(List<Notification> sendData) {
-        sendData.forEach(data -> sendNotification(data.getReceiver().getId(), NotificationResponse.of(data)));
-    }
-
-    private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
-        try {
-            emitter.send(
-                    SseEmitter.event()
-                            .id(emitterId)
-                            .data(data)
-            );
-        } catch (IOException e) {
-            emitterRepository.deleteById(emitterId);
-            emitter.complete();
-        }
     }
 }
