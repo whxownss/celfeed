@@ -12,16 +12,18 @@ public class NotificationResponse {
     private String message;
     private String target;
     private boolean isRead;
+    private Long receiverId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    public NotificationResponse(Long id, String message, String target, boolean isRead, LocalDateTime createdAt) {
+    private NotificationResponse(Long id, String message, String target, boolean isRead, LocalDateTime createdAt, Long receiverId) {
         this.id = id;
         this.message = message;
         this.target = target;
         this.isRead = isRead;
         this.createdAt = createdAt;
+        this.receiverId = receiverId;
     }
 
     public static NotificationResponse of(Notification notification) {
@@ -30,7 +32,8 @@ public class NotificationResponse {
                 notification.createMessage(),
                 notification.createTarget(),
                 notification.isRead(),
-                notification.getCreatedAt()
+                notification.getCreatedAt(),
+                notification.getReceiver().getId()
         );
     }
 }

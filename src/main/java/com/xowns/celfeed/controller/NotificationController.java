@@ -39,11 +39,4 @@ public class NotificationController {
         notificationService.deleteNotification(loginId, notificationId);
         return ResponseEntityUtils.ok("알림 삭제");
     }
-
-    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
-                                String lastEventId, @Login Long loginId) {
-
-        return notificationService.subscribe(1L, lastEventId);
-    }
 }
