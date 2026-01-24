@@ -1,5 +1,6 @@
 package com.xowns.celfeed.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class EmitterRepository {
 
@@ -18,8 +20,8 @@ public class EmitterRepository {
         return emitter;
     }
 
-    public void saveEventCache(String emitterId, Object event) {
-        eventCache.put(emitterId, event);
+    public void saveEvent(String eventId, Object event) {
+        eventCache.put(eventId, event);
     }
 
     public Map<String, SseEmitter> findAllEmitterStartWithByMemberId(String memberId) {

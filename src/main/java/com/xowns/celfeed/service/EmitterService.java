@@ -3,13 +3,16 @@ package com.xowns.celfeed.service;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.repository.EmitterRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmitterService {
@@ -25,15 +28,15 @@ public class EmitterService {
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
 
-        sendToClient(emitter, emitterId, "알림 구독 성공");
+        sendToClient(emitter, emitterId, emitterId, "알림 구독 성공");
 
         if (!lastEventId.isEmpty()) {
             Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(loginId));
-            events.entrySet().stream()
-                    .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                    .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
+            events.keySet().stream()
+                    .filter(eventId -> lastEventId.compareTo(eventId) < 0)
+                    .sorted(Comparator.reverseOrder())
+                    .forEach(eventId -> sendToClient(emitter, eventId, eventId, events.get(eventId)));
         }
-
         return emitter;
     }
 
@@ -42,20 +45,20 @@ public class EmitterService {
     }
 
     public void sendNotification(NotificationResponse data) {
+        String eventId = data.getReceiverId() + "_" + System.currentTimeMillis();
+        emitterRepository.saveEvent(eventId, data); // 계속 쌓이는데 괜찮나?
+
         Map<String, SseEmitter> emitters =
                 emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(data.getReceiverId()));
 
-        emitters.forEach((emitterId, emitter) -> {
-            emitterRepository.saveEventCache(emitterId, data);
-            sendToClient(emitter, emitterId, data);
-        });
+        emitters.forEach((emitterId, emitter) -> sendToClient(emitter, emitterId, eventId, data));
     }
 
-    private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
+    private void sendToClient(SseEmitter emitter, String emitterId, String eventId, Object data) {
         try {
             emitter.send(
                     SseEmitter.event()
-                            .id(emitterId)
+                            .id(eventId)
                             .data(data)
             );
         } catch (IOException e) {
