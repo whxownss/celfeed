@@ -1,58 +1,30 @@
-package com.xowns.celfeed.service.event;
+package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.domain.*;
 import com.xowns.celfeed.dto.notification.NotificationBulkDTO;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.repository.*;
-import com.xowns.celfeed.service.EmitterService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
-public class NotificationListener {
+public class NotificationCommandService {
 
-    private final MemberRepository memberRepository;
-    private final FollowRepository followRepository;
-    private final PostRepository postRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationBulkRepository notificationBulkRepository;
+    private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
+    private final FollowRepository followRepository;
     private final EmitterService emitterService;
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void requestLikePostNotification(LikePostEvent event) {
-        Member actor = memberRepository.findById(event.getActorId()).orElse(null);
-        if (actor == null) return;
-
-        Post post = postRepository.findById(event.getPostId()).orElse(null);
-        if (post == null) return;
-
-        Member receiver = post.getMember();
-        if (actor.equals(receiver)) return;
-
-        Notification savedNotification = notificationRepository.save(
-                Notification.create(receiver, actor, NotificationType.LIKE_POST, post.getId())
-        );
-
-        emitterService.sendNotification(NotificationResponse.of(savedNotification));
-    }
-
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void requestWritePostNotification(WritePostEvent event) {
-        Post post = postRepository.findById(event.getPostId()).orElse(null);
+    @Transactional
+    public void saveWritePostNotification(Long postId) {
+        Post post = postRepository.findById(postId).orElse(null);
         if (post == null) return;
 
         Member postMember = post.getMember();
@@ -76,5 +48,23 @@ public class NotificationListener {
                         .stream().map(NotificationResponse::of).toList();
 
         emitterService.sendNotifications(sendData);
+    }
+
+    @Transactional
+    public void saveLikePostNotification(Long actorId, Long postId) {
+        Member actor = memberRepository.findById(actorId).orElse(null);
+        if (actor == null) return;
+
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) return;
+
+        Member receiver = post.getMember();
+        if (actor.equals(receiver)) return;
+
+        Notification savedNotification = notificationRepository.save(
+                Notification.create(receiver, actor, NotificationType.LIKE_POST, post.getId())
+        );
+
+        emitterService.sendNotification(NotificationResponse.of(savedNotification));
     }
 }
