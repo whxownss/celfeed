@@ -16,7 +16,7 @@ public class SyncNotificationSender implements NotificationSender {
     }
 
     @Override
-    public void sendLikePost(Long actorId, Long postId) {
-        notificationCommandService.saveLikePostNotification(actorId, postId);
+    public void sendLikePost(Long likeId) {
+        notificationCommandService.saveLikePostNotification(likeId);
     }
 }

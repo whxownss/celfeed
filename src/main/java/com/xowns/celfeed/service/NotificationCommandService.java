@@ -20,6 +20,7 @@ public class NotificationCommandService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
+    private final LikeRepository likeRepository;
     private final EmitterService emitterService;
 
     @Transactional
@@ -51,18 +52,16 @@ public class NotificationCommandService {
     }
 
     @Transactional
-    public void saveLikePostNotification(Long actorId, Long postId) {
-        Member actor = memberRepository.findById(actorId).orElse(null);
-        if (actor == null) return;
+    public void saveLikePostNotification(Long likeId) {
+        Like like = likeRepository.findGraphById(likeId).orElse(null);
+        if (like == null) return;
 
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) return;
-
-        Member receiver = post.getMember();
+        Member receiver = like.getPost().getMember();
+        Member actor = like.getMember();
         if (actor.equals(receiver)) return;
 
         Notification savedNotification = notificationRepository.save(
-                Notification.create(receiver, actor, NotificationType.LIKE_POST, post.getId())
+                Notification.create(receiver, actor, NotificationType.LIKE_POST, like.getPost().getId())
         );
 
         emitterService.sendNotification(NotificationResponse.of(savedNotification));
