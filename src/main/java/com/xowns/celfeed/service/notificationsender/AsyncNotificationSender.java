@@ -22,8 +22,8 @@ public class AsyncNotificationSender implements NotificationSender {
     }
 
     @Override
-    public void sendLikePost(Long actorId, Long postId) {
-        eventPublisher.publishEvent(new LikePostEvent(actorId, postId));
+    public void sendLikePost(Long likeId) {
+        eventPublisher.publishEvent(new LikePostEvent(likeId));
     }
 
     @Component
@@ -43,7 +43,7 @@ public class AsyncNotificationSender implements NotificationSender {
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
         void handleLikePost(LikePostEvent event) {
-            notificationCommandService.saveLikePostNotification(event.actorId, event.postId);
+            notificationCommandService.saveLikePostNotification(event.likeId);
         }
     }
 
@@ -54,7 +54,6 @@ public class AsyncNotificationSender implements NotificationSender {
 
     @RequiredArgsConstructor
     static class LikePostEvent {
-        private final Long actorId;
-        private final Long postId;
+        private final Long likeId;
     }
 }

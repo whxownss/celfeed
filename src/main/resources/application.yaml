@@ -28,14 +28,18 @@ spring:
         enabled: false
   session:
     redis:
-      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
 #    store-type: redis 없어도 되네?
+      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
+  kafka:
+    bootstrap-servers: localhost:29092
 
 logging.level:
-  xowns.celfeed: info
+  com.xowns.celfeed: info
   org.hibernate.SQL: debug
   org.springframework.transaction.interceptor: TRACE
   org.springframework.data.redis: DEBUG
+  org.apache.kafka: INFO
+  org.springframework.kafka: INFO
 
 management:
   info:

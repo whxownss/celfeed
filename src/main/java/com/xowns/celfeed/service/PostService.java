@@ -90,7 +90,7 @@ public class PostService {
                  .map(Like::getId)
                  .orElseGet(() -> {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
-                     notificationSender.sendLikePost(findPost.getId(), member.getId());
+                     notificationSender.sendLikePost(savedLike.getId());
 
                      return savedLike.getId();
                  });
