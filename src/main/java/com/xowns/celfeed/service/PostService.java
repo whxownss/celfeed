@@ -8,12 +8,9 @@ import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.*;
-import com.xowns.celfeed.service.event.LikePostEvent;
-import com.xowns.celfeed.service.event.NotificationListener;
-import com.xowns.celfeed.service.event.WritePostEvent;
+import com.xowns.celfeed.service.notificationsender.NotificationSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,16 +29,14 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    private final NotificationListener notificationListener;
+    private final NotificationSender notificationSender;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-        eventPublisher.publishEvent(new WritePostEvent(savedPost.getId()));
-        //notificationListener.requestWritePostNotification(new WritePostEvent(savedPost.getId()));
+        notificationSender.sendWritePost(savedPost.getId());
 
         return savedPost.getId();
     }
@@ -95,7 +90,7 @@ public class PostService {
                  .map(Like::getId)
                  .orElseGet(() -> {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
-                     eventPublisher.publishEvent(new LikePostEvent(findPost.getId(), member.getId()));
+                     notificationSender.sendLikePost(findPost.getId(), member.getId());
 
                      return savedLike.getId();
                  });
