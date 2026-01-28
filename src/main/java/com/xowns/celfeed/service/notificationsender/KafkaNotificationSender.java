@@ -1,22 +1,28 @@
 package com.xowns.celfeed.service.notificationsender;
 
+import com.xowns.celfeed.service.NotificationCommandService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-//@Component
+@Slf4j
+@Component
 @RequiredArgsConstructor
-public class KafkaNotificationSender implements NotificationSender {
+public class KafkaNotificationSender  {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final NotificationCommandService notificationCommandService;
 
-    @Override
+    //@KafkaListener(topics = KafkaConst.WRITE_POST, groupId = KafkaConst.WRITE_POST)
     public void sendWritePost(Long postId) {
-
+        log.info("메시지 수신={}", postId);
+        notificationCommandService.saveWritePostNotification(postId);
     }
 
-    @Override
+    //@KafkaListener(topics = KafkaConst.LIKE_POST, groupId = KafkaConst.LIKE_POST)
     public void sendLikePost(Long likeId) {
-
+        log.info("메시지 수신={}", likeId);
+        notificationCommandService.saveLikePostNotification(likeId);
     }
 }

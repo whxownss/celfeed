@@ -1,6 +1,6 @@
 package com.xowns.celfeed.common.interceptor;
 
-import com.xowns.celfeed.common.SessionConst;
+import com.xowns.celfeed.common.consts.SessionConst;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;

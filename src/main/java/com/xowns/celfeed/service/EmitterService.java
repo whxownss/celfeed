@@ -4,6 +4,7 @@ import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.repository.EmitterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -40,10 +41,12 @@ public class EmitterService {
         return emitter;
     }
 
+    @Async
     public void sendNotifications(List<NotificationResponse> sendData) {
         sendData.forEach(this::sendNotification);
     }
 
+    @Async
     public void sendNotification(NotificationResponse data) {
         String eventId = data.getReceiverId() + "_" + System.currentTimeMillis();
         emitterRepository.saveEvent(eventId, data); // 계속 쌓이는데 괜찮나?

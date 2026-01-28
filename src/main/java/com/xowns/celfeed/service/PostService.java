@@ -1,5 +1,6 @@
 package com.xowns.celfeed.service;
 
+import com.xowns.celfeed.common.consts.KafkaTopicConst;
 import com.xowns.celfeed.domain.*;
 import com.xowns.celfeed.dto.post.PostDetailResponse;
 import com.xowns.celfeed.dto.post.PostRequest;
@@ -15,8 +16,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @Slf4j
@@ -29,14 +33,23 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    private final NotificationSender notificationSender;
+    //private final NotificationSender notificationSender;
+    private final KafkaTemplate<String, Long> kafkaTemplate;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-        notificationSender.sendWritePost(savedPost.getId());
+        //notificationSender.sendWritePost(savedPost.getId());
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        kafkaTemplate.send(KafkaTopicConst.WRITE_POST, savedPost.getId());
+                    }
+                }
+        );
 
         return savedPost.getId();
     }
@@ -90,7 +103,16 @@ public class PostService {
                  .map(Like::getId)
                  .orElseGet(() -> {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
-                     notificationSender.sendLikePost(savedLike.getId());
+
+                     //notificationSender.sendLikePost(savedLike.getId());
+                     TransactionSynchronizationManager.registerSynchronization(
+                             new TransactionSynchronization() {
+                                 @Override
+                                 public void afterCommit() {
+                                     kafkaTemplate.send(KafkaTopicConst.LIKE_POST, savedLike.getId());
+                                 }
+                             }
+                     );
 
                      return savedLike.getId();
                  });
