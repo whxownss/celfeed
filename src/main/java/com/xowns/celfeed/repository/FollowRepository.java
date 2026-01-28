@@ -21,4 +21,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     Slice<Follow> findByToMember(@Param("toMember") Member toMember, Pageable pageable);
 
     List<Follow> findByToMember(@Param("toMember") Member toMember);
+
+    @Query("select f.fromMember.id from Follow f where f.toMember = :toMember")
+    List<Long> findFollowerIdsByToMember(@Param("toMember") Member toMember, Pageable pageable);
 }
+
+

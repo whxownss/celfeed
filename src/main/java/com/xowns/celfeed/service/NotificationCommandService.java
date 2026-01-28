@@ -17,7 +17,6 @@ public class NotificationCommandService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationBulkRepository notificationBulkRepository;
-    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
