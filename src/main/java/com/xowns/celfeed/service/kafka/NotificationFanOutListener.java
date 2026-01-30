@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationFanOutListener {
 
-    private final int BATCH_SIZE = 1000;
+    private final int BATCH_SIZE = 100_000;
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final KafkaTemplate<String, WritePostNotiMessage> writePostNotiKafkaTemplate;

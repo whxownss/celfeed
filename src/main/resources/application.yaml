@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/celfeed?rewriteBatchedStatements=true&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+    url: jdbc:mysql://localhost:3306/celfeed?rewriteBatchedStatements=true #&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
