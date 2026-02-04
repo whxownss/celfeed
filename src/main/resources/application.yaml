@@ -14,8 +14,8 @@ spring:
       include-binding-errors: never
   jpa:
     open-in-view: false
-#    hibernate:
-#      ddl-auto: create
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
