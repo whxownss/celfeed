@@ -18,7 +18,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("select n from Notification n join fetch n.actor where n.receiver = :receiver")
     Slice<Notification> findByReceiver(@Param("receiver") Member receiver, Pageable pageable);
 
-    @Query("select n from Notification n join fetch n.actor where n.receiver = :receiver and n.createdAt >= :createdAt")
+    @Query("select n from Notification n join fetch n.actor where n.receiver = :receiver and n.createdAt <= current_timestamp and n.createdAt >= :createdAt")
     Slice<Notification> findByReceiver(@Param("receiver") Member receiver,@Param("createdAt")  LocalDateTime createdAt, Pageable pageable);
 
     @EntityGraph(attributePaths = {"actor"})
