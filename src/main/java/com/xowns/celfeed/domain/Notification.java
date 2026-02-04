@@ -1,13 +1,13 @@
 package com.xowns.celfeed.domain;
 
 import com.xowns.celfeed.common.converter.BooleanToYNConverter;
+import com.xowns.celfeed.common.snowflake.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import static jakarta.persistence.FetchType.*;
-import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter @ToString
 public class Notification extends BaseCreateEntity {
 
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id @SnowflakeId
     private Long id;
 
     @ManyToOne(fetch = LAZY)
