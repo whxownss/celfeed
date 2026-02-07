@@ -5,7 +5,7 @@ import com.xowns.celfeed.controller.response.ApiResponse;
 import com.xowns.celfeed.controller.response.ResponseEntityUtils;
 import com.xowns.celfeed.dto.member.MemberResponse;
 import com.xowns.celfeed.dto.SliceDTO;
-import com.xowns.celfeed.service.FollowService;
+import com.xowns.celfeed.service.basic.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

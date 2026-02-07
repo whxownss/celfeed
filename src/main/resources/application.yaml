@@ -1,9 +1,40 @@
+celfeed:
+  datasource:
+    notification:
+      shards:
+        - shard_no: 0
+          name: notification-shard-0
+          username: root
+          password: root
+          url: jdbc:mysql://localhost:3307/notification?rewriteBatchedStatements=true
+        - shard_no: 1
+          name: notification-shard-1
+          username: root
+          password: root
+          url: jdbc:mysql://localhost:3308/notification?rewriteBatchedStatements=true
+  sharding:
+    notification:
+      strategy: MODULAR
+      mod: 2
+      sharding_key: receiver_id
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          auto: validate
+        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/celfeed?rewriteBatchedStatements=true #&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 10
+    minimum-idle: 10
   web:
     error:
       whitelabel:
@@ -14,11 +45,15 @@ spring:
       include-binding-errors: never
   jpa:
     open-in-view: false
-    hibernate:
-      ddl-auto: validate
+#    hibernate:
+#      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: validate
+        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   data:
     redis:
       host: localhost
@@ -34,12 +69,12 @@ spring:
     bootstrap-servers: localhost:29092
 
 logging.level:
-  com.xowns.celfeed: info
+#  com.xowns.celfeed: info
   org.hibernate.SQL: debug
   org.springframework.transaction.interceptor: TRACE
-  org.springframework.data.redis: DEBUG
-  org.apache.kafka: INFO
-  org.springframework.kafka: INFO
+#  org.springframework.data.redis: DEBUG
+#  org.apache.kafka: INFO
+#  org.springframework.kafka: INFO
 
 management:
   info:

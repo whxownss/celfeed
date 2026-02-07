@@ -1,6 +1,6 @@
 package com.xowns.celfeed.config.kafka;
 
-import com.xowns.celfeed.service.kafka.WritePostNotiMessage;
+import com.xowns.celfeed.service.notification.kafka.WritePostNotiMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;

@@ -2,7 +2,8 @@ package com.xowns.celfeed.service;
 
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
-import com.xowns.celfeed.repository.MemberRepository;
+import com.xowns.celfeed.repository.basic.MemberRepository;
+import com.xowns.celfeed.service.basic.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

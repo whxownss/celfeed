@@ -1,16 +1,18 @@
 package com.xowns.celfeed;
 
-import com.xowns.celfeed.domain.*;
-import com.xowns.celfeed.repository.*;
+import com.xowns.celfeed.domain.basic.*;
+import com.xowns.celfeed.domain.notification.Notification;
+import com.xowns.celfeed.domain.notification.NotificationType;
+import com.xowns.celfeed.repository.notification.NotificationRepository;
+import com.xowns.celfeed.repository.basic.FollowRepository;
+import com.xowns.celfeed.repository.basic.LikeRepository;
+import com.xowns.celfeed.repository.basic.MemberRepository;
+import com.xowns.celfeed.repository.basic.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class TestDataInit {
