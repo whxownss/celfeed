@@ -1,7 +1,7 @@
 package com.xowns.celfeed.controller;
 
 import com.xowns.celfeed.common.argumentresolver.Login;
-import com.xowns.celfeed.service.EmitterService;
+import com.xowns.celfeed.service.basic.EmitterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;

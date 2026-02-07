@@ -1,7 +1,7 @@
 package com.xowns.celfeed.dto.notification;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.xowns.celfeed.domain.Notification;
+import com.xowns.celfeed.domain.notification.Notification;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

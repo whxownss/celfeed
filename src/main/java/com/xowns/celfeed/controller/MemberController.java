@@ -7,7 +7,7 @@ import com.xowns.celfeed.dto.*;
 import com.xowns.celfeed.dto.member.MemberLoginRequest;
 import com.xowns.celfeed.dto.member.MemberRequest;
 import com.xowns.celfeed.dto.member.MemberResponse;
-import com.xowns.celfeed.service.MemberService;
+import com.xowns.celfeed.service.basic.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
