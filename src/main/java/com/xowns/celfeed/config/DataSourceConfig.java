@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 import javax.sql.DataSource;
@@ -52,5 +53,11 @@ public class DataSourceConfig {
         dataSource.setConnectionTimeout(3000);
 
         return dataSource;
+    }
+
+    @Qualifier("notification")
+    @Bean(defaultCandidate = false)
+    public JdbcTemplate notificationJdbcTemplate(@Qualifier("notification") DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }

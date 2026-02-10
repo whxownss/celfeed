@@ -20,13 +20,15 @@ public class Notification extends BaseCreateEntity {
     @Id @SnowflakeId
     private Long id;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private Member receiver;
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "receiver_id", nullable = false)
+//    private Member receiver;
+    private Long receiverId;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "actor_id", nullable = false)
-    private Member actor;
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "actor_id", nullable = false)
+//    private Member actor;
+    private Long actorId;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(20)", nullable = false)
@@ -39,20 +41,20 @@ public class Notification extends BaseCreateEntity {
     @Convert(converter = BooleanToYNConverter.class)
     private boolean isRead;
 
-    private Notification(Member receiver, Member actor, NotificationType type, Long targetId, boolean isRead) {
-        this.receiver = receiver;
-        this.actor = actor;
+    private Notification(Long receiverId, Long actorId, NotificationType type, Long targetId, boolean isRead) {
+        this.receiverId = receiverId;
+        this.actorId = actorId;
         this.type = type;
         this.targetId = targetId;
         this.isRead = isRead;
     }
 
-    public static Notification create(Member receiver, Member actor, NotificationType type, Long targetId) {
-        return new Notification(receiver, actor, type, targetId, false);
+    public static Notification create(Long receiverId, Long actorId, NotificationType type, Long targetId) {
+        return new Notification(receiverId, actorId, type, targetId, false);
     }
 
-    public String createMessage() {
-        return "[" + actor.getNickname() + "]" + type.getMessage();
+    public String createMessage(String actorNickname) {
+        return "[" + actorNickname + "]" + type.getMessage();
     }
 
     public String createTarget() {

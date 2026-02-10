@@ -44,8 +44,8 @@ public class TestDataInit {
         for (Long i = startFanId; i <= endFanId; i++) {
             Member actor = memberRepository.findById(i).get();
             Notification notification = Notification.create(
-                    receiver,
-                    actor,
+                    receiver.getId(),
+                    actor.getId(),
                     NotificationType.LIKE_POST,
                     post.getId()
             );
@@ -61,8 +61,8 @@ public class TestDataInit {
             postRepository.save(post2);
 
             Notification notification = Notification.create(
-                    receiver,
-                    actor,
+                    receiver.getId(),
+                    actor.getId(),
                     NotificationType.WRITE_POST,
                     post2.getId()
             );

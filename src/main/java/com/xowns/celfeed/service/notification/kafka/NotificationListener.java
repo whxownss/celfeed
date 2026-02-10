@@ -12,43 +12,53 @@ import com.xowns.celfeed.repository.basic.LikeRepository;
 import com.xowns.celfeed.repository.notification.NotificationBulkRepository;
 import com.xowns.celfeed.repository.notification.NotificationRepository;
 import com.xowns.celfeed.service.basic.EmitterService;
+import com.xowns.celfeed.service.notification.NotificationCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+@Profile("dev")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationListener {
 
-    private final NotificationRepository notificationRepository;
-    private final NotificationBulkRepository notificationBulkRepository;
+    private final NotificationCommandService notificationCommandService;
     private final LikeRepository likeRepository;
-    private final EmitterService emitterService;
 
     @KafkaListener(
             topics = KafkaTopicConst.NOTI_BATCH, concurrency = "3",
             containerFactory = "writePostNotiContainerFactory"
     )
     public void writePostNotificationListener(WritePostNotiMessage message) {
-        List<NotificationBulkDTO> bulkList = message.getFollowerIds().stream()
+        Map<Long, List<Long>> evenOddMap = message.getFollowerIds().stream()
+                .collect(Collectors.groupingBy(followerId -> followerId % 2));
+
+        evenOddMap.forEach((shardKey, ids) -> saveWritePostNotification(shardKey, ids, message));
+    }
+
+    private void saveWritePostNotification(Long shardKey, List<Long> ids, WritePostNotiMessage message) {
+        List<NotificationBulkDTO> bulkList = ids.stream()
                 .map(followerId ->
-                            new NotificationBulkDTO(
-                                    followerId,
-                                    message.getWriterId(),
-                                    NotificationType.WRITE_POST.name(),
-                                    message.getPostId()
-                            )
+                        new NotificationBulkDTO(
+                                followerId,
+                                message.getWriterId(),
+                                NotificationType.WRITE_POST.name(),
+                                message.getPostId()
+                        )
                 ).toList();
-        List<Long> generatedKeys = notificationBulkRepository.batchInsert2(bulkList);
 
-        List<NotificationResponse> sendData = notificationRepository.findByIdIn(generatedKeys)
-                .stream().map(NotificationResponse::of).toList();
-
-        emitterService.sendNotifications(sendData);
+        notificationCommandService.saveWritePostNotification(
+                shardKey,
+                bulkList,
+                message.getActorNickname()
+        );
     }
 
     @KafkaListener(topics = KafkaTopicConst.LIKE_POST, groupId = KafkaGroupConst.NOTI_LIKEPOST)
@@ -62,10 +72,11 @@ public class NotificationListener {
         Member actor = like.getMember();
         if (actor.equals(receiver)) return;
 
-        Notification savedNotification = notificationRepository.save(
-                Notification.create(receiver, actor, NotificationType.LIKE_POST, like.getPost().getId())
+        notificationCommandService.saveLikePostNotification(
+                receiver.getId(),
+                actor.getId(),
+                like.getPost().getId(),
+                actor.getNickname()
         );
-
-        emitterService.sendNotification(NotificationResponse.of(savedNotification));
     }
 }

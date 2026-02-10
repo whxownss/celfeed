@@ -1,13 +1,13 @@
 package com.xowns.celfeed.service.notification.notificationsender;
 
-import com.xowns.celfeed.service.notification.NotificationCommandService;
+import com.xowns.celfeed.service.notification.NotificationOldCommandService;
 import lombok.RequiredArgsConstructor;
 
 //@Component
 @RequiredArgsConstructor
 public class SyncNotificationSender implements NotificationSender {
 
-    private final NotificationCommandService notificationCommandService;
+    private final NotificationOldCommandService notificationCommandService;
 
     @Override
     public void sendWritePost(Long postId) {

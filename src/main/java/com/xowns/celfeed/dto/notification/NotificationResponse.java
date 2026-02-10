@@ -26,14 +26,14 @@ public class NotificationResponse {
         this.receiverId = receiverId;
     }
 
-    public static NotificationResponse of(Notification notification) {
+    public static NotificationResponse of(Notification notification, String actorNickname) {
         return new NotificationResponse(
                 notification.getId(),
-                notification.createMessage(),
+                notification.createMessage(actorNickname),
                 notification.createTarget(),
                 notification.isRead(),
                 notification.getCreatedAt(),
-                notification.getReceiver().getId()
+                notification.getReceiverId()
         );
     }
 }
