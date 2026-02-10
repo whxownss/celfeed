@@ -1,6 +1,6 @@
 package com.xowns.celfeed.service.notification.notificationsender;
 
-import com.xowns.celfeed.service.notification.NotificationCommandService;
+import com.xowns.celfeed.service.notification.NotificationOldCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaNotificationSender  {
 
-    private final NotificationCommandService notificationCommandService;
+    private final NotificationOldCommandService notificationCommandService;
 
     //@KafkaListener(topics = KafkaConst.WRITE_POST, groupId = KafkaConst.WRITE_POST)
     public void sendWritePost(Long postId) {

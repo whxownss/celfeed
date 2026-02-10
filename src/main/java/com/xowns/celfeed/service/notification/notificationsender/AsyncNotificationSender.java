@@ -1,6 +1,6 @@
 package com.xowns.celfeed.service.notification.notificationsender;
 
-import com.xowns.celfeed.service.notification.NotificationCommandService;
+import com.xowns.celfeed.service.notification.NotificationOldCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -30,7 +30,7 @@ public class AsyncNotificationSender implements NotificationSender {
     @RequiredArgsConstructor
     static class NotificationListener {
 
-        private final NotificationCommandService notificationCommandService;
+        private final NotificationOldCommandService notificationCommandService;
 
         @Async
         @Transactional(propagation = Propagation.REQUIRES_NEW)

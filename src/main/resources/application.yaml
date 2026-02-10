@@ -6,17 +6,17 @@ celfeed:
           name: notification-shard-0
           username: root
           password: root
-          url: jdbc:mysql://localhost:3307/notification?rewriteBatchedStatements=true
+          url: jdbc:mysql://localhost:3307/notification?rewriteBatchedStatements=true #&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
         - shard_no: 1
           name: notification-shard-1
           username: root
           password: root
-          url: jdbc:mysql://localhost:3308/notification?rewriteBatchedStatements=true
+          url: jdbc:mysql://localhost:3308/notification?rewriteBatchedStatements=true #&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
   sharding:
     notification:
       strategy: MODULAR
       mod: 2
-      sharding_key: receiver_id
+#      sharding_key: receiver_id
   jpa:
     properties:
       hibernate:

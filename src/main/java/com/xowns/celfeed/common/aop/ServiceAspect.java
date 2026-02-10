@@ -7,10 +7,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Aspect
+@Order(1) // 순서 유의
 public class ServiceAspect {
 
     @Pointcut("execution(public * com.xowns.celfeed.service.notification..Notification*Service.*(..))")

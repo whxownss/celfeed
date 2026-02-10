@@ -8,6 +8,7 @@ import com.xowns.celfeed.repository.basic.FollowRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Profile("dev")
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class NotificationFanOutListener {
     public void fanOutListener(Long postId) {
         log.info("메시지 수신={}", postId);
 
-        Post post = postRepository.findById(postId).orElse(null);
+        Post post = postRepository.findGraphById(postId).orElse(null);
         if (post == null) return;
 
         Member postWriter = post.getMember();
@@ -48,7 +50,7 @@ public class NotificationFanOutListener {
             // send()
             writePostNotiKafkaTemplate.send(
                     KafkaTopicConst.NOTI_BATCH,
-                    new WritePostNotiMessage(followerIds, postWriter.getId(), postId)
+                    new WritePostNotiMessage(followerIds, postWriter.getId(), postId, postWriter.getNickname())
             );
 
             pageNumber++;

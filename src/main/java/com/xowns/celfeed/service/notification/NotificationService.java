@@ -4,6 +4,7 @@ import com.xowns.celfeed.config.sharding.Sharding;
 import com.xowns.celfeed.config.sharding.ShardingTarget;
 import com.xowns.celfeed.domain.basic.Member;
 import com.xowns.celfeed.dto.SliceDTO;
+import com.xowns.celfeed.dto.member.MemberIdNickname;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
@@ -20,6 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,11 +44,30 @@ public class NotificationService {
                 pageable.getPageSize(),
                 Sort.by("createdAt").descending()
         );
-        Slice<NotificationResponse> notifications = notificationRepository
-                .findByReceiver(receiver, LocalDate.now().minusDays(29).atStartOfDay(), pageRequest)
-                .map(NotificationResponse::of);
 
-        return SliceDTO.of(notifications);
+        // 알림 조회
+        Slice<Notification> notifications = notificationRepository.findByReceiver(
+                receiver.getId(),
+                LocalDate.now().minusDays(29).atStartOfDay(),
+                pageRequest
+        );
+
+        // 조회한 알림의 actor id, nickname 조회
+        List<Long> actorIds = notifications.map(Notification::getActorId).toList();
+        Map<Long, String> idNicknameMap = memberRepository.findByIdIn(actorIds)
+                .stream().collect(Collectors.toMap(
+                        MemberIdNickname::getId,
+                        MemberIdNickname::getNickname
+                ));
+
+        // 응답용 알림 데이터 생성
+        Slice<NotificationResponse> notificationResponses =
+                notifications.map(notification -> NotificationResponse.of(
+                        notification,
+                        idNicknameMap.get(notification.getActorId()
+                )));
+
+        return SliceDTO.of(notificationResponses);
     }
 
     @Transactional(value = "notificationTransactionManager")
@@ -51,7 +75,7 @@ public class NotificationService {
         Member loginMember = getMemberOrThrow(loginId);
 
         notificationRepository.findById(notificationId)
-                .filter(notification -> loginMember.equals(notification.getReceiver()))
+                .filter(notification -> loginMember.getId().equals(notification.getReceiverId()))
                 .ifPresent(Notification::read);
     }
 
@@ -60,7 +84,7 @@ public class NotificationService {
         Member loginMember = getMemberOrThrow(loginId);
 
         notificationRepository.findById(notificationId)
-                .filter(notification ->  loginMember.equals(notification.getReceiver()))
+                .filter(notification ->  loginMember.getId().equals(notification.getReceiverId()))
                 .ifPresent(notificationRepository::delete);
     }
 
