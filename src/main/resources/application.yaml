@@ -54,17 +54,17 @@ spring:
           auto: validate
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: root
-      repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
-        enabled: false
-  session:
-    redis:
-#    store-type: redis 없어도 되네?
-      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#      password: root
+#      repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
+#        enabled: false
+#  session:
+#    redis:
+##    store-type: redis 없어도 되네?
+#      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
   kafka:
     bootstrap-servers: localhost:29092
 
