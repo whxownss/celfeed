@@ -1,14 +1,14 @@
 package com.xowns.celfeed;
 
 import com.xowns.celfeed.domain.basic.*;
-import com.xowns.celfeed.domain.notification.Notification;
-import com.xowns.celfeed.domain.notification.NotificationType;
-import com.xowns.celfeed.repository.notification.NotificationRepository;
 import com.xowns.celfeed.repository.basic.FollowRepository;
 import com.xowns.celfeed.repository.basic.LikeRepository;
 import com.xowns.celfeed.repository.basic.MemberRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;
+import com.xowns.celfeed.repository.notification.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
@@ -22,53 +22,6 @@ public class TestDataInit {
     private final FollowRepository followRepository;
     private final NotificationRepository notificationRepository;
     private final JdbcTemplate jdbcTemplate;
-
-    //@EventListener(ApplicationReadyEvent.class)
-    public void initNotification() {
-        likePost(1L, 1L, 51L, 55L);
-        writePost(1L, 2L, 2);
-
-        likePost(1L, 1L, 56L, 60L);
-        writePost(1L, 2L, 3);
-
-        likePost(1L, 1L, 61L, 70L);
-        writePost(1L, 2L, 1);
-
-        likePost(1L, 1L, 71L, 75L);
-        writePost(1L, 2L, 4);
-    }
-    private void likePost(Long receiverId, Long postId, Long startFanId, Long endFanId) {
-        Member receiver = memberRepository.findById(receiverId).get();
-        Post post = postRepository.findById(postId).get();
-
-        for (Long i = startFanId; i <= endFanId; i++) {
-            Member actor = memberRepository.findById(i).get();
-            Notification notification = Notification.create(
-                    receiver.getId(),
-                    actor.getId(),
-                    NotificationType.LIKE_POST,
-                    post.getId()
-            );
-            notificationRepository.save(notification);
-        }
-    }
-    private void writePost(Long receiverId, Long actorId, int cnt) {
-        Member receiver = memberRepository.findById(receiverId).get();
-
-        for (int i = 0; i < cnt; i++) {
-            Member actor = memberRepository.findById(actorId).get();
-            Post post2 = Post.create(actor, "게시글" + i);
-            postRepository.save(post2);
-
-            Notification notification = Notification.create(
-                    receiver.getId(),
-                    actor.getId(),
-                    NotificationType.WRITE_POST,
-                    post2.getId()
-            );
-            notificationRepository.save(notification);
-        }
-    }
 
     //@EventListener(ApplicationReadyEvent.class)
     public void initMemberData() {
@@ -89,9 +42,24 @@ public class TestDataInit {
         }
     }
     private void saveFanAndFollow(int count, Member celeb) {
+
+        List<Member> members = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
             Member fan = Member.create("fan" + i, "goog" + i, "1234123", MemberRole.FAN);
-            memberRepository.save(fan);
+            members.add(fan);
+        }
+        String sql = "insert into " +
+                " member (created_at, updated_at, email, nickname, password, role) " +
+                " values (now(), now(),?, ?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, members, members.size(), (ps, argument) -> {
+            ps.setString(1, argument.getEmail());
+            ps.setString(2, argument.getNickname());
+            ps.setString(3, argument.getPassword());
+            ps.setString(4, argument.getRole().name());
+        });
+
+        for (long i = 51; i <= count + 51 - 1; i++) {
+            Member fan = memberRepository.findById(i).get();
             followRepository.save(Follow.create(fan, celeb));
         }
     }
@@ -107,22 +75,21 @@ public class TestDataInit {
     }
 
 //    @EventListener(ApplicationReadyEvent.class)
-    public void initMemberData2() {
-//        getCelebAndFollowCeleb(3L, 100051L, 600050L);
-//        getCelebAndFollowCeleb(4L, 600051L, 1100050L);
-//        getCelebAndFollowCeleb(5L, 400051L, 1100050L);
-//        getCelebAndFollowCeleb(6L, 100051L, 400050L);
-
-//        getCelebAndFollowCeleb(7L, 51L, 50050L);
-//        getCelebAndFollowCeleb(8L, 50051L, 80050L);
-//        getCelebAndFollowCeleb(9L, 80051L, 90050L);
-//        getCelebAndFollowCeleb(10L, 90051L, 100050L);
+    public void init() {
+//        saveCeleb();
+//        saveFan(1_000_000);
+//        getCelebAndFollowCeleb(1L, 51L, 10_050L);
+//        getCelebAndFollowCeleb(2L, 51L, 100_050L);
+//        getCelebAndFollowCeleb(3L, 51L, 1_000_050L);
+        getCelebAndFollowCeleb(13L, 51L, 1_050L);
+        getCelebAndFollowCeleb(14L, 51L, 150L);
     }
-    private void saveFan() {
+
+    private void saveFan(int cnt) {
         List<FanDTO> fanList = new ArrayList<>();
 
-        for (int i = 400_001; i <= 1_000_000; i++) {
-            fanList.add(new FanDTO("fn" + i, "email" + i, "1234123","FAN"));
+        for (int i = 1; i <= cnt; i++) {
+            fanList.add(new FanDTO("fan" + i, "goog" + i, "1234123","FAN"));
         }
 
         String sql = "insert into" +
@@ -137,8 +104,8 @@ public class TestDataInit {
         });
     }
     private void getCelebAndFollowCeleb(Long celebId, Long startId, Long endId) {
-        Member celeb = memberRepository.findById(Long.valueOf(celebId)).get();
-
+//        Member celeb = memberRepository.findById(Long.valueOf(celebId)).get();
+//
 //        List<FollowDTO> followDTOS = new ArrayList<>();
 //        List<Member> fans = memberRepository.findByIdBetweenAndRole(startId, endId, MemberRole.FAN);
 //        for (Member member : fans) {
@@ -168,7 +135,6 @@ public class TestDataInit {
             this.role = role;
         }
     }
-
     static class FollowDTO {
         private Long fromId;
         private Long toId;
