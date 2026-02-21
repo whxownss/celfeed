@@ -26,8 +26,6 @@ public class NotificationCommandService {
     private final EmitterService emitterService;
 
     public void saveWritePostNotification(Long shardKey, List<NotificationBulkDTO> bulkList, String actorNickname) {
-        System.out.println("siuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu: " + shardKey);
-
         // jdbc 쓰는거 주의점!!!!!!
         List<Long> generatedKeys = notificationBulkRepository.batchInsert(bulkList);
 

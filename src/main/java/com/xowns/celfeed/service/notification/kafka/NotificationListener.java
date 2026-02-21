@@ -40,25 +40,10 @@ public class NotificationListener {
             containerFactory = "writePostNotiContainerFactory"
     )
     public void writePostNotificationListener(WritePostNotiMessage message, ConsumerRecord<String, WritePostNotiMessage> record) {
-
-
-        log.info("리스너 메서드 들어오고 sleep 직전");
-        log.info("offset={}, partition={}",
-                record.offset(),
-                record.partition());
-
-        try {
-            Thread.sleep(5000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        log.info("시발여기: {}, Message: {}", Thread.currentThread().getName(), message.getFollowerIds().get(0));
-
         Map<Long, List<Long>> evenOddMap = message.getFollowerIds().stream()
                 .collect(Collectors.groupingBy(followerId -> followerId % 2));
 
         evenOddMap.forEach((shardKey, ids) -> saveWritePostNotification(shardKey, ids, message));
-
     }
 
     private void saveWritePostNotification(Long shardKey, List<Long> ids, WritePostNotiMessage message) {

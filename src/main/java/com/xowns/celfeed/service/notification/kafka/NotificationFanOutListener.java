@@ -32,7 +32,7 @@ public class NotificationFanOutListener {
 
     private final ConfigurableApplicationContext context;
 
-    private final int BATCH_SIZE = 1;
+    private final int BATCH_SIZE = 100_000;
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final KafkaTemplate<String, WritePostNotiMessage> writePostNotiKafkaTemplate;

@@ -40,7 +40,6 @@ public class PostService {
     private final MemberRepository memberRepository;
     //private final NotificationSender notificationSender;
     private final ApplicationEventPublisher publisher;
-//    private final KafkaTransactionManager kafkaTransactionManager;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
