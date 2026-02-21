@@ -15,9 +15,12 @@ import com.xowns.celfeed.service.basic.EmitterService;
 import com.xowns.celfeed.service.notification.NotificationCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,7 @@ public class NotificationListener {
             topics = KafkaTopicConst.NOTI_BATCH, concurrency = "3",
             containerFactory = "writePostNotiContainerFactory"
     )
-    public void writePostNotificationListener(WritePostNotiMessage message) {
+    public void writePostNotificationListener(WritePostNotiMessage message, ConsumerRecord<String, WritePostNotiMessage> record) {
         Map<Long, List<Long>> evenOddMap = message.getFollowerIds().stream()
                 .collect(Collectors.groupingBy(followerId -> followerId % 2));
 

@@ -4,16 +4,23 @@ import com.xowns.celfeed.common.consts.KafkaGroupConst;
 import com.xowns.celfeed.common.consts.KafkaTopicConst;
 import com.xowns.celfeed.domain.basic.Member;
 import com.xowns.celfeed.domain.basic.Post;
+import com.xowns.celfeed.exception.ApiException;
+import com.xowns.celfeed.exception.ErrorCode;
 import com.xowns.celfeed.repository.basic.FollowRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.internals.Acknowledgements;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +29,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class NotificationFanOutListener {
+
+    private final ConfigurableApplicationContext context;
 
     private final int BATCH_SIZE = 100_000;
     private final PostRepository postRepository;
@@ -47,7 +56,6 @@ public class NotificationFanOutListener {
             followerIds = followRepository.findFollowerIdsByToMember(postWriter, pageRequest);
             if (followerIds.isEmpty()) break;
 
-            // send()
             writePostNotiKafkaTemplate.send(
                     KafkaTopicConst.NOTI_BATCH,
                     new WritePostNotiMessage(followerIds, postWriter.getId(), postId, postWriter.getNickname())
