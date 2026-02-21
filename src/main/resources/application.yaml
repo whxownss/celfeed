@@ -75,6 +75,7 @@ logging.level:
 #  org.springframework.data.redis: DEBUG
 #  org.apache.kafka: INFO
 #  org.springframework.kafka: INFO
+  org.springframework.kafka.transaction: DEBUG
 
 management:
   info:
