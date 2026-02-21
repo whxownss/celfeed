@@ -14,17 +14,18 @@ import com.xowns.celfeed.repository.basic.LikeRepository;
 import com.xowns.celfeed.repository.basic.MemberRepository;
 import com.xowns.celfeed.repository.basic.PostQueryRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;
+import com.xowns.celfeed.service.eventlistener.event.LikePostEvent;
+import com.xowns.celfeed.service.eventlistener.event.WritePostEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @Slf4j
@@ -38,7 +39,7 @@ public class PostService {
 
     private final MemberRepository memberRepository;
     //private final NotificationSender notificationSender;
-    private final KafkaTemplate<String, Long> kafkaTemplate;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
@@ -46,14 +47,7 @@ public class PostService {
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
         //notificationSender.sendWritePost(savedPost.getId());
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        kafkaTemplate.send(KafkaTopicConst.WRITE_POST, savedPost.getId());
-                    }
-                }
-        );
+        publisher.publishEvent(new WritePostEvent(KafkaTopicConst.WRITE_POST, savedPost.getId()));
 
         return savedPost.getId();
     }
@@ -109,14 +103,7 @@ public class PostService {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
 
                      //notificationSender.sendLikePost(savedLike.getId());
-                     TransactionSynchronizationManager.registerSynchronization(
-                             new TransactionSynchronization() {
-                                 @Override
-                                 public void afterCommit() {
-                                     kafkaTemplate.send(KafkaTopicConst.LIKE_POST, savedLike.getId());
-                                 }
-                             }
-                     );
+                     publisher.publishEvent(new LikePostEvent(KafkaTopicConst.LIKE_POST, savedLike.getId()));
 
                      return savedLike.getId();
                  });
