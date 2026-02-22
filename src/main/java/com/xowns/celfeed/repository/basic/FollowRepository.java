@@ -23,7 +23,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     List<Follow> findByToMember(@Param("toMember") Member toMember);
 
     @Query("select f.fromMember.id from Follow f where f.toMember = :toMember")
-    List<Long> findFollowerIdsByToMember(@Param("toMember") Member toMember, Pageable pageable);
+    List<Long> findFollowerIdsByOffset(@Param("toMember") Member toMember, Pageable pageable);
 }
 
 
