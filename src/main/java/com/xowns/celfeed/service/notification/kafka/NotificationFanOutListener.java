@@ -4,25 +4,18 @@ import com.xowns.celfeed.common.consts.KafkaGroupConst;
 import com.xowns.celfeed.common.consts.KafkaTopicConst;
 import com.xowns.celfeed.domain.basic.Member;
 import com.xowns.celfeed.domain.basic.Post;
-import com.xowns.celfeed.exception.ApiException;
-import com.xowns.celfeed.exception.ErrorCode;
-import com.xowns.celfeed.repository.basic.FollowRepository;
+import com.xowns.celfeed.dto.follow.FollowerDTO;
+import com.xowns.celfeed.repository.basic.FollowQueryRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.internals.Acknowledgements;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Profile("dev")
 @Slf4j
@@ -30,11 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationFanOutListener {
 
-    private final ConfigurableApplicationContext context;
-
     private final int BATCH_SIZE = 100_000;
     private final PostRepository postRepository;
-    private final FollowRepository followRepository;
+    private final FollowQueryRepository followQueryRepository;
     private final KafkaTemplate<String, WritePostNotiMessage> writePostNotiKafkaTemplate;
 
     @KafkaListener(topics = KafkaTopicConst.WRITE_POST, groupId = KafkaGroupConst.NOTI_FANOUT)
@@ -45,23 +36,23 @@ public class NotificationFanOutListener {
         if (post == null) return;
 
         Member postWriter = post.getMember();
-        List<Long> followerIds;
-        PageRequest pageRequest;
-        int pageNumber = 0;
+        Long cursorId = null;
 
-        // 팔로워 수에 따라?
-        // TODO : offset paging -> cursor paging
         while (true) {
-            pageRequest = PageRequest.of(pageNumber, BATCH_SIZE, Sort.by("id").ascending());
-            followerIds = followRepository.findFollowerIdsByToMember(postWriter, pageRequest);
-            if (followerIds.isEmpty()) break;
+            List<FollowerDTO> followers =
+                    followQueryRepository.findFollowerIdsByCursor(postWriter, cursorId, BATCH_SIZE);
+            if (followers.isEmpty()) break;
+
+            List<Long> followerIds = followers.stream()
+                    .map(FollowerDTO::getFollowerId)
+                    .collect(Collectors.toList());
 
             writePostNotiKafkaTemplate.send(
                     KafkaTopicConst.NOTI_BATCH,
                     new WritePostNotiMessage(followerIds, postWriter.getId(), postId, postWriter.getNickname())
             );
 
-            pageNumber++;
+            cursorId = followers.getLast().getId();
         }
     }
 }
