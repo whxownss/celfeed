@@ -1,4 +1,4 @@
-package com.xowns.celfeed.controller.response;
+package com.xowns.celfeed.response;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 public abstract class ResponseEntityUtils {
 
     public static ResponseEntity<ApiResponse<Void>> ok(String message) {
-        return ResponseEntity.ok(ApiResponse.of(message));
+        return ResponseEntity
+                .ok(ApiResponse.of(message));
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> ok(String message, T data) {

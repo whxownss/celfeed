@@ -1,5 +1,6 @@
 package com.xowns.celfeed.exception;
 
+import com.xowns.celfeed.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -14,21 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice(annotations = RestController.class)
-public class ApiAdvice {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         ErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode.getMessage()));
+        return handleExceptionInternal(errorCode.getStatus(), errorCode.getMessage());
     }
 
     @ExceptionHandler
@@ -48,14 +49,16 @@ public class ApiAdvice {
             }
         }
 
-        Map<String, String> errorData = new HashMap<>();
+        List<Map<String, String>> errorData = new ArrayList<>();
         for (Map.Entry<String, FieldError> entry : errorFieldMap.entrySet()) {
-            errorData.put(entry.getKey(), entry.getValue().getDefaultMessage());
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("field", entry.getKey());
+            errorMap.put("message", entry.getValue().getDefaultMessage());
+
+            errorData.add(errorMap);
         }
 
-        return ResponseEntity
-                .status(BAD_REQUEST)
-                .body(ErrorResponse.of("유효한 값을 입력해 주세요.", errorData));
+        return handleExceptionInternal(BAD_REQUEST, "유효한 값을 입력해 주세요.", errorData);
     }
 
     private int priorityOf(FieldError fieldError) {
@@ -75,9 +78,7 @@ public class ApiAdvice {
         Map<String, Object> errorData = new HashMap<>();
         errorData.put(e.getName(), e.getValue());
 
-        return ResponseEntity
-                .status(BAD_REQUEST)
-                .body(ErrorResponse.of("요청 값의 형식이 올바르지 않습니다.", errorData));
+        return handleExceptionInternal(BAD_REQUEST, "요청 값의 형식이 올바르지 않습니다.", errorData);
     }
 
     @ExceptionHandler
@@ -86,9 +87,7 @@ public class ApiAdvice {
         errorData.put("path", request.getRequestURI());
         errorData.put("method", request.getMethod());
 
-        return ResponseEntity
-                .status(BAD_REQUEST)
-                .body(ErrorResponse.of("요청 본문의 형식이 올바르지 않습니다.", errorData));
+        return handleExceptionInternal(BAD_REQUEST, "요청 본문의 형식이 올바르지 않습니다.", errorData);
     }
 
     @ExceptionHandler
@@ -103,16 +102,26 @@ public class ApiAdvice {
             errorMessage = "이미 존재하는 리소스입니다.";
         }
 
-        return ResponseEntity
-                .status(httpStatus)
-                .body(ErrorResponse.of(errorMessage));
+        return handleExceptionInternal(httpStatus, errorMessage);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("handle Exception=", e);
+        return handleExceptionInternal(INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생하였습니다.");
+    }
+
+    private ResponseEntity<ErrorResponse> handleExceptionInternal(HttpStatus status, String errorMessage) {
         return ResponseEntity
-                .status(INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of("알 수 없는 오류가 발생하였습니다."));
+                .status(status)
+                .body(ErrorResponse.of(errorMessage));
+    }
+
+    private ResponseEntity<ErrorResponse> handleExceptionInternal(HttpStatus status,
+                                                                  String errorMessage,
+                                                                  Object errorData) {
+        return ResponseEntity
+                .status(status)
+                .body(ErrorResponse.of(errorMessage, errorData));
     }
 }

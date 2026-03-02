@@ -1,18 +1,17 @@
-package com.xowns.celfeed.exception;
+package com.xowns.celfeed.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 @Getter
-public class ErrorResponse {
-    private String errorMessage;
+public class ErrorResponse extends BaseResponse {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Nullable Object errorData;
 
     private ErrorResponse(String errorMessage, Object errorData) {
-        this.errorMessage = errorMessage;
+        super(false, errorMessage);
         this.errorData = errorData;
     }
 
