@@ -1,8 +1,8 @@
 package com.xowns.celfeed.controller;
 
 import com.xowns.celfeed.common.argumentresolver.Login;
-import com.xowns.celfeed.controller.response.ApiResponse;
-import com.xowns.celfeed.controller.response.ResponseEntityUtils;
+import com.xowns.celfeed.response.ApiResponse;
+import com.xowns.celfeed.response.ResponseEntityUtils;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.service.notification.NotificationService;

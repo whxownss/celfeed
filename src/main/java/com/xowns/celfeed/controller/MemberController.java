@@ -1,8 +1,8 @@
 package com.xowns.celfeed.controller;
 
 import com.xowns.celfeed.common.consts.SessionConst;
-import com.xowns.celfeed.controller.response.ApiResponse;
-import com.xowns.celfeed.controller.response.ResponseEntityUtils;
+import com.xowns.celfeed.response.ApiResponse;
+import com.xowns.celfeed.response.ResponseEntityUtils;
 import com.xowns.celfeed.dto.*;
 import com.xowns.celfeed.dto.member.MemberLoginRequest;
 import com.xowns.celfeed.dto.member.MemberRequest;
