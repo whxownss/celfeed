@@ -29,7 +29,7 @@ public class JpaConfig {
     @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-            DataSource dataSource, JpaProperties jpaProperties) {
+            @Qualifier("basic") DataSource dataSource, JpaProperties jpaProperties) {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
@@ -44,6 +44,30 @@ public class JpaConfig {
     @Primary
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+        JpaTransactionManager txManager = new JpaTransactionManager();
+        txManager.setEntityManagerFactory(emf);
+        return txManager;
+    }
+
+
+    @Qualifier("batchData")
+    @Bean
+    public LocalContainerEntityManagerFactoryBean batchDataEntityManagerFactory(
+            @Qualifier("batchData") DataSource dataSource, JpaProperties jpaProperties) {
+
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factory.setPackagesToScan("com.xowns.celfeed.domain.batch");
+        factory.setPersistenceUnitName("batchData");
+        factory.setJpaPropertyMap(jpaProperties.getProperties());
+
+        return factory;
+    }
+
+    @Qualifier("batchData")
+    @Bean
+    public PlatformTransactionManager batchDataTransactionManager(@Qualifier("batchData") EntityManagerFactory emf) {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(emf);
         return txManager;

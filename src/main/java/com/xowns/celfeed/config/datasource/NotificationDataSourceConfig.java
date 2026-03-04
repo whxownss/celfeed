@@ -1,4 +1,4 @@
-package com.xowns.celfeed.config;
+package com.xowns.celfeed.config.datasource;
 
 import com.xowns.celfeed.config.sharding.DataSourceRouter;
 import com.xowns.celfeed.config.sharding.ShardingDataSourceProperty;
@@ -18,7 +18,7 @@ import java.util.Map;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "celfeed.datasource")
-public class DataSourceConfig {
+public class NotificationDataSourceConfig {
 
     private ShardingDataSourceProperty notification;
 

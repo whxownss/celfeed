@@ -18,7 +18,7 @@ public class CelfeedApplication {
 		SpringApplication.run(CelfeedApplication.class, args);
 	}
 
-	@Bean
+	//@Bean
 	@Profile("dev")
 	public TestDataInit testDataInit(MemberRepository memberRepository,
 									 PostRepository postRepository,
