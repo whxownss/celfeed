@@ -29,7 +29,7 @@ public class JpaConfig {
     @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-            DataSource dataSource, JpaProperties jpaProperties) {
+            @Qualifier("basic") DataSource dataSource, JpaProperties jpaProperties) {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);

@@ -10,7 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @SpringBootApplication
 public class CelfeedApplication {
 
@@ -18,7 +20,7 @@ public class CelfeedApplication {
 		SpringApplication.run(CelfeedApplication.class, args);
 	}
 
-	@Bean
+	//@Bean
 	@Profile("dev")
 	public TestDataInit testDataInit(MemberRepository memberRepository,
 									 PostRepository postRepository,

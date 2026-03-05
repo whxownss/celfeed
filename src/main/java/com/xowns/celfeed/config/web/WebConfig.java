@@ -1,4 +1,4 @@
-package com.xowns.celfeed.config;
+package com.xowns.celfeed.config.web;
 
 import com.xowns.celfeed.common.argumentresolver.LoginMemberArgumentResolver;
 import com.xowns.celfeed.common.interceptor.LogInterceptor;
