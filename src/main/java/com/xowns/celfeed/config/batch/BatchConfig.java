@@ -9,7 +9,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-//@DependsOn("batchMetaDataSource")
+@DependsOn("batchMetaDataSource")
 public class BatchConfig extends JdbcDefaultBatchConfiguration {
 
     private final DataSource dataSource;
@@ -17,6 +17,7 @@ public class BatchConfig extends JdbcDefaultBatchConfiguration {
 
     public BatchConfig(@Qualifier("batchMeta") DataSource dataSource,
                        @Qualifier("batchMeta") PlatformTransactionManager transactionManager) {
+
         this.dataSource = dataSource;
         this.transactionManager = transactionManager;
     }
