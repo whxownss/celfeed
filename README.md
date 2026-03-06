@@ -9,7 +9,7 @@
 <br>
 
 ## 2. 사용 기술 & 아키텍처
-<img width="600" height="350" alt="사용 기술" src="https://github.com/user-attachments/assets/ac9a9e36-17ba-4ba5-9c5d-4c8a4cf4852a" /> 사용 기술
+<img width="600" height="325" alt="damn2 drawio" src="https://github.com/user-attachments/assets/46a28fdc-a69f-49e7-b32d-79ce47013192" /> 사용 기술
 <br><br>
 
 <img width="600" height="350" alt="아키텍처" src="https://github.com/user-attachments/assets/a1a8055d-ff8c-4843-aa1c-6c449d337107" /> 아키텍처
