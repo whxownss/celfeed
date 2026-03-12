@@ -23,7 +23,7 @@ public class TestDataInit {
     private final NotificationRepository notificationRepository;
     private final JdbcTemplate jdbcTemplate;
 
-    //@EventListener(ApplicationReadyEvent.class)
+//    @EventListener(ApplicationReadyEvent.class)
     public void initMemberData() {
         saveCeleb();
         Member celeb1 = memberRepository.findById(1L).get();
