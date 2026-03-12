@@ -36,7 +36,7 @@ import java.util.Map;
 @Configuration
 public class DataMigrationJobConfig {
 
-    private static final int CHUNK_SIZE = 3;
+    private static final int CHUNK_SIZE = 1000;
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
 
