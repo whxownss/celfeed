@@ -9,10 +9,10 @@
 <br>
 
 ## 2. 사용 기술 & 아키텍처
-<img width="600" height="325" alt="damn2 drawio" src="https://github.com/user-attachments/assets/46a28fdc-a69f-49e7-b32d-79ce47013192" /> 사용 기술
+<img width="600" height="325" alt="damn2 drawio" src="docs/img/skills.png" /> 사용 기술
 <br><br>
 
-<img width="600" height="350" alt="아키텍처" src="https://github.com/user-attachments/assets/a1a8055d-ff8c-4843-aa1c-6c449d337107" /> 아키텍처
+<img width="600" height="350" alt="아키텍처" src="docs/img/architecture.png" /> 아키텍처
 - 사용자의 요청은 Nginx에서 경로에 따라 **기본 서버** 또는 **알림 조회 서버**로 라우팅됩니다.
 - **알림 생성 서버**는 외부에 노출되지 않고, 기본 서버(Producer)에서 발생한 이벤트가 Kafka로 전달되면 알림 생성 서버(Consumer)가 이벤트를 처리합니다.
 - **기본 DB**에는 회원, 게시글 등의 테이블이 존재하며, **알림 DB**에는 샤딩을 적용했습니다.
