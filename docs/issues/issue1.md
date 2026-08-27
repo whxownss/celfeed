@@ -146,3 +146,7 @@ jdbcTemplate.batchUpdate(sql, batchList, batchList.size(), (ps, argument) -> {
 | **batchUpdate()** | 8,700 ms | **- 96.03%** |
 
 ➡️ **JdbcTemplate의 batchUpdate()** 적용 결과, JPA 방식 대비 응답 시간을 약 **96.03% 단축**할 수 있게 되었습니다.
+
+<br><br>
+
+[뒤로가기](https://github.com/whxownss/celfeed/tree/docs-readme#4-%EC%95%8C%EB%A6%BC-%EC%84%9C%EB%B2%84%EC%9D%98-%EB%B0%9C%EC%A0%84)
