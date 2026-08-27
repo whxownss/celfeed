@@ -2,7 +2,7 @@
 
 ## 1. 개요
 
-> 알림 생성과 알림 조회를 분리했고, 알림 생성을 비동기로 처리했지만 문제는 여전히 남아있습니다.
+> [알림 생성과 알림 조회를 분리](/docs/issues/issue2.md)했고, [알림 생성을 비동기로 처리](/docs/issues/issue3.md)했지만 문제는 여전히 남아있습니다.
 > 
 > 비동기로 알림 생성 중에 생성 서버가 어떠한 이유로 다운되면 알림 데이터가 유실될 수 있습니다.
 
@@ -12,7 +12,7 @@
 
 > 메시지 큐 도입의 목적은 **알림 데이터 유실을 방지**하고, 트래픽이 몰리는 상황에서도 **안정적인 비동기 이벤트 처리**가 가능하도록 하기 위함입니다.
 > 
-> 여러 후보 중에서 디스크 기반 저장 구조를 통해 **메시지 영속성**을 보장하고 **대량의 이벤트를 높은 처리량으로 처리**할 수 있는 Apache Kafka를 선택했습니다.
+> 여러 후보 중에서 디스크 기반 저장 구조를 통해 **메시지 영속성**을 보장하고 **대량의 이벤트를 높은 처리량으로 처리**할 수 있는 `Apache Kafka`를 선택했습니다.
 
 <br>
 
@@ -94,7 +94,7 @@ public class NotificationFanOutListener {
 - `WRITE_POST` 토픽을 구독하는 Consumer는 알림 생성 작업을 한 번에 처리하지 않고, `BATCH_SIZE`씩 팔로워를 나누어 조회한 뒤, `NOTI_BATCH` 토픽에 `send()` 하여 알림 생성을 처리합니다.
 - 알림 생성을 다른 Consumer에서 나누어 처리하는 이유는, 하나의 Consumer에서 무거운 INSERT 작업을 처리할 경우 병목이 발생할 수 있기 때문입니다.
 - 또한 트래픽이 집중된 상황에서 팔로워 수가 매우 많은 회원의 경우, 모든 팔로워를 한 번에 조회하면 OOM가 발생할 수도 있습니다.
-- `BATCH_SIZE씩조회()` 쿼리는 커서 기반 페이징 방식을 선택했습니다.
+- `BATCH_SIZE씩조회()` 쿼리는 [커서 기반 페이징](/docs/issues/issue4-1.md) 방식을 선택했습니다.
 
 <br>
 
@@ -121,7 +121,7 @@ public class NotificationListener {
 
 ## 4. 신뢰성 있는 Kafka
 
-> Kafka에서 **정확히 한 번(Exactly Once)**이란, Producer가 브로커에게 메시지를 보낼 때 **유실되지 않고**(at least once) **중복 없이**(at most once) 정확히 한 번만 전송하도록 보장하는 개념입니다.
+> Kafka에서 **정확히 한 번**(Exactly Once)이란, Producer가 브로커에게 메시지를 보낼 때 **유실되지 않고**(at least once) **중복 없이**(at most once) 정확히 한 번만 전송하도록 보장하는 개념입니다.
 > 
 > 해당 개념을 통해 신뢰성 있는 Kafka 애플리케이션을 개발할 수 있습니다.
 
@@ -173,12 +173,12 @@ public class NotificationListener {
 - `enable.idempotence=true` 설정 시, 멱등성 Producer를 사용할 수 있습니다.
 - 아래와 같은 과정을 통해 멱등성을 보장할 수 있습니다. ([이미지 출처](https://medium.com/@shesh.soft/kafka-idempotent-producer-and-consumer-25c52402ceb9))
     
-    ![issue4-0-02](/docs/img/issue4-0-02.png)    
-    1. 멱등성 Producer는 브로커에게 메시지를 보낼 때마다 PID(Producer unique ID)를 포함하며, 각 메시지는 순차적으로 증가하는 Seq 번호를 받습니다.
-    2. Producer가 메시지를 보내는 각 토픽 파티션마다 별도의 Seq가 유지됩니다.
-    3. **네트워크 지연 등의 이유로 Producer에게 Ack가 실패**합니다.
-    4. Producer는 오류로 판단하고 **동일한 메시지를 다시 전송**합니다.
-    5. 브로커는 Producer의 요청이 토픽 파티션 내의 같은 PID에 대해 마지막으로 커밋된 메시지보다 **Seq가 정확히 1만큼 크지 않을 경우, Producer의 요청을 거부**합니다.
+	![issue4-0-02](/docs/img/issue4-0-02.png)
+	1. 멱등성 Producer는 브로커에게 메시지를 보낼 때마다 PID(Producer unique ID)를 포함하며, 각 메시지는 순차적으로 증가하는 Seq 번호를 받습니다.
+	2. Producer가 메시지를 보내는 각 토픽 파티션마다 별도의 Seq가 유지됩니다.
+	3. **네트워크 지연 등의 이유로 Producer에게 Ack가 실패**합니다.
+	4. Producer는 오류로 판단하고 **동일한 메시지를 다시 전송**합니다.
+	5. 브로커는 Producer의 요청이 토픽 파티션 내의 같은 PID에 대해 마지막으로 커밋된 메시지보다 **Seq가 정확히 1만큼 크지 않을 경우, Producer의 요청을 거부**합니다.
 </aside>
 
 <br>
@@ -297,8 +297,6 @@ public class KafkaProducerConfig {
 
 <br>
 
-// 여기부터
-
 **✅ KafkaConsumerConfig**
 ```java
 @Configuration
@@ -316,14 +314,13 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Long> kafkaListenerContainerFactory( 
             KafkaTransactionManager<String, WritePostMessage> kafkaTransactionManager // [3]
-		) {
+	) {
 		
-        ConcurrentKafkaListenerContainerFactory<String, Long> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, Long> factory = new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties()
-			         .setKafkaAwareTransactionManager(kafkaTransactionManager); // [4]
+ 				.setKafkaAwareTransactionManager(kafkaTransactionManager); // [4]
 
         return factory;
     }
@@ -335,9 +332,9 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_commited"); // [6]
 
         return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                new JacksonJsonDeserializer<>(WritePostMessage.class)
+				props,
+				new StringDeserializer(),
+				new JacksonJsonDeserializer<>(WritePostMessage.class)
         );
     }
     ...
@@ -366,69 +363,70 @@ public class KafkaConsumerConfig {
 - 문제 없이 트랜잭션이 커밋되면 **offset commit과 전송한 메시지도 커밋**하게 됩니다.
 </aside>
 
+<br>
+
 ➡️ Kafka 트랜잭션을 통해 **offset commit과 메시지 전송을 하나의 트랜잭션**으로 묶어 처리했습니다. 이로써, **정확히 한 번**을 보장할 수 있게 되었고, 신뢰성 있는 Kafka 애플리케이션이 되었습니다.
 
+<br>
+
 ## 5. 성능 테스트
-
----
-
 > nGrinder를 활용한 부하 테스트로 **메시지 큐 도입 전과 후의 성능을 비교**했습니다.
-> 
+
+<br>
 
 ✅ **공통 Test Script**
-
 ```groovy
 @Test
 public void test() {
-		HTTPResponse loginResponse =
-				request.POST("/api/members/login", ["id":"celeb10", "password":"1234123"])
-		assertThat(loginResponse.statusCode, is(200))
-		
-		HTTPResponse writePostResponse =
-				request.POST("/api/posts", ["content":"알림 테스트용 게시글 작성"])
-		assertThat(writePostResponse.statusCode, is(201))
+	HTTPResponse loginResponse = request.POST("/api/members/login", ["id":"celeb10", "password":"1234123"])
+	assertThat(loginResponse.statusCode, is(200))
+	
+	HTTPResponse writePostResponse = request.POST("/api/posts", ["content":"알림 테스트용 게시글 작성"])
+	assertThat(writePostResponse.statusCode, is(201))
 }
 ```
-
 - 팔로워 수가 1만 명인 셀럽이 지속적으로 게시글을 작성하는 상황을 가정했습니다.
 - 즉, 1건의 게시글 작성마다 1만 건의 row가 INSERT 됩니다.
 
+<br>
+
 **✅ 메시지 큐 도입 전**
 
-!image.png
+![issue4-0-03](/docs/img/issue4-0-03.png)
 
-!image.png
+![issue4-0-04](/docs/img/issue4-0-04.png) ![issue4-0-05](/docs/img/issue4-0-05.png)
 
-!image.png
+![issue4-0-06](/docs/img/issue4-0-06.png)
 
-!image.png
+<br>
 
 **✅ 메시지 큐 도입 후**
 
-!image.png
+![issue4-0-07](/docs/img/issue4-0-07.png)
 
-!image.png
+![issue4-0-08](/docs/img/issue4-0-08.png) ![issue4-0-09](/docs/img/issue4-0-09.png)
 
-!image.png
+![issue4-0-10](/docs/img/issue4-0-10.png)
 
-!image.png
+<br>
 
 **✅ 성능 비교**
-
 |  | 도입 전 | 도입 후 | 비교 |
-| --- | --- | --- | --- |
-| TPS | 94.6 | 255.1 | **+ 170%** |
-| Peak TPS | 210.5 | 327.5 | **+ 56%** |
-| Mean Test Time | 1,058.04 ms | 390.38 ms | **- 63%** |
-| Max CPU Usage | 56.2% | 36.1% | **- 36%** |
-| Executed Tests | 16,186 | 44,098 |  |
-| Errors | 0 | 0 |  |
+| :--- | ---: | ---: | ---: |
+| **TPS** | 94.6 | 255.1 | **+ 170%** |
+| **Peak TPS** | 210.5 | 327.5 | **+ 56%** |
+| **Mean Test Time** | 1,058.04ms | 390.38ms | **- 63%** |
+| **Max CPU Usage** | 56.2% | 36.1% | **- 36%** |
+| **Executed Tests** | 16,186 | 44,098 |  |
+| **Errors** | 0 | 0 |  |
 - vuser는 100(5 * 20)으로 설정하고 3분간 테스트를 진행했습니다.
 - 메시지 큐를 도입했을 때 유의미한 변화가 확인되었습니다.
     - TPS(초당 처리한 트랜잭션 수)가 **약 2.7배 증가**했습니다.
     - MTT(평균 테스트 완료 시간)는 **약 2.7배 감소**했습니다.
     - JVM 프로세스의 최대 CPU 사용량은 **약 1.5배 감소**했습니다.
     - TPS 그래프가 좀 더 안정적인 모습을 띠고있습니다.
+
+<br>
 
 **✅ 두 방식의 차이**
 
@@ -444,6 +442,11 @@ public void test() {
     - 부하가 JVM 외부에 쌓이므로, 더 많은 트래픽을 안정적으로 처리할 수 있습니다.
 </aside>
 
-!34.drawio.png
+<br>
 
+![issue4-0-11](/docs/img/issue4-0-11.png)
 ➡️ **Kafka를 도입**하여, **메시지 유실 없이 안정적으로 대량의 알림 생성 작업을 처리**할 수 있게 되었습니다.
+
+<br><br>
+
+[뒤로가기](https://github.com/whxownss/celfeed/tree/docs-readme#4-%EC%95%8C%EB%A6%BC-%EC%84%9C%EB%B2%84%EC%9D%98-%EB%B0%9C%EC%A0%84)
