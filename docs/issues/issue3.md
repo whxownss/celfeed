@@ -103,7 +103,7 @@ public void sendNotification(WritePostEvent event) {
 **✅ application.yml**
 ```yaml
 server:
-    shutdown: graceful
+  shutdown: graceful
 ```
 - 해당 옵션 설정 시, 서버가 종료 시그널을 받으면 새로운 요청을 더 이상 받지 않고 기존의 요청이 전부 처리되면 서버를 종료합니다. (Spring Boot 3.4 버전부터 default)
 - 요청 처리가 계속 지연될 경우를 대비해 `spring.lifecycle.timeout-per-shutdown-phase` 옵션으로 설정한 ms를 초과하면 서버는 종료됩니다. (default 30000)
