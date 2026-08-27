@@ -141,9 +141,9 @@ jdbcTemplate.batchUpdate(sql, batchList, batchList.size(), (ps, argument) -> {
 
 |  | 응답 시간 | save() 기준 비교 |
 | :--- | ---: | ---: |
-| **save()** | 219,420 ms | + 0% |
-| **saveAll()** | 228,960 ms | + 4.35% |
-| **batchUpdate()** | 8,700 ms | **- 96.03%** |
+| **save()** | 219,420ms | + 0% |
+| **saveAll()** | 228,960ms | + 4.35% |
+| **batchUpdate()** | 8,700ms | **- 96.03%** |
 
 ➡️ **JdbcTemplate의 batchUpdate()** 적용 결과, JPA 방식 대비 응답 시간을 약 **96.03% 단축**할 수 있게 되었습니다.
 
