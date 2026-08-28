@@ -1,5 +1,7 @@
 # [Querydsl] Cursor-based Pagination
 
+<br>
+
 ## 1. 개요
 
 > 게시글을 작성하면 팔로워에게 전송할 알림 데이터 저장을 위해 작성자의 팔로워 목록을 조회합니다.
