@@ -24,6 +24,8 @@
 ## 3. ERD
 <img width="656" height="297" alt="c" src="https://github.com/user-attachments/assets/5b33f3ed-f495-4487-8768-61d4dc99b55b" />
 
+- [ERD 설계 근거](docs/erd/erd.md)
+
 <br><br>
 
 ## 4. 알림 서버의 발전
