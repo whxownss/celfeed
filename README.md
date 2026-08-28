@@ -1,5 +1,7 @@
 # CelFeed
 
+<br>
+
 ## 1. 소개
 **CelFeed**(Celeb + Feed)는 셀럽 전용 SNS를 가정해 개발한 백엔드 API 프로젝트입니다.
 
@@ -36,3 +38,11 @@
 6. [알림 DB 샤딩 : 트래픽 분산](docs/issues/issue6-0.md)
    - [[JPA] Snowflake ID 키 생성기 적용](docs/issues/issue6-1.md)
    - [[JPA] 샤딩 적용 과정에서 발생한 알림 엔티티의 연관관계 문제](docs/issues/issue6-2.md)
+
+<br>
+
+## 5. 공통 처리
+- [Spring Interceptor를 활용한 공통 로그인 체크](docs/commons/common1.md)
+- [HandlerMethodArgumentResolver를 활용하여 로그인 ID 쉽게 가져오기](docs/commons/common2.md)
+- [@ExceptionHandler를 활용한 공통 예외 처리 (ft. HandlerExceptionResolver)](docs/commons/common3.md)
+- [공통 응답 포맷](docs/commons/common4.md)
