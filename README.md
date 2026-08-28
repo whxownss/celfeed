@@ -26,7 +26,7 @@
 
 - [ERD 설계 근거](docs/erd/erd.md)
 
-<br><br>
+<br>
 
 ## 4. 알림 서버의 발전
 1. [JdbcTemplate : 벌크 INSERT 최적화](docs/issues/issue1.md)
