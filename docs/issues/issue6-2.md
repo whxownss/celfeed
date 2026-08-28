@@ -4,7 +4,7 @@
 
 ## 1. 개요
 
-> 알림 테이블에 샤딩을 적용하면서, 알림 DB를 따로 분리했고 샤드별 DB 접근을 위해 `DataSource`와 `EntityManagerFactory`를 별도의 빈으로 등록했습니다.
+> [알림 테이블에 샤딩을 적용](/docs/issues/issue6-0.md)하면서, 알림 DB를 따로 분리했고 샤드별 DB 접근을 위해 `DataSource`와 `EntityManagerFactory`를 별도의 빈으로 등록했습니다.
 > 
 > 하지만 `Association 'Notification.actor' targets the type 'Member' which does not belong to the same persistence unit` 메시지와 함께 애플리케이션이 실행되지 않는 문제가 발생했습니다.
 
