@@ -1,5 +1,7 @@
 # Message Queue 도입 : 알림 데이터 보호
 
+<br>
+
 ## 1. 개요
 
 > [알림 생성과 알림 조회를 분리](/docs/issues/issue2.md)했고, [알림 생성을 비동기로 처리](/docs/issues/issue3.md)했지만 문제는 여전히 남아있습니다.
