@@ -14,7 +14,7 @@
 
 ## 2. Snowflake ID
 
-> 샤딩과 같은 분산 DB 환경에서 전역적으로 유니크한 ID를 생성하기 위해 [Snowflake ID](/docs/issues/issue6-1.md)를 도입했습니다.
+> 샤딩과 같은 분산 DB 환경에서 전역적으로 유니크한 ID를 생성하기 위해 [Snowflake ID를 도입](/docs/issues/issue6-1.md)했습니다.
 
 <br>
 
