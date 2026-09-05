@@ -1,7 +1,6 @@
 # ERD 설계 및 근거
 
-<img width="1177" height="720" alt="image" src="https://github.com/user-attachments/assets/c94335b8-6815-4c54-8533-d343f6aebf62" />
-
+![erd](/docs/img/erd.png)
 
 <details>
   <summary>공통</summary>
