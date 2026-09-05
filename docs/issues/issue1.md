@@ -116,12 +116,12 @@ spring:
 
 ```java
 String sql = "insert into " +
-	  " notification (id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
+	  " notification (id, receiver_id, sender_id, type, target_id, is_read, created_at) " +
 	  " values (?, ?, ?, ?, ?, 'N', now())";
 
 jdbcTemplate.batchUpdate(sql, batchList, batchList.size(), (ps, argument) -> {
     ps.setLong(1, argument.getReceiverId());
-    ps.setLong(2, argument.getActorId());
+    ps.setLong(2, argument.getSenderId());
     ps.setString(3, argument.getType());
     ps.setString(4, argument.getTargetType());
     ps.setLong(5, argument.getTargetId());
