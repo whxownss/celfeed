@@ -178,7 +178,7 @@ public class DataMigrationJobConfig {
     public static class Notification {
         private Long id;
         private Long receiverId;
-        private Long actorId;
+        private Long senderId;
         private String type;
         private Long targetId;
         private String isRead;
@@ -234,7 +234,7 @@ public class DataMigrationJobConfig {
         SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
 
         provider.setDataSource(dataSource);
-        provider.setSelectClause("select id, receiver_id, actor_id, type, target_id, is_read, created_at");
+        provider.setSelectClause("select id, receiver_id, sender_id, type, target_id, is_read, created_at");
         provider.setFromClause("from notification");
         provider.setWhereClause("created_at < :date"); // [2]
         provider.setSortKey("id");
@@ -249,8 +249,8 @@ public class DataMigrationJobConfig {
         return new JdbcBatchItemWriterBuilder<Notification>()
                 .dataSource(dataSource) // [3]
                 .sql(
-                        "insert into notification(id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
-                                "values(:id, :receiverId, :actorId, :type, :targetId, :isRead, :createdAt)"
+                        "insert into notification(id, receiver_id, sender_id, type, target_id, is_read, created_at) " +
+                                "values(:id, :receiverId, :senderId, :type, :targetId, :isRead, :createdAt)"
                 )
                 .beanMapped()
                 .build();
