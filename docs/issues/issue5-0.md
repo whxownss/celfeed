@@ -26,7 +26,7 @@
 ```sql
 select n.id, n.receiver_id, n.type, n.target_id, n.is_read, n.created_at, m.nickname
 from notification n 
-join member m on m.id = n.actor_id 
+join member m on m.id = n.sender_id 
 where n.receiver_id = 51 
     and n.created_at <= current_timestamp()
     and n.created_at >= curdate() - interval 29 day

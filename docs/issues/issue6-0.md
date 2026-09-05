@@ -29,7 +29,7 @@
 create table notification (
     id          bigint      not null,
     receiver_id bigint      not null,
-    actor_id    bigint      not null,
+    sender_id   bigint      not null,
     type        varchar(20) not null,
     target_id   bigint      not null,
     is_read     varchar(1)  not null,
