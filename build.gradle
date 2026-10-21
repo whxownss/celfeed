@@ -1,58 +1,72 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.1'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '4.0.1' apply false
+	id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
-group = 'com.xowns'
-version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+allprojects {
+	group = 'com.xowns'
+	version = '0.0.1-SNAPSHOT'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+	repositories {
+		mavenCentral()
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+
+	dependencyManagement {
+		imports {
+			mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+		}
 	}
-}
 
-repositories {
-	mavenCentral()
-}
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(21)
+		}
+	}
 
-dependencies {
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
+	}
 
-	//Querydsl
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+	dependencies {
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.micrometer:micrometer-registry-prometheus'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-session-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-kafka'
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+		// ================ 삭제 ================
 
-tasks.named('test') {
-	useJUnitPlatform()
+//		implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+//		annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+//		annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+//		annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+//
+//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//		implementation 'org.springframework.boot:spring-boot-starter-validation'
+//		implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+//		implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
+//		implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//		implementation 'io.micrometer:micrometer-registry-prometheus'
+
+//		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//		implementation 'org.springframework.boot:spring-boot-starter-session-data-redis'
+//		implementation 'org.springframework.boot:spring-boot-starter-kafka'
+//		implementation 'org.springframework.boot:spring-boot-starter-batch'
+//
+//		runtimeOnly 'com.mysql:mysql-connector-j'
+//		testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+//		testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+//		testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	}
+
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
 }
