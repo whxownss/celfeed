@@ -1,0 +1,103 @@
+celfeed:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          auto: validate
+        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+
+spring:
+  datasource-celfeed:
+    jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 10
+    minimum-idle: 10
+  datasource-batch-meta:
+    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_meta
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 2
+    minimum-idle: 2
+  datasource-batch-data:
+    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_data
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 1
+    minimum-idle: 1
+  web:
+    error:
+      whitelabel:
+        enabled: false
+      include-exception: false
+      include-message: never
+      include-stacktrace: never
+      include-binding-errors: never
+  jpa:
+    open-in-view: false
+#    hibernate:
+#      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          auto: validate
+        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  redis:
+    sentinel:
+      master: mymaster
+      nodes: 127.0.0.1:26379,127.0.0.1:26479,127.0.0.1:26579
+  data:
+    redis:
+#      sentinel:
+#        master: mymaster
+#        nodes: 127.0.0.1:26379,127.0.0.1:26479,127.0.0.1:26579
+#      host: localhost
+#      port: 6379
+#      password: root
+      repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
+        enabled: false
+  session:
+    redis:
+#    store-type: redis 없어도 되네?
+      namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
+  kafka:
+    bootstrap-servers: localhost:29092
+  batch:
+    job:
+      enabled: false
+
+logging.level:
+#  com.xowns.celfeed: info
+  org.hibernate.SQL: debug
+  org.springframework.transaction.interceptor: TRACE
+#  org.springframework.data.redis: DEBUG
+#  org.apache.kafka: INFO
+#  org.springframework.kafka: INFO
+#  org.springframework.kafka.transaction: DEBUG
+
+management:
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
