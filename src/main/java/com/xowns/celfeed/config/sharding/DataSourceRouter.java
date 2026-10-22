@@ -40,6 +40,7 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
 
         int shardNo = 0;
         ShardingProperty shardingProperty = ShardingConfig.getShardingPropertyMap().get(sharding.getTarget());
+
         if (shardingProperty.getStrategy() == ShardingStrategy.MODULAR) {
             shardNo = getShardNoByModular(sharding.getShardKey(), shardingProperty.getMod());
         }
