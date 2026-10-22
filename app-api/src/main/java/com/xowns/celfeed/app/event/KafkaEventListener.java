@@ -1,7 +1,7 @@
 package com.xowns.celfeed.app.event;
 
-import com.xowns.celfeed.service.eventlistener.event.LikePostEvent;
-import com.xowns.celfeed.service.eventlistener.event.WritePostEvent;
+import com.xowns.celfeed.app.event.payload.LikePostEvent;
+import com.xowns.celfeed.app.event.payload.WritePostEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

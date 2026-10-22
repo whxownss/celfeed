@@ -1,4 +1,4 @@
-package com.xowns.celfeed.app.consts;
+package com.xowns.celfeed.app.common.consts;
 
 public abstract class KafkaTopicConst {
     public static final String WRITE_POST = "write-post";

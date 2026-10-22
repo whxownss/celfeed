@@ -1,4 +1,4 @@
-package com.xowns.celfeed.app.consts;
+package com.xowns.celfeed.app.common.consts;
 
 public class KafkaGroupConst {
     public static final String NOTI_FANOUT = "noti-fanout";

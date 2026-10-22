@@ -1,6 +1,6 @@
 package com.xowns.celfeed.app.service;
 
-import com.xowns.celfeed.app.consts.KafkaTopicConst;
+import com.xowns.celfeed.app.common.consts.KafkaTopicConst;
 import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.request.PostRequest;
 import com.xowns.celfeed.app.dto.response.PostResponse;

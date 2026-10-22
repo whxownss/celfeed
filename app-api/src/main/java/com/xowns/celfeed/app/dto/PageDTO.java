@@ -1,6 +1,5 @@
 package com.xowns.celfeed.app.dto;
 
-import com.xowns.celfeed.dto.SliceDTO;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 

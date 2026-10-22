@@ -1,36 +1,12 @@
-celfeed:
-  jpa:
-    properties:
-      hibernate:
-        format_sql: true
-        hbm2ddl:
-          auto: validate
-        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
-        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-
-
 spring:
-  datasource-celfeed:
-    jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
-    username: root
-    password: root
+  datasource:
+    url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+    username: ssafy
+    password: ssafy
     driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 10
-    minimum-idle: 10
-  datasource-batch-meta:
-    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_meta
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 2
-    minimum-idle: 2
-  datasource-batch-data:
-    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_data
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 1
-    minimum-idle: 1
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 10
   web:
     error:
       whitelabel:
@@ -41,15 +17,14 @@ spring:
       include-binding-errors: never
   jpa:
     open-in-view: false
-#    hibernate:
-#      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
-        hbm2ddl:
-          auto: validate
-        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
-        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    hibernate:
+      ddl-auto: create
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   redis:
     sentinel:
       master: mymaster
