@@ -1,12 +1,12 @@
 package com.xowns.celfeed.app.controller;
 
-import com.xowns.celfeed.app.common.argumentresolver.Login;
-import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.request.PostRequest;
-import com.xowns.celfeed.app.dto.response.ApiResponse;
 import com.xowns.celfeed.app.dto.response.PostResponse;
-import com.xowns.celfeed.app.dto.response.ResponseEntityUtils;
 import com.xowns.celfeed.app.service.PostService;
+import com.xowns.celfeed.common.argumentresolver.Login;
+import com.xowns.celfeed.common.dto.ApiResponse;
+import com.xowns.celfeed.common.dto.SliceDTO;
+import com.xowns.celfeed.common.utils.ResponseEntityUtils;
 import com.xowns.celfeed.domain.dto.PostDetailResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

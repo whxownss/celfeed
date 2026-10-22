@@ -1,8 +1,8 @@
-package com.xowns.celfeed.app.config.web;
+package com.xowns.celfeed.common.config;
 
-import com.xowns.celfeed.app.common.argumentresolver.LoginMemberArgumentResolver;
-import com.xowns.celfeed.app.common.interceptor.LogInterceptor;
-import com.xowns.celfeed.app.common.interceptor.LoginCheckInterceptor;
+import com.xowns.celfeed.common.argumentresolver.LoginMemberArgumentResolver;
+import com.xowns.celfeed.common.interceptor.LogInterceptor;
+import com.xowns.celfeed.common.interceptor.LoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

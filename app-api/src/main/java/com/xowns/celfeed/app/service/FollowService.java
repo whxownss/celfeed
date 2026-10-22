@@ -1,9 +1,9 @@
 package com.xowns.celfeed.app.service;
 
-import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.response.MemberResponse;
-import com.xowns.celfeed.app.exception.ApiException;
-import com.xowns.celfeed.app.exception.ErrorCode;
+import com.xowns.celfeed.common.dto.SliceDTO;
+import com.xowns.celfeed.common.exception.ApiException;
+import com.xowns.celfeed.common.exception.ErrorCode;
 import com.xowns.celfeed.domain.entity.basic.Follow;
 import com.xowns.celfeed.domain.entity.basic.Member;
 import com.xowns.celfeed.domain.repository.basic.FollowRepository;

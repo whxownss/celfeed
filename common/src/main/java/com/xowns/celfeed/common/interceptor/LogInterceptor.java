@@ -1,4 +1,4 @@
-package com.xowns.celfeed.app.common.interceptor;
+package com.xowns.celfeed.common.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

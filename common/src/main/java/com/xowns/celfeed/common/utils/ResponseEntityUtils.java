@@ -1,5 +1,6 @@
-package com.xowns.celfeed.app.dto.response;
+package com.xowns.celfeed.common.utils;
 
+import com.xowns.celfeed.common.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

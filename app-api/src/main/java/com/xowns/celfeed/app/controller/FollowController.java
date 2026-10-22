@@ -1,11 +1,11 @@
 package com.xowns.celfeed.app.controller;
 
-import com.xowns.celfeed.app.common.argumentresolver.Login;
-import com.xowns.celfeed.app.dto.response.ApiResponse;
-import com.xowns.celfeed.app.dto.response.ResponseEntityUtils;
-import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.response.MemberResponse;
 import com.xowns.celfeed.app.service.FollowService;
+import com.xowns.celfeed.common.argumentresolver.Login;
+import com.xowns.celfeed.common.dto.ApiResponse;
+import com.xowns.celfeed.common.dto.SliceDTO;
+import com.xowns.celfeed.common.utils.ResponseEntityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

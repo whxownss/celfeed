@@ -1,13 +1,13 @@
 package com.xowns.celfeed.app.service;
 
 import com.xowns.celfeed.app.common.consts.KafkaTopicConst;
-import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.request.PostRequest;
 import com.xowns.celfeed.app.dto.response.PostResponse;
 import com.xowns.celfeed.app.event.payload.LikePostEvent;
 import com.xowns.celfeed.app.event.payload.WritePostEvent;
-import com.xowns.celfeed.app.exception.ApiException;
-import com.xowns.celfeed.app.exception.ErrorCode;
+import com.xowns.celfeed.common.dto.SliceDTO;
+import com.xowns.celfeed.common.exception.ApiException;
+import com.xowns.celfeed.common.exception.ErrorCode;
 import com.xowns.celfeed.domain.dto.PostDetailResponse;
 import com.xowns.celfeed.domain.entity.basic.Like;
 import com.xowns.celfeed.domain.entity.basic.Member;

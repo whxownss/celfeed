@@ -1,4 +1,4 @@
-package com.xowns.celfeed.app.exception;
+package com.xowns.celfeed.common.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

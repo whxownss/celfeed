@@ -1,4 +1,4 @@
-package com.xowns.celfeed.app.common.argumentresolver;
+package com.xowns.celfeed.common.argumentresolver;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

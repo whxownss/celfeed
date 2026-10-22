@@ -1,17 +1,21 @@
-package com.xowns.celfeed.app.dto.response;
+package com.xowns.celfeed.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 @Getter
-public class ApiResponse<T> extends BaseResponse {
+public class ApiResponse<T> {
+
+    private boolean isSuccess;
+    private String message;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private @Nullable T data;
 
     private ApiResponse(String message, T data) {
-        super(true, message);
+        this.isSuccess = true;
+        this.message = message;
         this.data = data;
     }
 

@@ -7,5 +7,5 @@ import lombok.Setter;
 public class ShardingProperty {
     private ShardingStrategy strategy;
     private int mod;
-    private String shardingKey;
+//    private String shardingKey; // 모듈러 말고 다른 전략 사용 시 필요
 }

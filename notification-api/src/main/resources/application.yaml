@@ -26,7 +26,6 @@ celfeed:
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
 
-
 spring:
   application:
     name: notification-api

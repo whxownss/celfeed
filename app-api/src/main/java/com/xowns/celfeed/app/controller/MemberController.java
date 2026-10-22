@@ -1,14 +1,14 @@
 package com.xowns.celfeed.app.controller;
 
-import com.xowns.celfeed.app.common.consts.SessionConst;
-import com.xowns.celfeed.app.dto.PageDTO;
-import com.xowns.celfeed.app.dto.SliceDTO;
 import com.xowns.celfeed.app.dto.request.MemberLoginRequest;
 import com.xowns.celfeed.app.dto.request.MemberRequest;
-import com.xowns.celfeed.app.dto.response.ApiResponse;
 import com.xowns.celfeed.app.dto.response.MemberResponse;
-import com.xowns.celfeed.app.dto.response.ResponseEntityUtils;
 import com.xowns.celfeed.app.service.MemberService;
+import com.xowns.celfeed.common.consts.SessionConst;
+import com.xowns.celfeed.common.dto.ApiResponse;
+import com.xowns.celfeed.common.dto.PageDTO;
+import com.xowns.celfeed.common.dto.SliceDTO;
+import com.xowns.celfeed.common.utils.ResponseEntityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
