@@ -1,7 +1,7 @@
 package com.xowns.celfeed.server.social.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.xowns.celfeed.domain.social.entity.basic.Member;
+import com.xowns.celfeed.domain.social.entity.Member;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

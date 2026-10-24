@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.entity.notification;
+package com.xowns.celfeed.domain.notification.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

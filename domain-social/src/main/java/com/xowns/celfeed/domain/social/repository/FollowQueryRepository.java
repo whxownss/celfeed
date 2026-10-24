@@ -1,16 +1,16 @@
-package com.xowns.celfeed.domain.social.repository.basic;
+package com.xowns.celfeed.domain.social.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.xowns.celfeed.domain.social.dto.FollowerDTO;
-import com.xowns.celfeed.domain.social.entity.basic.Member;
+import com.xowns.celfeed.domain.social.entity.Member;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.xowns.celfeed.domain.social.entity.basic.QFollow.*;
+import static com.xowns.celfeed.domain.social.entity.QFollow.*;
 
 @Repository
 public class FollowQueryRepository {

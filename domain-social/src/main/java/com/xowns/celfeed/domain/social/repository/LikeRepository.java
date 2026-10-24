@@ -1,8 +1,8 @@
-package com.xowns.celfeed.domain.social.repository.basic;
+package com.xowns.celfeed.domain.social.repository;
 
-import com.xowns.celfeed.domain.social.entity.basic.Like;
-import com.xowns.celfeed.domain.social.entity.basic.Member;
-import com.xowns.celfeed.domain.social.entity.basic.Post;
+import com.xowns.celfeed.domain.social.entity.Like;
+import com.xowns.celfeed.domain.social.entity.Member;
+import com.xowns.celfeed.domain.social.entity.Post;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

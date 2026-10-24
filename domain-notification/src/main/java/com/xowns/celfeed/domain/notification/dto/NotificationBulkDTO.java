@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.dto;
+package com.xowns.celfeed.domain.notification.dto;
 
 import lombok.Getter;
 

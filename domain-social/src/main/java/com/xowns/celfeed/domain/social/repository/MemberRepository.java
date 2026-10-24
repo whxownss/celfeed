@@ -1,8 +1,8 @@
-package com.xowns.celfeed.domain.social.repository.basic;
+package com.xowns.celfeed.domain.social.repository;
 
 import com.xowns.celfeed.domain.social.dto.MemberIdNickname;
-import com.xowns.celfeed.domain.social.entity.basic.Member;
-import com.xowns.celfeed.domain.social.entity.basic.MemberRole;
+import com.xowns.celfeed.domain.social.entity.Member;
+import com.xowns.celfeed.domain.social.entity.MemberRole;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

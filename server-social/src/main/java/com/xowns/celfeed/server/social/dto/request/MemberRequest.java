@@ -1,7 +1,7 @@
 package com.xowns.celfeed.server.social.dto.request;
 
-import com.xowns.celfeed.domain.social.entity.basic.Member;
-import com.xowns.celfeed.domain.social.entity.basic.MemberRole;
+import com.xowns.celfeed.domain.social.entity.Member;
+import com.xowns.celfeed.domain.social.entity.MemberRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

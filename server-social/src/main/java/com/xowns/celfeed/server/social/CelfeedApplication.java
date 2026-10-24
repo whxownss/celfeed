@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "com.xowns.celfeed.domain.social.entity")
 @EnableJpaRepositories(basePackages = "com.xowns.celfeed.domain.social.repository")
 @SpringBootApplication(scanBasePackages = {
-		"com.xowns.celfeed.server.social", "com.xowns.celfeed.domain.social.repository"
+		"com.xowns.celfeed.server.social", 				// 현재 프로젝트
+		"com.xowns.celfeed.domain.social.repository" 	// @Repository
 })
 public class CelfeedApplication {
 

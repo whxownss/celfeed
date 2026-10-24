@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.entity.basic;
+package com.xowns.celfeed.domain.social.entity;
 
 import com.xowns.celfeed.domain.social.common.converter.BooleanToYNConverter;
 import jakarta.persistence.*;

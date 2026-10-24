@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.entity.basic;
+package com.xowns.celfeed.domain.social.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package com.xowns.celfeed.domain.social.repository.notification;
+package com.xowns.celfeed.domain.notification.repository;
 
-import com.xowns.celfeed.domain.social.common.snowflake.SnowflakeIdGenerator;
-import com.xowns.celfeed.domain.social.dto.NotificationBulkDTO;
+import com.xowns.celfeed.domain.notification.common.snowflake.SnowflakeIdGenerator;
+import com.xowns.celfeed.domain.notification.dto.NotificationBulkDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

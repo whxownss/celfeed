@@ -1,19 +1,20 @@
-package com.xowns.celfeed.domain.social.entity.notification;
+package com.xowns.celfeed.domain.notification.entity;
 
-import com.xowns.celfeed.domain.social.entity.basic.BaseCreateEntity;
-import com.xowns.celfeed.domain.social.common.converter.BooleanToYNConverter;
-import com.xowns.celfeed.domain.social.common.snowflake.SnowflakeId;
+import com.xowns.celfeed.domain.notification.common.converter.BooleanToYNConverter;
+import com.xowns.celfeed.domain.notification.common.snowflake.SnowflakeId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
-public class Notification extends BaseCreateEntity {
+public class Notification {
 
     @Id @SnowflakeId
     private Long id;
@@ -38,6 +39,16 @@ public class Notification extends BaseCreateEntity {
     @Column(columnDefinition = "VARCHAR(1)", nullable = false)
     @Convert(converter = BooleanToYNConverter.class)
     private boolean isRead;
+
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdAt;
+
+    // 수정일은?
+
+    @PrePersist
+    public void prePersistCreatedAt() {
+        createdAt = LocalDateTime.now();
+    }
 
     private Notification(Long receiverId, Long actorId, NotificationType type, Long targetId, boolean isRead) {
         this.receiverId = receiverId;

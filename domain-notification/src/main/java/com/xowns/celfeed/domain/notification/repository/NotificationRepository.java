@@ -1,6 +1,6 @@
-package com.xowns.celfeed.domain.social.repository.notification;
+package com.xowns.celfeed.domain.notification.repository;
 
-import com.xowns.celfeed.domain.social.entity.notification.Notification;
+import com.xowns.celfeed.domain.notification.entity.Notification;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.common.snowflake;
+package com.xowns.celfeed.domain.notification.common.snowflake;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;

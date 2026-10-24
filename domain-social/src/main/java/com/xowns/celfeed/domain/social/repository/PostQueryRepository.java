@@ -1,4 +1,4 @@
-package com.xowns.celfeed.domain.social.repository.basic;
+package com.xowns.celfeed.domain.social.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static com.xowns.celfeed.domain.social.entity.basic.QLike.*;
-import static com.xowns.celfeed.domain.social.entity.basic.QMember.*;
-import static com.xowns.celfeed.domain.social.entity.basic.QPost.*;
+import static com.xowns.celfeed.domain.social.entity.QLike.*;
+import static com.xowns.celfeed.domain.social.entity.QMember.*;
+import static com.xowns.celfeed.domain.social.entity.QPost.*;
 
 @Repository
 public class PostQueryRepository {
