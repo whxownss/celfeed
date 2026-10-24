@@ -1,7 +1,7 @@
 package com.xowns.celfeed.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.xowns.celfeed.domain.basic.Post;
+import com.xowns.celfeed.domain.social.basic.Post;
 import lombok.Builder;
 import lombok.Getter;
 

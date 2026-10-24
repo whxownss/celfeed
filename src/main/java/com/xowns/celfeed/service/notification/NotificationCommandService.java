@@ -2,8 +2,8 @@ package com.xowns.celfeed.service.notification;
 
 import com.xowns.celfeed.config.sharding.Sharding;
 import com.xowns.celfeed.config.sharding.ShardingTarget;
-import com.xowns.celfeed.domain.notification.Notification;
-import com.xowns.celfeed.domain.notification.NotificationType;
+import com.xowns.celfeed.domain.social.notification.Notification;
+import com.xowns.celfeed.domain.social.notification.NotificationType;
 import com.xowns.celfeed.dto.notification.NotificationBulkDTO;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.repository.notification.NotificationBulkRepository;

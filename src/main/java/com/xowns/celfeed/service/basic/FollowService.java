@@ -1,7 +1,7 @@
 package com.xowns.celfeed.service.basic;
 
-import com.xowns.celfeed.domain.basic.Follow;
-import com.xowns.celfeed.domain.basic.Member;
+import com.xowns.celfeed.domain.social.basic.Follow;
+import com.xowns.celfeed.domain.social.basic.Member;
 import com.xowns.celfeed.dto.member.MemberResponse;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.exception.ApiException;

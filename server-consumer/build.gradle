@@ -1,0 +1,18 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+//    implementation project(':common-web')
+//    implementation project(':domain-social')
+
+    // 여기서도 필요하나?
+//    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
+//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-batch' // 배치 작업 여기에서?
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+}

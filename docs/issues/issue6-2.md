@@ -68,7 +68,7 @@ public class Notification extends BaseCreateEntity {
 
 **✅ 예외 발생**
 ```
-Caused by: org.hibernate.AnnotationException: Association 'com.xowns.celfeed.domain.entity.notification.Notification.sender' targets the type 'com.xowns.celfeed.domain.entity.basic.Member' which does not belong to the same persistence unit
+Caused by: org.hibernate.AnnotationException: Association 'notification.entity.com.xowns.celfeed.domain.social.Notification.sender' targets the type 'basic.entity.com.xowns.celfeed.domain.social.Member' which does not belong to the same persistence unit
 ```
 - **Notification 엔티티와 다른 persistence unit에 속한 Member 엔티티를 연관관계**로 묶으려고 해서 예외가 발생한 것입니다.
 

@@ -1,8 +1,6 @@
 package com.xowns.celfeed.repository.notification;
 
-import com.xowns.celfeed.domain.basic.Member;
-import com.xowns.celfeed.domain.notification.Notification;
-import com.xowns.celfeed.domain.notification.NotificationType;
+import com.xowns.celfeed.domain.social.notification.Notification;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;

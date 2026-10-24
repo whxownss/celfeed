@@ -1,8 +1,17 @@
 rootProject.name = 'celfeed'
 
-include 'domain'
-include 'notification-api'
-include 'common'
-include 'consumer'
-include 'app-api'
-include 'sharding'
+// 실행 앱
+include 'server-social'
+include 'server-notification'
+include 'server-consumer'
+
+// 공통 코드
+include 'common-web'
+include 'common-event'
+
+// entity, repository 코드
+include 'domain-social'
+include 'domain-notification'
+
+// 기술적 구현
+include 'infra-sharding'
