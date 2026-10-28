@@ -9,7 +9,7 @@ spring:
     name: server-social
   datasource:
     social:
-      jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+      jdbc-url: jdbc:mysql://localhost:3306/celfeed_social #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
       username: ssafy
       password: ssafy
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -46,9 +46,6 @@ spring:
       namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
   kafka:
     bootstrap-servers: localhost:29092
-  batch:
-    job:
-      enabled: false
   web:
     error:
       whitelabel:

@@ -4,6 +4,7 @@ rootProject.name = 'celfeed'
 include 'server-social'
 include 'server-notification'
 include 'server-consumer'
+include 'server-batch'
 
 // 공통 코드
 include 'common-web'

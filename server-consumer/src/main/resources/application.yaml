@@ -4,7 +4,7 @@ app:
       shards:
         - shard-no: 0
           name: notification-shard-0
-          url: jdbc:mysql://localhost:3306/notification1?rewriteBatchedStatements=true
+          url: jdbc:mysql://localhost:3306/celfeed_notification1?rewriteBatchedStatements=true
           username: ssafy
           password: ssafy
           driver-name: com.mysql.cj.jdbc.Driver
@@ -13,7 +13,7 @@ app:
           timeout: 30000
         - shard-no: 1
           name: notification-shard-1
-          url: jdbc:mysql://localhost:3306/notification2?rewriteBatchedStatements=true
+          url: jdbc:mysql://localhost:3306/celfeed_notification2?rewriteBatchedStatements=true
           username: ssafy
           password: ssafy
           driver-name: com.mysql.cj.jdbc.Driver
@@ -43,27 +43,13 @@ spring:
     name: server-consumer
   datasource:
     social:
-      jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+      jdbc-url: jdbc:mysql://localhost:3306/celfeed_social #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
       username: ssafy
       password: ssafy
       driver-class-name: com.mysql.cj.jdbc.Driver
       maximum-pool-size: 10
       minimum-idle: 10
       connection-timeout: 30000
-  datasource-batch-meta:
-    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_meta
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 2
-    minimum-idle: 2
-  datasource-batch-data:
-    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_data
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 1
-    minimum-idle: 1
   jpa:
     open-in-view: false
     properties:
@@ -90,9 +76,6 @@ spring:
         enabled: false
   kafka:
     bootstrap-servers: localhost:29092
-  batch:
-    job:
-      enabled: false
 
 logging.level:
   #  com.xowns.celfeed: info
