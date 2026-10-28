@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Order(1) // 순서 유의
 public class ServiceAspect {
 
-    @Pointcut("execution(public * com.xowns.celfeed.service.notification..Notification*Service.*(..))")
+    @Pointcut("execution(public * com.xowns.celfeed.server.notification.service..Notification*Service.*(..))")
     private void service() {
     }
 

@@ -1,22 +1,15 @@
 spring:
   application:
-    name: app-api
+    name: server-social
   datasource:
     social:
       jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
-      username: root
-      password: root
+      username: ssafy
+      password: ssafy
       driver-class-name: com.mysql.cj.jdbc.Driver
       maximum-pool-size: 10
       minimum-idle: 10
-  web:
-    error:
-      whitelabel:
-        enabled: false
-      include-exception: false
-      include-message: never
-      include-stacktrace: never
-      include-binding-errors: never
+      connection-timeout: 30000
   jpa:
     open-in-view: false
     properties:
@@ -50,6 +43,14 @@ spring:
   batch:
     job:
       enabled: false
+  web:
+    error:
+      whitelabel:
+        enabled: false
+      include-exception: false
+      include-message: never
+      include-stacktrace: never
+      include-binding-errors: never
 
 logging.level:
 #  com.xowns.celfeed: info

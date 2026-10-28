@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 import java.util.Map;
 
 @Configuration
-@ComponentScan(basePackages = "com.xowns.celfeed.domain.social.repository") // Querydsl Repository
+@ComponentScan(basePackages = "com.xowns.celfeed.domain.social.repository") // @Repository 스캔
 @EnableJpaRepositories(
         basePackages = "com.xowns.celfeed.domain.social.repository",
         entityManagerFactoryRef = "socialEntityManagerFactory",
@@ -56,7 +56,7 @@ public class SocialJpaConfig {
                 .dataSource(dataSource)
                 .packages("com.xowns.celfeed.domain.social.entity")
                 .persistenceUnit("social")
-                .properties(properties) // TODO : 설정 적용되는지 확인 필요
+                .properties(properties)
                 .build();
     }
 

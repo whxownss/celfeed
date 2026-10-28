@@ -14,12 +14,11 @@ import java.util.List;
 @Repository
 public class NotificationBulkRepository {
 
-
     private final JdbcTemplate jdbcTemplate;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     public NotificationBulkRepository(
-            @Qualifier("notification") JdbcTemplate jdbcTemplate,
+            @Qualifier("notificationJdbcTemplate") JdbcTemplate jdbcTemplate,
             SnowflakeIdGenerator snowflakeIdGenerator) {
 
         this.jdbcTemplate = jdbcTemplate;

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "celfeed.sharding")
+@ConfigurationProperties(prefix = "app.sharding")
 @Setter
 public class ShardingPropertyInitializer {
 

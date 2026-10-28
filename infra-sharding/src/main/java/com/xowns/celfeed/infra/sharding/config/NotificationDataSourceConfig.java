@@ -17,19 +17,27 @@ import java.util.Map;
 
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "celfeed.datasource")
+@ConfigurationProperties(prefix = "app.datasource")
 public class NotificationDataSourceConfig {
 
     private ShardingDataSourceProperty notification;
 
-    @Qualifier("notification")
-    @Bean(defaultCandidate = false)
+    @Bean
     public DataSource notificationDataSource() {
         DataSourceRouter router = new DataSourceRouter();
         Map<Object, Object> dataSourceMap = new LinkedHashMap<>();
 
         for (ShardingDataSourceProperty.Shard shard : notification.getShards()) {
-            DataSource dataSource = dataSource(shard.getUsername(), shard.getPassword(), shard.getUrl());
+            DataSource dataSource = dataSource(
+                    shard.getUrl(),
+                    shard.getUsername(),
+                    shard.getPassword(),
+                    shard.getDriverName(),
+                    shard.getMaxPool(),
+                    shard.getMinIdle(),
+                    shard.getTimeout()
+            );
+
             dataSourceMap.put(shard.getShardNo() + " " + shard.getName(), dataSource);
         }
 
@@ -39,23 +47,25 @@ public class NotificationDataSourceConfig {
         return new LazyConnectionDataSourceProxy(router);
     }
 
-    private DataSource dataSource(String username, String password, String url) {
+    private DataSource dataSource(String url, String username, String password, String driverName,
+                                  int maxPool, int minIdle, int timeout) {
+
         HikariDataSource dataSource = new HikariDataSource();
+
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setDriverClassName(driverName);
 
-        dataSource.setMaximumPoolSize(10);
-        dataSource.setMinimumIdle(10);
-        dataSource.setConnectionTimeout(3000);
+        dataSource.setMaximumPoolSize(maxPool);
+        dataSource.setMinimumIdle(minIdle);
+        dataSource.setConnectionTimeout(timeout);
 
         return dataSource;
     }
 
-    @Qualifier("notification")
-    @Bean(defaultCandidate = false)
-    public JdbcTemplate notificationJdbcTemplate(@Qualifier("notification") DataSource dataSource) {
+    @Bean
+    public JdbcTemplate notificationJdbcTemplate(@Qualifier("notificationDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 }

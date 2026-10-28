@@ -3,11 +3,12 @@ package com.xowns.celfeed.server.notification.service;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
 import com.xowns.celfeed.common.web.exception.ApiException;
 import com.xowns.celfeed.common.web.exception.ErrorCode;
+import com.xowns.celfeed.domain.notification.common.annotation.NotificationTransactional;
+import com.xowns.celfeed.domain.notification.entity.Notification;
+import com.xowns.celfeed.domain.notification.repository.NotificationRepository;
 import com.xowns.celfeed.domain.social.dto.MemberIdNickname;
 import com.xowns.celfeed.domain.social.entity.Member;
-import com.xowns.celfeed.domain.notification.entity.Notification;
 import com.xowns.celfeed.domain.social.repository.MemberRepository;
-import com.xowns.celfeed.domain.notification.repository.NotificationRepository;
 import com.xowns.celfeed.server.notification.dto.NotificationResponse;
 import com.xowns.celfeed.infra.sharding.core.Sharding;
 import com.xowns.celfeed.infra.sharding.core.ShardingTarget;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(value = "notificationTransactionManager", readOnly = true)
+@NotificationTransactional(readOnly = true)
 @Sharding(target = ShardingTarget.NOTIFICATION)
 public class NotificationService {
 
@@ -69,7 +69,7 @@ public class NotificationService {
         return SliceDTO.of(notificationResponses);
     }
 
-    @Transactional(value = "notificationTransactionManager")
+    @NotificationTransactional
     public void readNotification(Long loginId, Long notificationId) {
         Member loginMember = getMemberOrThrow(loginId);
 
@@ -78,7 +78,7 @@ public class NotificationService {
                 .ifPresent(Notification::read);
     }
 
-    @Transactional(value = "notificationTransactionManager")
+    @NotificationTransactional
     public void deleteNotification(Long loginId, Long notificationId) {
         Member loginMember = getMemberOrThrow(loginId);
 
