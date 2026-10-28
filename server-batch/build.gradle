@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation project(':infra-sharding')
 
-    implementation 'org.springframework.boot:spring-boot-starter-batch' // 배치 작업 여기에서?
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
 }

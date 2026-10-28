@@ -1,4 +1,4 @@
-package com.xowns.celfeed.server.batch.config.batch;
+package com.xowns.celfeed.server.batch.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.Job;
@@ -6,12 +6,14 @@ import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Configuration
+@EnableScheduling
 @RequiredArgsConstructor
 public class JobScheduleConfig {
 

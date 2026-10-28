@@ -1,14 +1,15 @@
 package com.xowns.celfeed.server.batch;
 
-import com.xowns.celfeed.infra.sharding.config.NotificationJpaConfig;
+import com.xowns.celfeed.infra.sharding.config.NotificationDataSourceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
-@Import(NotificationJpaConfig.class)
-@EnableScheduling
-@SpringBootApplication
+@Import(NotificationDataSourceConfig.class)
+@SpringBootApplication(exclude = DataJpaRepositoriesAutoConfiguration.class)
 public class BatchApplication {
 
     public static void main(String[] args) {

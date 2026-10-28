@@ -1,4 +1,4 @@
-package com.xowns.celfeed.server.batch.config.batch;
+package com.xowns.celfeed.server.batch.config;
 
 import com.xowns.celfeed.infra.sharding.core.ShardingTarget;
 import com.xowns.celfeed.infra.sharding.holder.UserHolder;
@@ -37,20 +37,9 @@ import java.util.Map;
 public class DataMigrationJobConfig {
 
     private static final int CHUNK_SIZE = 1000;
-    private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
-
-    public DataMigrationJobConfig(
-            JobRepository jobRepository,
-            @Qualifier("batchMetaTransactionManager") PlatformTransactionManager transactionManager
-    ) {
-
-        this.jobRepository = jobRepository;
-        this.transactionManager = transactionManager;
-    }
 
     @Bean
-    public Job dataMigrationJob(Step dataMigrationStep) {
+    public Job dataMigrationJob(JobRepository jobRepository, Step dataMigrationStep) {
         return new JobBuilder("dataMigrationJob", jobRepository)
                 .start(dataMigrationStep)
                 .next(dataMigrationStep)
@@ -58,7 +47,11 @@ public class DataMigrationJobConfig {
     }
 
     @Bean
-    public Step dataMigrationStep(ItemReader<Notification> itemReader, ItemWriter<Notification> itemWriter) {
+    public Step dataMigrationStep(JobRepository jobRepository,
+                                  @Qualifier("batchTransactionManager") PlatformTransactionManager transactionManager,
+                                  ItemReader<Notification> itemReader,
+                                  ItemWriter<Notification> itemWriter) {
+
         return new StepBuilder("dataMigrationStep", jobRepository)
                 .<Notification, Notification> chunk(CHUNK_SIZE)
                 .transactionManager(transactionManager)
@@ -121,7 +114,7 @@ public class DataMigrationJobConfig {
     }
 
     @Bean
-    public JdbcBatchItemWriter<Notification> itemWriter(@Qualifier("batchDataDataSource") DataSource dataSource) {
+    public JdbcBatchItemWriter<Notification> itemWriter(@Qualifier("batchDataSource") DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Notification>()
                 .dataSource(dataSource)
                 .sql(

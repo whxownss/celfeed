@@ -13,7 +13,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
     implementation 'tools.jackson.core:jackson-databind'
-    implementation 'org.springframework.boot:spring-boot-starter-batch' // 배치 작업 여기에서?
 
     runtimeOnly 'com.mysql:mysql-connector-j'
 }
