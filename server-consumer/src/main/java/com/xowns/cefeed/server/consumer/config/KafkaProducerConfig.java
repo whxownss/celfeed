@@ -1,0 +1,46 @@
+package com.xowns.cefeed.server.consumer.config;
+
+import com.xowns.cefeed.server.consumer.listener.WritePostNotiMessage;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+public class KafkaProducerConfig {
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
+    @Bean
+    public ProducerFactory<String, WritePostNotiMessage> wirtePostNotiProducerFactory() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+
+        DefaultKafkaProducerFactory<String, WritePostNotiMessage> factory = new DefaultKafkaProducerFactory<>(configs);
+        factory.setTransactionIdPrefix("tx-"); // 트랜잭션 기능 활성화;
+
+        return factory;
+    }
+
+    @Bean
+    public KafkaTransactionManager<String, WritePostNotiMessage> kafkaTransactionManager() {
+        return new KafkaTransactionManager<>(wirtePostNotiProducerFactory());
+    }
+
+    @Bean
+    public KafkaTemplate<String, WritePostNotiMessage> writePostNotiKafkaTemplate() {
+        return new KafkaTemplate<>(wirtePostNotiProducerFactory());
+    }
+}

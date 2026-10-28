@@ -4,11 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class WritePostEvent {
-    private String topic;
     private Long postId;
 
-    public WritePostEvent(String topic, Long postId) {
-        this.topic = topic;
+    public WritePostEvent(Long postId) {
         this.postId = postId;
     }
 }

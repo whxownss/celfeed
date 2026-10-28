@@ -1,6 +1,5 @@
 package com.xowns.celfeed.server.social.service;
 
-import com.xowns.celfeed.server.social.common.consts.KafkaTopicConst;
 import com.xowns.celfeed.server.social.dto.request.PostRequest;
 import com.xowns.celfeed.server.social.dto.response.PostResponse;
 import com.xowns.celfeed.server.social.event.payload.LikePostEvent;
@@ -46,7 +45,7 @@ public class PostService {
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
         //notificationSender.sendWritePost(savedPost.getId());
-        publisher.publishEvent(new WritePostEvent(KafkaTopicConst.WRITE_POST, savedPost.getId()));
+        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
 
         return savedPost.getId();
     }
@@ -102,7 +101,7 @@ public class PostService {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
 
                      //notificationSender.sendLikePost(savedLike.getId());
-                     publisher.publishEvent(new LikePostEvent(KafkaTopicConst.LIKE_POST, savedLike.getId()));
+                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
 
                      return savedLike.getId();
                  });

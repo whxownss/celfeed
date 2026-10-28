@@ -1,3 +1,9 @@
+app:
+  kafka:
+    topics:
+      write-post: write-post
+      like-post: like-post
+
 spring:
   application:
     name: server-social

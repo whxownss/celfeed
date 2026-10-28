@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-//    implementation project(':common-web')
-//    implementation project(':domain-social')
+    implementation project(':domain-social')
+    implementation project(':infra-sharding')
 
     // 여기서도 필요하나?
 //    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
@@ -12,6 +12,7 @@ dependencies {
 //    implementation 'io.micrometer:micrometer-registry-prometheus'
 
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'tools.jackson.core:jackson-databind'
     implementation 'org.springframework.boot:spring-boot-starter-batch' // 배치 작업 여기에서?
 
     runtimeOnly 'com.mysql:mysql-connector-j'

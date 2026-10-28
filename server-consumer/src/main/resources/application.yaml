@@ -1,0 +1,125 @@
+app:
+  datasource:
+    notification:
+      shards:
+        - shard-no: 0
+          name: notification-shard-0
+          url: jdbc:mysql://localhost:3306/notification1?rewriteBatchedStatements=true
+          username: ssafy
+          password: ssafy
+          driver-name: com.mysql.cj.jdbc.Driver
+          max-pool: 10
+          min-idle: 10
+          timeout: 30000
+        - shard-no: 1
+          name: notification-shard-1
+          url: jdbc:mysql://localhost:3306/notification2?rewriteBatchedStatements=true
+          username: ssafy
+          password: ssafy
+          driver-name: com.mysql.cj.jdbc.Driver
+          max-pool: 10
+          min-idle: 10
+          timeout: 30000
+  sharding:
+    notification:
+      strategy: MODULAR
+      mod: 2
+  #      sharding_key: receiver_id
+  kafka:
+    topics:
+      write-post: write-post
+      like-post: like-post
+      noti-batch: noti-batch
+    consumers:
+      noti-writepost:
+        group-id: noti-writepost
+      noti-likepost:
+        group-id: noti-likepost
+      noti-fanout:
+        group-id: noti-fanout
+
+spring:
+  application:
+    name: server-consumer
+  datasource:
+    social:
+      jdbc-url: jdbc:mysql://localhost:3306/celfeed #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+      username: ssafy
+      password: ssafy
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 30000
+  datasource-batch-meta:
+    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_meta
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 2
+    minimum-idle: 2
+  datasource-batch-data:
+    jdbc-url: jdbc:mysql://localhost:3306/celfeed_batch_data
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 1
+    minimum-idle: 1
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  redis:
+    sentinel:
+      master: mymaster
+      nodes: 127.0.0.1:26379,127.0.0.1:26479,127.0.0.1:26579
+  data:
+    redis:
+      #      sentinel:
+      #        master: mymaster
+      #        nodes: 127.0.0.1:26379,127.0.0.1:26479,127.0.0.1:26579
+      #      host: localhost
+      #      port: 6379
+      #      password: root
+      repositories: # Redis repository 쓸거면 없애면 됨 (로그때문에 해둠)
+        enabled: false
+  kafka:
+    bootstrap-servers: localhost:29092
+  batch:
+    job:
+      enabled: false
+
+logging.level:
+  #  com.xowns.celfeed: info
+  org.hibernate.SQL: debug
+  org.springframework.transaction.interceptor: TRACE
+#  org.springframework.data.redis: DEBUG
+#  org.apache.kafka: INFO
+#  org.springframework.kafka: INFO
+#  org.springframework.kafka.transaction: DEBUG
+
+
+#management:
+#  info:
+#    java:
+#      enabled: true
+#    os:
+#      enabled: true
+#  endpoint:
+#    health:
+#      show-details: always
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#
+#server:
+#  port: 8081
+#  tomcat:
+#    mbeanregistry:
+#      enabled: true
