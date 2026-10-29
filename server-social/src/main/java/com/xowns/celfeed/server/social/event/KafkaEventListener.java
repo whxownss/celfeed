@@ -16,10 +16,10 @@ public class KafkaEventListener {
     private final KafkaTemplate<String, Long> kafkaTemplate;
 
     @Value("${app.kafka.topics.write-post}")
-    private final String writePostTopic;
+    private String writePostTopic;
 
     @Value("${app.kafka.topics.like-post}")
-    private final String likePostTopic;
+    private String likePostTopic;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void writePost(WritePostEvent event) {

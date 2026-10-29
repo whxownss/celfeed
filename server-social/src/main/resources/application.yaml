@@ -9,9 +9,9 @@ spring:
     name: server-social
   datasource:
     social:
-      jdbc-url: jdbc:mysql://localhost:3306/celfeed_social #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
-      username: ssafy
-      password: ssafy
+      jdbc-url: jdbc:mysql://mysql-social:3306/celfeed_social #?rewriteBatchedStatements=true#&profileSQL=true&logger=Slf4JLogger&maxQuerySizeToLog=999999
+      username: root
+      password: root
       driver-class-name: com.mysql.cj.jdbc.Driver
       maximum-pool-size: 10
       minimum-idle: 10
