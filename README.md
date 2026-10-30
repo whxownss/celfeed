@@ -1,5 +1,9 @@
 # CelFeed
 
+```bash
+docker compose up --build
+```
+
 <br>
 
 ## 1. 소개

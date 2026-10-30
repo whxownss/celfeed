@@ -1,5 +1,22 @@
+# Docker 엔진이 컨테이너 내부에서 상태 체크
+# 상태 조건에 따라 의존하는 컨테이너 실행
+# - localhost
+#   - 같은 컴퓨터라고 판단하여 네트워크 없이 소켓 파일로 바로 붙음
+#   - 초기화용 임시 서버는 TCP는 잠그고 소켓만 열어둔 상태로 초기화(init.sql) 끝나기 전에도 healthy
+# - 127.0.0.1
+#   - IP 그대로 TCP 포트로 접속
+#   - TCP가 열린 진짜 서버는 초기화가 다 끝나야 healthy
+x-mysql-healthcheck: &mysql-healthcheck
+  test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD" ]
+  interval: 5s
+  timeout: 3s
+  retries: 10
+  start_period: 30s
+
 services:
+  #########################################################################
   # MySQL
+  #########################################################################
   mysql-social:
     image: mysql:8.4
     container_name: mysql-social
@@ -11,6 +28,7 @@ services:
       - ./docker/mysql/social/mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
+    healthcheck: *mysql-healthcheck
   mysql-notification1:
     image: mysql:8.4
     container_name: mysql-notification1
@@ -22,6 +40,7 @@ services:
       - ./docker/mysql/notification1/mysql_data:/var/lib/mysql
     ports:
       - 3307:3306
+    healthcheck: *mysql-healthcheck
   mysql-notification2:
     image: mysql:8.4
     container_name: mysql-notification2
@@ -33,6 +52,7 @@ services:
       - ./docker/mysql/notification2/mysql_data:/var/lib/mysql
     ports:
       - 3308:3306
+    healthcheck: *mysql-healthcheck
   mysql-batch:
     image: mysql:8.4
     container_name: mysql-batch
@@ -42,14 +62,73 @@ services:
       TZ: Asia/Seoul
     volumes:
       - ./docker/mysql/batch/mysql_data:/var/lib/mysql
+      - ./docker/mysql/batch/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 3309:3306
+    healthcheck: *mysql-healthcheck
+  #########################################################################
   # Spring Boot
+  #########################################################################
   server-social:
-    build: .
-    image: jdk:21
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: server-social
+    image: server-social:21
     container_name: server-social
     ports:
       - 8080:8080
     depends_on:
-      - mysql-social
+      mysql-social:
+        condition: service_healthy
+  server-notification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: server-notification
+    image: server-notification:21
+    container_name: server-notification
+    ports:
+      - 8081:8081
+    depends_on:
+      mysql-social:
+        condition: service_healthy
+      mysql-notification1:
+        condition: service_healthy
+      mysql-notification2:
+        condition: service_healthy
+  server-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: server-consumer
+    image: server-consumer:21
+    container_name: server-consumer
+    depends_on:
+      mysql-social:
+        condition: service_healthy
+      mysql-notification1:
+        condition: service_healthy
+      mysql-notification2:
+        condition: service_healthy
+  server-batch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: server-batch
+    image: server-batch:21
+    container_name: server-batch
+    depends_on:
+      mysql-notification1:
+        condition: service_healthy
+      mysql-notification2:
+        condition: service_healthy
+      mysql-batch:
+        condition: service_healthy
+  #########################################################################
+  #
+  #########################################################################
