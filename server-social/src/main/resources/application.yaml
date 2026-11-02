@@ -70,13 +70,13 @@ management:
       enabled: true
     os:
       enabled: true
-  endpoint:
-    health:
-      show-details: always
   endpoints:
     web:
       exposure:
         include: "*"
+  endpoint:
+    health:
+      show-details: always
 
 server:
   port: 8080

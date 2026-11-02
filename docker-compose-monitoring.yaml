@@ -7,18 +7,34 @@ services:
       - "9090:9090"
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-  #Grafana
+      - '--storage.tsdb.retention.time=15d'
+  # MySQL Exporter
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.21.0
+    container_name: monitoring-mysqld-exporter
+    ports:
+      - "9104:9104"
+    volumes:
+      - ./docker/exporter/.my.cnf:/etc/.my.cnf:ro
+    command:
+      - '--config.my-cnf=/etc/.my.cnf'
+  # Grafana
   grafana:
     image: grafana/grafana:13.2
     container_name: monitoring-grafana
     ports:
       - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+      - mysqld-exporter
 
 volumes:
-  prometheus_data:
+  prometheus-data:
+  grafana-data:
