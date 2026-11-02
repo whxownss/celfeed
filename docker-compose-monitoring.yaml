@@ -1,0 +1,24 @@
+services:
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    container_name: monitoring-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+  #Grafana
+  grafana:
+    image: grafana/grafana:13.2
+    container_name: monitoring-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus_data:
