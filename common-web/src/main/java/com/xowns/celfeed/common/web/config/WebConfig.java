@@ -1,15 +1,19 @@
 package com.xowns.celfeed.common.web.config;
 
 import com.xowns.celfeed.common.web.argumentresolver.LoginMemberArgumentResolver;
+import com.xowns.celfeed.common.web.exception.GlobalExceptionHandler;
 import com.xowns.celfeed.common.web.interceptor.LogInterceptor;
 import com.xowns.celfeed.common.web.interceptor.LoginCheckInterceptor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+@Import(GlobalExceptionHandler.class)
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

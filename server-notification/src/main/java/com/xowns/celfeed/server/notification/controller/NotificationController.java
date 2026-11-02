@@ -7,12 +7,10 @@ import com.xowns.celfeed.common.web.utils.ResponseEntityUtils;
 import com.xowns.celfeed.server.notification.dto.NotificationResponse;
 import com.xowns.celfeed.server.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Profile("notification")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")

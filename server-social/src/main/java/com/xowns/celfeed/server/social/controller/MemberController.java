@@ -39,8 +39,7 @@ public class MemberController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> createMember(@Valid @RequestBody MemberRequest
-                                                                      memberRequest) {
+    public ResponseEntity<ApiResponse<Long>> createMember(@Valid @RequestBody MemberRequest memberRequest) {
         return ResponseEntityUtils.create("성공적으로 가입되었습니다.", memberService.join(memberRequest));
     }
 

@@ -17,6 +17,7 @@ services:
   #########################################################################
   # MySQL
   #########################################################################
+  # Social DB
   mysql-social:
     image: mysql:8.4
     container_name: mysql-social
@@ -27,8 +28,9 @@ services:
     volumes:
       - ./docker/mysql/social/mysql_data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
     healthcheck: *mysql-healthcheck
+  # Notification DB 1
   mysql-notification1:
     image: mysql:8.4
     container_name: mysql-notification1
@@ -39,8 +41,9 @@ services:
     volumes:
       - ./docker/mysql/notification1/mysql_data:/var/lib/mysql
     ports:
-      - 3307:3306
+      - "3307:3306"
     healthcheck: *mysql-healthcheck
+  # Notification DB 2
   mysql-notification2:
     image: mysql:8.4
     container_name: mysql-notification2
@@ -51,8 +54,9 @@ services:
     volumes:
       - ./docker/mysql/notification2/mysql_data:/var/lib/mysql
     ports:
-      - 3308:3306
+      - "3308:3306"
     healthcheck: *mysql-healthcheck
+  # Batch DB
   mysql-batch:
     image: mysql:8.4
     container_name: mysql-batch
@@ -64,11 +68,12 @@ services:
       - ./docker/mysql/batch/mysql_data:/var/lib/mysql
       - ./docker/mysql/batch/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - 3309:3306
+      - "3309:3306"
     healthcheck: *mysql-healthcheck
   #########################################################################
   # Spring Boot
   #########################################################################
+  # Social API
   server-social:
     build:
       context: .
@@ -78,10 +83,15 @@ services:
     image: server-social:21
     container_name: server-social
     ports:
-      - 8080:8080
+      - "8080:8080"
     depends_on:
       mysql-social:
         condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+  # Notification API
   server-notification:
     build:
       context: .
@@ -91,7 +101,7 @@ services:
     image: server-notification:21
     container_name: server-notification
     ports:
-      - 8081:8081
+      - "8081:8081"
     depends_on:
       mysql-social:
         condition: service_healthy
@@ -99,6 +109,9 @@ services:
         condition: service_healthy
       mysql-notification2:
         condition: service_healthy
+      redis:
+        condition: service_started
+  # Consumer Server
   server-consumer:
     build:
       context: .
@@ -114,6 +127,11 @@ services:
         condition: service_healthy
       mysql-notification2:
         condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+  # Batch Server
   server-batch:
     build:
       context: .
@@ -130,5 +148,61 @@ services:
       mysql-batch:
         condition: service_healthy
   #########################################################################
-  #
+  # Kafka
   #########################################################################
+  # Kafka Broker
+  kafka:
+    image: apache/kafka:4.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # KRAFT 설정
+      KAFKA_NODE_ID: 1 #브로커 ID
+      KAFKA_PROCESS_ROLES: broker,controller #브로커와 컨트롤러 역할 같이 수행
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A==' #브로커가 속할 클러스터 ID
+      # Listener 설정
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093 # Kafka가 수신할 주소와 포트 설정
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://kafka:9092 # 클라이언트에게 공개할 리스너 주소
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT # 리스너별 보안 프로토콜
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER # 컨트롤러 전용 리스너
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL # 브로커끼리 통신할 때 사용할 리스너
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093 # 쿼럼에 참여할 노드(컨트롤러) 목록 (노드ID@노드HOST:다른컨트롤러노드와통신할포트)
+      # Kafka 기본 설정
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Consumer 오프셋 정보 저장하는 토픽의 복제 개수
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1 # 트랜잭션 상태 저장하는 토픽의 복제 개수
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1 # 트랜잭션 상태 저장 시 필요한 최소 ISR 수
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # Consumer Group이 처음 구성될 때 최초 Rebalance를 시작하기 전 기다리는 시간
+      KAFKA_LOG_DIRS: /var/lib/kafka/data # 로그(실제 데이터)를 저장할 위치
+  # Kafka UI
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092 # 연결할 브로커 주소
+    depends_on:
+      - kafka
+  #########################################################################
+  # Redis
+  #########################################################################
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+  #########################################################################
+  # Nginx
+  #########################################################################
+  nginx:
+    image: nginx:1.31-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - server-social
+      - server-notification
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
