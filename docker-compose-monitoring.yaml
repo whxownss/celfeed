@@ -69,8 +69,40 @@ services:
   #########################################################################
   # nGrinder
   #########################################################################
+  controller:
+    image: ngrinder/controller:3.5.9
+    container_name: monitoring-ngrinder-controller
+    ports:
+      - "9000:80"                 # 웹 UI
+      - "16001:16001"             # 클러스터/컨트롤러 포트
+      - "12000-12009:12000-12009" # 에이전트 접속용 stream 포트
+    volumes:
+      - ngrinder-controller:/opt/ngrinder-controller
+    environment:
+      - TZ=Asia/Seoul
+  agent-social:
+    image: ngrinder/agent:3.5.9
+    container_name: monitoring-ngrinder-agent-social
+    command: ["controller:80"]
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - controller
+  agent-notification:
+    image: ngrinder/agent:3.5.9
+    container_name: monitoring-ngrinder-agent-notification
+    command: [ "controller:80" ]
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - controller
 
 
+
+#########################################################################
+# volumes
+#########################################################################
 volumes:
   prometheus-data:
   grafana-data:
+  ngrinder-controller:
