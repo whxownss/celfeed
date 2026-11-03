@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,6 +71,16 @@ public class GlobalExceptionHandler {
             case "Size", "Email" -> 2;
             default -> Integer.MAX_VALUE;
         };
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        // 왜 안잡히지?
+        Map<String, Object> errorData = new HashMap<>();
+        errorData.put("요청 METHOD", e.getMethod());
+        errorData.put("지원 METHOD", e.getSupportedMethods());
+
+        return handleExceptionInternal(BAD_REQUEST, "지원하지 않는 METHOD 입니다.", errorData);
     }
 
     @ExceptionHandler

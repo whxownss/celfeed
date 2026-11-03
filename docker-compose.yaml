@@ -196,6 +196,16 @@ services:
     container_name: infra-redis
     ports:
       - "6379:6379"
+  redisinsight:
+    image: redis/redisinsight:3.8
+    container_name: infra-redisinsight
+    ports:
+      - "5540:5540"
+    environment:
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: 6379
+    depends_on:
+      - redis
   #########################################################################
   # Nginx
   #########################################################################
