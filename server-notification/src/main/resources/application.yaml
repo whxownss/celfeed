@@ -85,14 +85,10 @@ logging.level:
 #  org.springframework.kafka.transaction: DEBUG
 
 management:
-  info:
-    java:
-      enabled: true
-    os:
-      enabled: true
   endpoint:
     health:
       show-details: always
+  # 엔드 포인트 노출
   endpoints:
     web:
       exposure:

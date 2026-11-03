@@ -3,6 +3,10 @@
 ```bash
 docker compose up --build
 ```
+```bash
+docker compose -f docker-compose.yaml -f docker-compose-monitoring.yaml up --build
+```
+
 
 <br>
 

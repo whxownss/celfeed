@@ -1,5 +1,7 @@
 services:
+  #########################################################################
   # Prometheus
+  #########################################################################
   prometheus:
     image: prom/prometheus:v3.15.1
     container_name: monitoring-prometheus
@@ -12,17 +14,42 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=15d'
+  #########################################################################
   # MySQL Exporter
-  mysqld-exporter:
+  #########################################################################
+  mysqld-exporter-social:
     image: prom/mysqld-exporter:v0.21.0
-    container_name: monitoring-mysqld-exporter
-    ports:
-      - "9104:9104"
+    container_name: monitoring-mysqld-exporter-social
     volumes:
-      - ./docker/exporter/.my.cnf:/etc/.my.cnf:ro
+      - ./docker/exporter/.mysql-social.cnf:/etc/.my.cnf:ro
     command:
       - '--config.my-cnf=/etc/.my.cnf'
+      - '--mysqld.address=mysql-social:3306'
+    depends_on:
+      - mysql-social
+  mysqld-exporter-notification1:
+    image: prom/mysqld-exporter:v0.21.0
+    container_name: monitoring-mysqld-exporter-notification1
+    volumes:
+      - ./docker/exporter/.mysql-notification1.cnf:/etc/.my.cnf:ro
+    command:
+      - '--config.my-cnf=/etc/.my.cnf'
+      - '--mysqld.address=mysql-notification1:3306'
+    depends_on:
+      - mysql-notification1
+  mysqld-exporter-notification2:
+    image: prom/mysqld-exporter:v0.21.0
+    container_name: monitoring-mysqld-exporter-notification2
+    volumes:
+      - ./docker/exporter/.mysql-notification2.cnf:/etc/.my.cnf:ro
+    command:
+      - '--config.my-cnf=/etc/.my.cnf'
+      - '--mysqld.address=mysql-notification2:3306'
+    depends_on:
+      - mysql-notification2
+  #########################################################################
   # Grafana
+  #########################################################################
   grafana:
     image: grafana/grafana:13.2
     container_name: monitoring-grafana
@@ -30,10 +57,19 @@ services:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./docker/grafana/provisioning:etc/grafana/provisioning:ro
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - prometheus
-      - mysqld-exporter
+      - mysqld-exporter-social
+      - mysqld-exporter-notification1
+      - mysqld-exporter-notification2
+  #########################################################################
+  # nGrinder
+  #########################################################################
+
 
 volumes:
   prometheus-data:
