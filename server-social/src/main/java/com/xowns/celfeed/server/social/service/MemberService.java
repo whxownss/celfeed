@@ -40,6 +40,7 @@ public class MemberService {
         validateDuplicateEmail(memberRequest.getEmail());
 
         Member savedMember = memberRepository.save(memberRequest.toEntity());
+
         return savedMember.getId();
     }
 

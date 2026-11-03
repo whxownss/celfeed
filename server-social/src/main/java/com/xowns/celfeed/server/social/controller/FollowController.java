@@ -5,11 +5,11 @@ import com.xowns.celfeed.server.social.service.FollowService;
 import com.xowns.celfeed.common.web.argumentresolver.Login;
 import com.xowns.celfeed.common.web.dto.ApiResponse;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
-import com.xowns.celfeed.common.web.utils.ResponseEntityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/follows")
@@ -19,26 +19,30 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("/{targetMemberId}")
-    public ResponseEntity<ApiResponse<Void>> follow(@Login Long loginId, @PathVariable Long targetMemberId) {
+    @ResponseStatus(CREATED)
+    public ApiResponse<Void> follow(@Login Long loginId, @PathVariable Long targetMemberId) {
         followService.followMember(loginId, targetMemberId);
-        return ResponseEntityUtils.create("팔로우 성공");
+        return ApiResponse.of("팔로우 성공");
     }
 
     @DeleteMapping("/{targetMemberId}")
-    public ResponseEntity<ApiResponse<Void>> unfollow(@Login Long loginId, @PathVariable Long targetMemberId) {
+    @ResponseStatus(OK)
+    public ApiResponse<Void> unfollow(@Login Long loginId, @PathVariable Long targetMemberId) {
         followService.unfollowMember(loginId, targetMemberId);
-        return ResponseEntityUtils.ok("언팔로우 성공");
+        return ApiResponse.of("언팔로우 성공");
     }
 
     @GetMapping("/following")
-    public ResponseEntity<ApiResponse<SliceDTO<MemberResponse>>> getFollowing(@Login Long loginId, Pageable pageable) {
+    @ResponseStatus(OK)
+    public ApiResponse<SliceDTO<MemberResponse>> getFollowing(@Login Long loginId, Pageable pageable) {
         SliceDTO<MemberResponse> following = followService.getFollowingMembers(loginId, pageable);
-        return ResponseEntityUtils.ok("팔로잉 목록 조회 성공", following);
+        return ApiResponse.of("팔로잉 목록 조회 성공", following);
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<ApiResponse<SliceDTO<MemberResponse>>> getFollowers(@Login Long loginId, Pageable pageable) {
+    @ResponseStatus(OK)
+    public ApiResponse<SliceDTO<MemberResponse>> getFollowers(@Login Long loginId, Pageable pageable) {
         SliceDTO<MemberResponse> followers = followService.getFollowerMembers(loginId, pageable);
-        return ResponseEntityUtils.ok("팔로워 목록 조회 성공", followers);
+        return ApiResponse.of("팔로워 목록 조회 성공", followers);
     }
 }

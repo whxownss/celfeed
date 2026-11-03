@@ -1,13 +1,14 @@
 package com.xowns.celfeed.server.social.service;
 
+import com.xowns.celfeed.domain.social.dto.PostDetail;
 import com.xowns.celfeed.server.social.dto.request.PostRequest;
+import com.xowns.celfeed.server.social.dto.response.PostDetailResponse;
 import com.xowns.celfeed.server.social.dto.response.PostResponse;
 import com.xowns.celfeed.server.social.event.payload.LikePostEvent;
 import com.xowns.celfeed.server.social.event.payload.WritePostEvent;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
 import com.xowns.celfeed.common.web.exception.ApiException;
 import com.xowns.celfeed.common.web.exception.ErrorCode;
-import com.xowns.celfeed.domain.social.dto.PostDetailResponse;
 import com.xowns.celfeed.domain.social.entity.Like;
 import com.xowns.celfeed.domain.social.entity.Member;
 import com.xowns.celfeed.domain.social.entity.Post;
@@ -51,8 +52,10 @@ public class PostService {
     }
 
     public PostDetailResponse findOneDetail(Long loginId, Long postId) {
-        return postQueryRepository.findByDetail(loginId, postId, false)
+        PostDetail postDetail = postQueryRepository.findByDetail(loginId, postId, false)
                 .orElseThrow(() -> new ApiException(ErrorCode.POST_NOT_FOUND));
+
+        return PostDetailResponse.of(postDetail);
     }
 
     @Transactional
@@ -116,7 +119,8 @@ public class PostService {
                 .ifPresent(likeRepository::delete);
     }
 
-    // ====
+    // ========================================================================================
+
     private Member getMemberOrThrow(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));

@@ -2,7 +2,7 @@ package com.xowns.celfeed.domain.social.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.xowns.celfeed.domain.social.dto.PostDetailResponse;
+import com.xowns.celfeed.domain.social.dto.PostDetail;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
@@ -33,10 +33,10 @@ public class PostQueryRepository {
      *             "   and p.isDeleted = :isDeleted " +
      *             " group by p.id, p.content, m.nickname, p.createdAt, p.updatedAt"
      */
-    public Optional<PostDetailResponse> findByDetail(Long loginId, Long postId, boolean isDeleted) {
+    public Optional<PostDetail> findByDetail(Long loginId, Long postId, boolean isDeleted) {
         //QLike like2 = new QLike("like2");
-        PostDetailResponse postDetail = queryFactory
-                .select(Projections.constructor(PostDetailResponse.class,
+        PostDetail postDetail = queryFactory
+                .select(Projections.constructor(PostDetail.class,
                         post.id,
                         post.content,
                         member.nickname,
@@ -56,6 +56,7 @@ public class PostQueryRepository {
                 )
                 .groupBy(post.id, post.content, member.nickname, post.createdAt, post.updatedAt)
                 .fetchOne();
+
         return Optional.ofNullable(postDetail);
     }
 }

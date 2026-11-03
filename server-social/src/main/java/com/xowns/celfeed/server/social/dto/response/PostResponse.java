@@ -21,7 +21,12 @@ public class PostResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    private PostResponse(Long id, String content, String memberNickname, LocalDateTime createAt, LocalDateTime updatedAt) {
+    private PostResponse(Long id,
+                         String content,
+                         String memberNickname,
+                         LocalDateTime createAt,
+                         LocalDateTime updatedAt) {
+
         this.id = id;
         this.content = content;
         this.memberNickname = memberNickname;

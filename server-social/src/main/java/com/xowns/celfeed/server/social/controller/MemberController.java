@@ -8,15 +8,15 @@ import com.xowns.celfeed.common.web.consts.SessionConst;
 import com.xowns.celfeed.common.web.dto.ApiResponse;
 import com.xowns.celfeed.common.web.dto.PageDTO;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
-import com.xowns.celfeed.common.web.utils.ResponseEntityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestController
@@ -27,86 +27,71 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/validation/nickname")
-    public ResponseEntity<ApiResponse<Void>> validateNickname(@RequestParam String nickname) {
+    @ResponseStatus(OK)
+    public ApiResponse<Void> validateNickname(@RequestParam String nickname) {
         memberService.validateDuplicateNickname(nickname);
-        return ResponseEntityUtils.ok("사용 가능한 닉네임입니다.");
+        return ApiResponse.of("사용 가능한 닉네임입니다.");
     }
 
     @GetMapping("/validation/email")
-    public ResponseEntity<ApiResponse<Void>> validateEmail(@RequestParam String email) {
+    @ResponseStatus(OK)
+    public ApiResponse<Void> validateEmail(@RequestParam String email) {
         memberService.validateDuplicateNickname(email);
-        return ResponseEntityUtils.ok("사용 가능한 이메일입니다.");
+        return ApiResponse.of("사용 가능한 이메일입니다.");
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> createMember(@Valid @RequestBody MemberRequest memberRequest) {
-        return ResponseEntityUtils.create("성공적으로 가입되었습니다.", memberService.join(memberRequest));
+    @ResponseStatus(CREATED)
+    public ApiResponse<Long> createMember(@Valid @RequestBody MemberRequest memberRequest) {
+        Long memberId = memberService.join(memberRequest);
+        return ApiResponse.of("성공적으로 가입되었습니다.", memberId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MemberResponse>> getMember(@PathVariable Long id) {
-        return ResponseEntityUtils.ok("회원 조회 성공", memberService.findOne(id));
+    @ResponseStatus(OK)
+    public ApiResponse<MemberResponse> getMember(@PathVariable Long id) {
+        MemberResponse findMember = memberService.findOne(id);
+        return ApiResponse.of("회원 조회 성공", findMember);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageDTO<MemberResponse>>> getMembers(Pageable pageable) {
-        return ResponseEntityUtils.ok("회원 목록 조회 성공", memberService.findAll(pageable));
+    @ResponseStatus(OK)
+    public ApiResponse<PageDTO<MemberResponse>> getMembers(Pageable pageable) {
+        PageDTO<MemberResponse> findMembers = memberService.findAll(pageable);
+        return ApiResponse.of("회원 목록 조회 성공", findMembers);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<SliceDTO<MemberResponse>>> searchMembersByNickname(@RequestParam String nickname, Pageable pageable) {
-        return ResponseEntityUtils.ok("회원 목록 검색 성공", memberService.findAllByNickname(nickname, pageable));
+    @ResponseStatus(OK)
+    public ApiResponse<SliceDTO<MemberResponse>> searchMembersByNickname(@RequestParam String nickname,
+                                                                         Pageable pageable) {
+
+        SliceDTO<MemberResponse> findMembers = memberService.findAllByNickname(nickname, pageable);
+        return ApiResponse.of("회원 목록 검색 성공", findMembers);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest, HttpServletRequest request) {
+    @ResponseStatus(OK)
+    public ApiResponse<Void> login(@Valid @RequestBody MemberLoginRequest memberLoginRequest,
+                                   HttpServletRequest request) {
+
         Long memberId = memberService.login(memberLoginRequest);
 
         HttpSession session = request.getSession(true);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
-        return ResponseEntityUtils.ok("로그인 성공");
+        return ApiResponse.of("로그인 성공");
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+    @ResponseStatus(OK)
+    public ApiResponse<Void> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
+
         if (session != null) {
             session.invalidate();
         }
-        return ResponseEntityUtils.ok("로그아웃 성공");
+
+        return ApiResponse.of("로그아웃 성공");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
