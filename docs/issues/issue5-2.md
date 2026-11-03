@@ -66,7 +66,7 @@ public class DataSourceConfig {
     }
 }
 ```
-- `application.yml`에 추가한 `DataSource` 정보를 매핑하여 빈으로 등록합니다.
+- `application.yaml`에 추가한 `DataSource` 정보를 매핑하여 빈으로 등록합니다.
 
 <br>
 

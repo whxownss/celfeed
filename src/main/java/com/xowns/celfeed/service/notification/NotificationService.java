@@ -2,13 +2,13 @@ package com.xowns.celfeed.service.notification;
 
 import com.xowns.celfeed.config.sharding.Sharding;
 import com.xowns.celfeed.config.sharding.ShardingTarget;
-import com.xowns.celfeed.domain.basic.Member;
+import com.xowns.celfeed.domain.social.basic.Member;
 import com.xowns.celfeed.dto.SliceDTO;
 import com.xowns.celfeed.dto.member.MemberIdNickname;
 import com.xowns.celfeed.dto.notification.NotificationResponse;
 import com.xowns.celfeed.exception.ApiException;
 import com.xowns.celfeed.exception.ErrorCode;
-import com.xowns.celfeed.domain.notification.Notification;
+import com.xowns.celfeed.domain.social.notification.Notification;
 import com.xowns.celfeed.repository.notification.NotificationRepository;
 import com.xowns.celfeed.repository.basic.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

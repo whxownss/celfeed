@@ -1,9 +1,9 @@
 package com.xowns.celfeed.service.basic;
 
 import com.xowns.celfeed.common.consts.KafkaTopicConst;
-import com.xowns.celfeed.domain.basic.Like;
-import com.xowns.celfeed.domain.basic.Member;
-import com.xowns.celfeed.domain.basic.Post;
+import com.xowns.celfeed.domain.social.basic.Like;
+import com.xowns.celfeed.domain.social.basic.Member;
+import com.xowns.celfeed.domain.social.basic.Post;
 import com.xowns.celfeed.dto.post.PostDetailResponse;
 import com.xowns.celfeed.dto.post.PostRequest;
 import com.xowns.celfeed.dto.post.PostResponse;

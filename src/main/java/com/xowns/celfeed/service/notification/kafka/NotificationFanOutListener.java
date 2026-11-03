@@ -2,8 +2,8 @@ package com.xowns.celfeed.service.notification.kafka;
 
 import com.xowns.celfeed.common.consts.KafkaGroupConst;
 import com.xowns.celfeed.common.consts.KafkaTopicConst;
-import com.xowns.celfeed.domain.basic.Member;
-import com.xowns.celfeed.domain.basic.Post;
+import com.xowns.celfeed.domain.social.basic.Member;
+import com.xowns.celfeed.domain.social.basic.Post;
 import com.xowns.celfeed.dto.follow.FollowerDTO;
 import com.xowns.celfeed.repository.basic.FollowQueryRepository;
 import com.xowns.celfeed.repository.basic.PostRepository;

@@ -9,10 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static com.xowns.celfeed.domain.basic.QLike.*;
-import static com.xowns.celfeed.domain.basic.QMember.*;
-import static com.xowns.celfeed.domain.basic.QPost.*;
-
 @Repository
 public class PostQueryRepository {
 

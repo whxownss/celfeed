@@ -1,6 +1,6 @@
 package com.xowns.celfeed;
 
-import com.xowns.celfeed.domain.basic.*;
+import com.xowns.celfeed.domain.social.basic.*;
 import com.xowns.celfeed.repository.basic.FollowRepository;
 import com.xowns.celfeed.repository.basic.LikeRepository;
 import com.xowns.celfeed.repository.basic.MemberRepository;

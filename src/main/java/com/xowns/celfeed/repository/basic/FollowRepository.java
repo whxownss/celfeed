@@ -1,7 +1,7 @@
 package com.xowns.celfeed.repository.basic;
 
-import com.xowns.celfeed.domain.basic.Follow;
-import com.xowns.celfeed.domain.basic.Member;
+import com.xowns.celfeed.domain.social.basic.Follow;
+import com.xowns.celfeed.domain.social.basic.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
