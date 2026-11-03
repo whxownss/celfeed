@@ -87,7 +87,8 @@ public class NotificationService {
                 .ifPresent(notificationRepository::delete);
     }
 
-    // ====
+    // ========================================================================================
+
     private Member getMemberOrThrow(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));

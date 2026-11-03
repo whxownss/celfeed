@@ -51,14 +51,14 @@ public class MemberController {
     @ResponseStatus(OK)
     public ApiResponse<MemberResponse> getMember(@PathVariable Long id) {
         MemberResponse findMember = memberService.findOne(id);
-        return ApiResponse.of("회원 조회 성공", findMember);
+        return ApiResponse.of("회원이 조회되었습니다.", findMember);
     }
 
     @GetMapping
     @ResponseStatus(OK)
     public ApiResponse<PageDTO<MemberResponse>> getMembers(Pageable pageable) {
         PageDTO<MemberResponse> findMembers = memberService.findAll(pageable);
-        return ApiResponse.of("회원 목록 조회 성공", findMembers);
+        return ApiResponse.of("회원 목록이 조회되었습니다.", findMembers);
     }
 
     @GetMapping("/search")
@@ -67,7 +67,7 @@ public class MemberController {
                                                                          Pageable pageable) {
 
         SliceDTO<MemberResponse> findMembers = memberService.findAllByNickname(nickname, pageable);
-        return ApiResponse.of("회원 목록 검색 성공", findMembers);
+        return ApiResponse.of("회원 목록이 조회되었습니다.", findMembers);
     }
 
     @PostMapping("/login")
@@ -80,7 +80,7 @@ public class MemberController {
         HttpSession session = request.getSession(true);
         session.setAttribute(SessionConst.LOGIN_MEMBER, memberId);
 
-        return ApiResponse.of("로그인 성공");
+        return ApiResponse.of("로그인에 성공했습니다.");
     }
 
     @DeleteMapping("/logout")
@@ -92,6 +92,6 @@ public class MemberController {
             session.invalidate();
         }
 
-        return ApiResponse.of("로그아웃 성공");
+        return ApiResponse.of("로그아웃에 성공했습니다.");
     }
 }

@@ -65,13 +65,13 @@ public class PostController {
     @ResponseStatus(CREATED)
     public ApiResponse<Void> likePost(@Login Long loginId, @PathVariable Long postId) {
         postService.likePost(loginId, postId);
-        return ApiResponse.of("게시글 좋아요");
+        return ApiResponse.of("게시글 좋아요를 눌렀습니다.");
     }
 
     @DeleteMapping("/{postId}/likes")
     @ResponseStatus(OK)
     public ApiResponse<Void> unlikePost(@Login Long loginId, @PathVariable Long postId) {
         postService.unlikePost(loginId, postId);
-        return ApiResponse.of("게시글 좋아요 취소");
+        return ApiResponse.of("게시글 좋아요를 취소했습니다.");
     }
 }

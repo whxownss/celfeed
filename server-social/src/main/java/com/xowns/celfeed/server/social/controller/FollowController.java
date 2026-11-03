@@ -22,27 +22,27 @@ public class FollowController {
     @ResponseStatus(CREATED)
     public ApiResponse<Void> follow(@Login Long loginId, @PathVariable Long targetMemberId) {
         followService.followMember(loginId, targetMemberId);
-        return ApiResponse.of("팔로우 성공");
+        return ApiResponse.of("팔로우를 걸었습니다.");
     }
 
     @DeleteMapping("/{targetMemberId}")
     @ResponseStatus(OK)
     public ApiResponse<Void> unfollow(@Login Long loginId, @PathVariable Long targetMemberId) {
         followService.unfollowMember(loginId, targetMemberId);
-        return ApiResponse.of("언팔로우 성공");
+        return ApiResponse.of("팔로우를 취소했습니다.");
     }
 
     @GetMapping("/following")
     @ResponseStatus(OK)
     public ApiResponse<SliceDTO<MemberResponse>> getFollowing(@Login Long loginId, Pageable pageable) {
         SliceDTO<MemberResponse> following = followService.getFollowingMembers(loginId, pageable);
-        return ApiResponse.of("팔로잉 목록 조회 성공", following);
+        return ApiResponse.of("팔로잉 목록이 조회되었습니다.", following);
     }
 
     @GetMapping("/followers")
     @ResponseStatus(OK)
     public ApiResponse<SliceDTO<MemberResponse>> getFollowers(@Login Long loginId, Pageable pageable) {
         SliceDTO<MemberResponse> followers = followService.getFollowerMembers(loginId, pageable);
-        return ApiResponse.of("팔로워 목록 조회 성공", followers);
+        return ApiResponse.of("팔로워 목록이 조회되었습니다.", followers);
     }
 }
