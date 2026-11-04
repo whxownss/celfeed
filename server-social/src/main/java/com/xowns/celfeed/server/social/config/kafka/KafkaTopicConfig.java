@@ -19,10 +19,7 @@ public class KafkaTopicConfig {
         return TopicBuilder.name(topic)
                 .partitions(1)
                 .replicas(1)
-                .config(
-                        TopicConfig.RETENTION_MS_CONFIG,
-                        String.valueOf(ONE_DAY)
-                )
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
                 .build();
     }
 
@@ -31,10 +28,7 @@ public class KafkaTopicConfig {
         return TopicBuilder.name(topic)
                 .partitions(1)
                 .replicas(1)
-                .config(
-                        TopicConfig.RETENTION_MS_CONFIG,
-                        String.valueOf(ONE_DAY)
-                )
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
                 .build();
     }
 }

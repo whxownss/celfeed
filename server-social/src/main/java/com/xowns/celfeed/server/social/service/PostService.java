@@ -16,6 +16,7 @@ import com.xowns.celfeed.domain.social.repository.LikeRepository;
 import com.xowns.celfeed.domain.social.repository.MemberRepository;
 import com.xowns.celfeed.domain.social.repository.PostQueryRepository;
 import com.xowns.celfeed.domain.social.repository.PostRepository;
+import com.xowns.celfeed.server.social.outbox.OutboxEventRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,16 +38,17 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    //private final NotificationSender notificationSender;
-    private final ApplicationEventPublisher publisher;
+
+//    private final ApplicationEventPublisher publisher;
+    private final OutboxEventRecorder outboxEventRecorder;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-        //notificationSender.sendWritePost(savedPost.getId());
-        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
+//        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
+        outboxEventRecorder.recordWritePostEvent(savedPost);
 
         return savedPost.getId();
     }
@@ -103,8 +105,8 @@ public class PostService {
                  .orElseGet(() -> {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
 
-                     //notificationSender.sendLikePost(savedLike.getId());
-                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
+//                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
+                     outboxEventRecorder.recordLikePostEvent(savedLike);
 
                      return savedLike.getId();
                  });
