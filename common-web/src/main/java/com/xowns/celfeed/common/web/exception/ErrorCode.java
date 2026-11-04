@@ -18,7 +18,10 @@ public enum ErrorCode {
 
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다."),
 
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다.")
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."),
+
+    // 위치 애매
+    UNSUPPORTED_EVENT_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "지원하지 않는 이벤트 타입입니다.")
     ;
 
     private final HttpStatus status;

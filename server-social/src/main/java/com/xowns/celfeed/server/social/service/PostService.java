@@ -1,11 +1,11 @@
 package com.xowns.celfeed.server.social.service;
 
+import com.xowns.celfeed.common.event.LikePostEvent;
+import com.xowns.celfeed.common.event.WritePostEvent;
 import com.xowns.celfeed.domain.social.dto.PostDetail;
 import com.xowns.celfeed.server.social.dto.request.PostRequest;
 import com.xowns.celfeed.server.social.dto.response.PostDetailResponse;
 import com.xowns.celfeed.server.social.dto.response.PostResponse;
-import com.xowns.celfeed.server.social.event.payload.LikePostEvent;
-import com.xowns.celfeed.server.social.event.payload.WritePostEvent;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
 import com.xowns.celfeed.common.web.exception.ApiException;
 import com.xowns.celfeed.common.web.exception.ErrorCode;
@@ -48,7 +48,7 @@ public class PostService {
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
 //        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
-        outboxEventRecorder.recordWritePostEvent(savedPost);
+        outboxEventRecorder.record(new WritePostEvent(savedPost.getId(), savedPost.getMember().getId()));
 
         return savedPost.getId();
     }
@@ -106,7 +106,12 @@ public class PostService {
                      Like savedLike = likeRepository.save(Like.create(findPost, member));
 
 //                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
-                     outboxEventRecorder.recordLikePostEvent(savedLike);
+                     outboxEventRecorder.record(new LikePostEvent(
+                             savedLike.getId(),
+                             savedLike.getPost().getId(),
+                             savedLike.getPost().getMember().getId(), // TODO : 프록시 초기화 되는지 확인
+                             savedLike.getMember().getId()
+                     ));
 
                      return savedLike.getId();
                  });

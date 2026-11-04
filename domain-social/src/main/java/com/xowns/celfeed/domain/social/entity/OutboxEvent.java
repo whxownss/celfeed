@@ -12,7 +12,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@Table(name = "outbox_event")
+@Table(
+        name = "outbox_event",
+        indexes = @Index(name = "idx_outbox_status_craeted",columnList = "status, created_at")
+)
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 @ToString
@@ -21,13 +24,9 @@ public class OutboxEvent {
     @Id @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    /** UUID, 컨슈머 멱등성 키 */
+    /** UUID(멱등성 키) */
     @Column(unique = true, columnDefinition = "CHAR(36)", nullable = false)
     private String eventId;
-
-    /** POST, LIKE, FOLLOW, ... */
-    @Column(columnDefinition = "VARCHAR(20)", nullable = false)
-    private String aggregateType;
 
     /** Kafka 파티션 키 */
     @Column(nullable = false)
@@ -70,14 +69,9 @@ public class OutboxEvent {
         updatedAt = LocalDateTime.now();
     }
 
-    public static OutboxEvent create(String aggregateType,
-                                     Long aggregateId,
-                                     String topic,
-                                     String payload) {
-
+    public static OutboxEvent pending(String eventId, Long aggregateId, String topic, String payload) {
         OutboxEvent e = new OutboxEvent();
-        e.eventId = UUID.randomUUID().toString();
-        e.aggregateType = aggregateType;
+        e.eventId = eventId;
         e.aggregateId = aggregateId;
         e.topic = topic;
         e.payload = payload;
