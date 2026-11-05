@@ -97,13 +97,18 @@ public class PostService {
 
     @Transactional
     public Long likePost(Long loginId, Long postId) {
-        Member member = getMemberOrThrow(loginId);
+        Member loginMember = getMemberOrThrow(loginId);
         Post findPost = getPostOrThrow(postId);
 
-         return likeRepository.findByPostAndMember(findPost, member)
+         return likeRepository.findByPostAndMember(findPost, loginMember)
                  .map(Like::getId)
                  .orElseGet(() -> {
-                     Like savedLike = likeRepository.save(Like.create(findPost, member));
+                     Like savedLike = likeRepository.save(Like.create(findPost, loginMember));
+
+                     // 자기 글의 경우 알림 보내지 않음
+                     if (loginMember.getId().equals(findPost.getMember().getId())) {
+                         return savedLike.getId();
+                     }
 
 //                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
                      outboxEventRecorder.record(new LikePostEvent(

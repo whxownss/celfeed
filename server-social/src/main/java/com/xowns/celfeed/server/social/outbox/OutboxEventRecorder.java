@@ -1,5 +1,6 @@
 package com.xowns.celfeed.server.social.outbox;
 
+import com.xowns.celfeed.common.event.EventType;
 import com.xowns.celfeed.common.event.LikePostEvent;
 import com.xowns.celfeed.common.event.SocialEvent;
 import com.xowns.celfeed.common.event.WritePostEvent;
@@ -21,11 +22,11 @@ public class OutboxEventRecorder {
     private final ObjectMapper objectMapper;
     private final OutboxRepository outboxRepository;
 
-    @Value("${app.kafka.topics.write-post}")
-    private String writePostTopic;
-
-    @Value("${app.kafka.topics.like-post}")
-    private String likePostTopic;
+//    @Value("${app.kafka.topics.write-post}")
+//    private String writePostTopic;
+//
+//    @Value("${app.kafka.topics.like-post}")
+//    private String likePostTopic;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void record(SocialEvent socialEvent) {
@@ -39,8 +40,9 @@ public class OutboxEventRecorder {
     public void recordWritePostEvent(WritePostEvent writePostEvent) {
         OutboxEvent outbox = OutboxEvent.pending(
                 writePostEvent.getEventId(),
+                EventType.WRITE_POST.name(),
                 writePostEvent.getPostId(),
-                writePostTopic,
+                writePostEvent.getPostId().toString(),
                 objectMapper.writeValueAsString(writePostEvent)
         );
 
@@ -50,8 +52,9 @@ public class OutboxEventRecorder {
     public void recordLikePostEvent(LikePostEvent likePostEvent) {
         OutboxEvent outbox = OutboxEvent.pending(
                 likePostEvent.getEventId(),
+                EventType.LIKE_POST.name(),
                 likePostEvent.getLikeId(),
-                likePostTopic,
+                likePostEvent.getPostId().toString(),
                 objectMapper.writeValueAsString(likePostEvent)
         );
 

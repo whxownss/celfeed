@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -14,7 +13,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Table(
         name = "outbox_event",
-        indexes = @Index(name = "idx_outbox_status_craeted",columnList = "status, created_at")
+        indexes = @Index(name = "idx_outbox_status_craeted", columnList = "status, created_at")
 )
 @NoArgsConstructor(access = PROTECTED)
 @Getter
@@ -28,13 +27,17 @@ public class OutboxEvent {
     @Column(unique = true, columnDefinition = "CHAR(36)", nullable = false)
     private String eventId;
 
-    /** Kafka 파티션 키 */
+    /** 이벤트 타입(토픽) */
+    @Column(columnDefinition = "VARCHAR(20)", nullable = false)
+    private String eventType;
+
+    /** 비즈니스ID */
     @Column(nullable = false)
     private Long aggregateId;
 
-    /** 발행할 토픽 */
-    @Column(columnDefinition = "VARCHAR(20)", nullable = false)
-    private String topic;
+    /** 파티션 키 */
+    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
+    private String partitionKey;
 
     /** 이벤트 본문 */
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -69,11 +72,17 @@ public class OutboxEvent {
         updatedAt = LocalDateTime.now();
     }
 
-    public static OutboxEvent pending(String eventId, Long aggregateId, String topic, String payload) {
+    public static OutboxEvent pending(String eventId,
+                                      String eventType,
+                                      Long aggregateId,
+                                      String partitionKey,
+                                      String payload) {
+
         OutboxEvent e = new OutboxEvent();
         e.eventId = eventId;
+        e.eventType = eventType;
         e.aggregateId = aggregateId;
-        e.topic = topic;
+        e.partitionKey = partitionKey;
         e.payload = payload;
         e.status = OutboxStatus.PENDING;
 
