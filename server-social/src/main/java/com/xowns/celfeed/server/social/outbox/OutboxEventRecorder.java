@@ -10,6 +10,7 @@ import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class OutboxEventRecorder {
 
     private final ObjectMapper objectMapper;
     private final OutboxRepository outboxRepository;
+    private final ApplicationEventPublisher publisher;
 
 //    @Value("${app.kafka.topics.write-post}")
 //    private String writePostTopic;
@@ -30,14 +32,16 @@ public class OutboxEventRecorder {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void record(SocialEvent socialEvent) {
-        switch (socialEvent) {
+        Long outboxId = switch (socialEvent) {
             case WritePostEvent writePostEvent -> recordWritePostEvent(writePostEvent);
             case LikePostEvent likePostEvent -> recordLikePostEvent(likePostEvent);
             default -> throw new ApiException(ErrorCode.UNSUPPORTED_EVENT_TYPE);
-        }
+        };
+
+        publisher.publishEvent(new OutboxCreatedEvent(outboxId));
     }
 
-    public void recordWritePostEvent(WritePostEvent writePostEvent) {
+    public Long recordWritePostEvent(WritePostEvent writePostEvent) {
         OutboxEvent outbox = OutboxEvent.pending(
                 writePostEvent.getEventId(),
                 EventType.WRITE_POST.name(),
@@ -46,10 +50,10 @@ public class OutboxEventRecorder {
                 objectMapper.writeValueAsString(writePostEvent)
         );
 
-        outboxRepository.save(outbox);
+        return outboxRepository.save(outbox).getId();
     }
 
-    public void recordLikePostEvent(LikePostEvent likePostEvent) {
+    public Long recordLikePostEvent(LikePostEvent likePostEvent) {
         OutboxEvent outbox = OutboxEvent.pending(
                 likePostEvent.getEventId(),
                 EventType.LIKE_POST.name(),
@@ -58,6 +62,6 @@ public class OutboxEventRecorder {
                 objectMapper.writeValueAsString(likePostEvent)
         );
 
-        outboxRepository.save(outbox);
+        return outboxRepository.save(outbox).getId();
     }
 }
