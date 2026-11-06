@@ -1,6 +1,6 @@
-package com.xowns.cefeed.server.consumer.listener;
+package com.xowns.celfeed.server.consumer.listener;
 
-import com.xowns.cefeed.server.consumer.service.NotificationCommandService;
+import com.xowns.celfeed.server.consumer.service.NotificationCommandService;
 import com.xowns.celfeed.domain.notification.dto.NotificationBulkDTO;
 import com.xowns.celfeed.domain.notification.entity.NotificationType;
 import com.xowns.celfeed.domain.social.entity.Like;

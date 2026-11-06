@@ -1,4 +1,4 @@
-package com.xowns.cefeed.server.consumer;
+package com.xowns.celfeed.server.consumer;
 
 import com.xowns.celfeed.domain.social.config.SocialJpaConfig;
 import com.xowns.celfeed.infra.sharding.config.NotificationJpaConfig;

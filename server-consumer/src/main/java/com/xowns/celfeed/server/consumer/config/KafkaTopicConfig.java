@@ -1,4 +1,4 @@
-package com.xowns.cefeed.server.consumer.config;
+package com.xowns.celfeed.server.consumer.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;

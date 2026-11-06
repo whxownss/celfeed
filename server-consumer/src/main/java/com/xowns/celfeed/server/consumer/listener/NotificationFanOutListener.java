@@ -1,4 +1,4 @@
-package com.xowns.cefeed.server.consumer.listener;
+package com.xowns.celfeed.server.consumer.listener;
 
 import com.xowns.celfeed.domain.social.dto.FollowerDTO;
 import com.xowns.celfeed.domain.social.entity.Member;

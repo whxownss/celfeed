@@ -1,6 +1,6 @@
-package com.xowns.cefeed.server.consumer.config;
+package com.xowns.celfeed.server.consumer.config;
 
-import com.xowns.cefeed.server.consumer.listener.WritePostNotiMessage;
+import com.xowns.celfeed.server.consumer.listener.WritePostNotiMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.serialization.LongDeserializer;

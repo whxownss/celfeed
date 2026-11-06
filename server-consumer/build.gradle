@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation project(':common-event')
     implementation project(':domain-social')
     implementation project(':infra-sharding')
 
