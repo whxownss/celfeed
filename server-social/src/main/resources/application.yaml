@@ -1,8 +1,11 @@
 app:
+  outbox:
+    relay:
+      batch-size: 100
+      fixed-delay: 3000
   kafka:
-    topics:
-      write-post: write-post
-      like-post: like-post
+    producer:
+      send-timeout: 5000
 
 spring:
   application:
@@ -46,6 +49,18 @@ spring:
       namespace: celfeed:session # @EnableRedisHttpSession에서 redisNamespace지정해줘야 적용됨
   kafka:
     bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all  # ISR에 포함된 복제본들의 확인까지 받아야 성공으로 판단
+      retries: 3 # 메시지 전송 실패 시 재시도 횟수
+      properties:
+        enable.idempotence: true                 # 파티션별 배치마다 순번을 부여하여 +1 순번만 받아서 중복 방지 및 순서 보장
+        max.in.flight.requests.per.connection: 5 # 응답 없이 보낼 수 있는 최대 요청 수 (브로커 캐시가 최근 5개 배치 정보 기억)
+        max.block.ms: 3000                       # 메시지 전송 전에 메타데이터를 가져오거나 버퍼 공간 확보를 위해 기다리는 시간
+        request.timeout.ms: 5000                 # 브로커에 요청을 보낸 후 응답을 기다리는 최대 시간 (이후 실패로 보고 재시도)
+        delivery.timeout.ms: 10000               # 전송하기 시작한 시점부터 최종 성공/실패로 판단하기까지 보는 전체 시간
+
   web:
     error:
       whitelabel:
