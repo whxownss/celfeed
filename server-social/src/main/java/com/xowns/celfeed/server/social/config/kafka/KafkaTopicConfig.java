@@ -1,5 +1,6 @@
 package com.xowns.celfeed.server.social.config.kafka;
 
+import com.xowns.celfeed.common.event.KafkaTopic;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +16,8 @@ public class KafkaTopicConfig {
     private static final long ONE_MINUTE =  1 * 60 * 1000L;
 
     @Bean
-    public NewTopic writePostTopic(@Value("${app.kafka.topics.write-post}") String topic) {
-        return TopicBuilder.name(topic)
+    public NewTopic writePostTopic() {
+        return TopicBuilder.name(KafkaTopic.WRITE_POST)
                 .partitions(1)
                 .replicas(1)
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
@@ -24,8 +25,8 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic likePostTopic(@Value("${app.kafka.topics.like-post}") String topic) {
-        return TopicBuilder.name(topic)
+    public NewTopic likePostTopic() {
+        return TopicBuilder.name(KafkaTopic.LIKE_POST)
                 .partitions(1)
                 .replicas(1)
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))

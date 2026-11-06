@@ -2,6 +2,7 @@ package com.xowns.celfeed.server.social.producer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -26,13 +27,19 @@ public class KafkaProducer {
         } catch (InterruptedException e) {
             // 인터럽트 발생
             Thread.currentThread().interrupt();
-            throw new ProducerSendException(e);
+            throw new ProducerInterruptedException(e);
         } catch (ExecutionException e) {
             // 전송 실패
-            throw new ProducerSendException(e.getCause());
+            Throwable cause = e.getCause();
+
+            if (cause instanceof KafkaProducerException kpe && kpe.getCause() != null) {
+                throw new ProducerTimeoutException(cause);
+            }
+
+            throw new ProducerSendException(cause);
         } catch (TimeoutException e) {
             // 전송 시간 초과
-            throw new ProducerSendException(e);
+            throw new ProducerTimeoutException(e);
         }
     }
 }

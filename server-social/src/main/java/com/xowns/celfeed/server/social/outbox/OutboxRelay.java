@@ -6,6 +6,8 @@ import com.xowns.celfeed.domain.social.entity.OutboxStatus;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import com.xowns.celfeed.server.social.config.async.AsyncConfig;
 import com.xowns.celfeed.server.social.producer.KafkaProducer;
+import com.xowns.celfeed.server.social.producer.ProducerInterruptedException;
+import com.xowns.celfeed.server.social.producer.ProducerTimeoutException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +52,7 @@ public class OutboxRelay {
 
         int updatedRow = outboxRepository.markPublished(outbox.getId(), LocalDateTime.now());
 
+        // relay가 먼저 처리한 경우
         if (updatedRow == 0) {
             log.info("[{}] 이미 PUBLISHED 상태 : eventType={}, aggregateId={}",
                     outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
@@ -67,6 +70,10 @@ public class OutboxRelay {
                 outbox.getPayload()
         );
     }
+
+    // ==============================================================================================
+    // ======================================= Relay Fallback =======================================
+    // ==============================================================================================
 
     @Value("${app.outbox.relay.batch-size}")
     private int batchSize;
@@ -90,17 +97,18 @@ public class OutboxRelay {
                 log.info("[Relay Fallback {}] Producer 메시지 전송 성공 : eventId={}", i + 1, outbox.getEventId());
 
                 publishedIds.add(outbox.getId());
+            } catch (ProducerTimeoutException | ProducerInterruptedException e) {
+                // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
+                // 인터럽트도 인터럽트 플래그가 계속 켜져 있어서 계속 예외가 발생함
+                String errorMsg = e instanceof ProducerTimeoutException ? "타임아웃으로" : "인터럽트로";
+
+                log.error("[Relay Fallback {}] {} 인한 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
+                        i + 1, errorMsg, pending.size() - i, outbox.getEventId(), e);
+                break;
             } catch (Exception e) {
-                if (isBrokerTimeout(e)) {
-                    // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
-                    log.error("[Relay Fallback {}] 타임아웃으로 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
-                            i + 1, pending.size() - i, outbox.getEventId(), e);
-                    break;
-                } else {
-                    // 타임아웃이 아니면, 이 레코드만 PENDING으로 남기고 계속 진행
-                    log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
-                            i + 1, outbox.getEventId(), e);
-                }
+                // 타임아웃이 아니면(ProducerSendException), 이 레코드만 PENDING으로 남기고 계속 진행
+                log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
+                        i + 1, outbox.getEventId(), e);
             }
         }
 
@@ -108,11 +116,5 @@ public class OutboxRelay {
 
         int updated = outboxRepository.markPublishedIn(publishedIds, LocalDateTime.now());
         log.info("[Relay Fallback] 종료 : 발행 {}건, 전이 {}건", publishedIds.size(), updated);
-    }
-
-    private boolean isBrokerTimeout(Exception e) {
-        Throwable cause = e.getCause();
-        return cause instanceof java.util.concurrent.TimeoutException
-                || cause instanceof org.apache.kafka.common.errors.TimeoutException;
     }
 }

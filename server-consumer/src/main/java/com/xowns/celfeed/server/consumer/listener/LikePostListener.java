@@ -33,6 +33,8 @@ public class LikePostListener {
         if (payload == null) {
             log.warn("[LIKE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
                     record.partition(), record.offset(), record.key());
+            ack.acknowledge();
+
             return;
         }
 
@@ -46,13 +48,11 @@ public class LikePostListener {
                 event.getActorId(),
                 event.getOccurredAt());
 
-        process(event);
-
-        ack.acknowledge(); // consumer 설정 필요
+        process(event, ack);
     }
 
     // 샤딩 처리는?
-    private void process(LikePostEvent likePostEvent) {
+    private void process(LikePostEvent likePostEvent, Acknowledgment ack) {
         String eventId = likePostEvent.getEventId();
         Long likeId = likePostEvent.getLikeId();
 

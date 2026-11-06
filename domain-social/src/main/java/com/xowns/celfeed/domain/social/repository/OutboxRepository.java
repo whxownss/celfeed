@@ -29,7 +29,8 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
             SET status = 'PUBLISHED'
             , published_at = :now
             , updated_at = :now
-            WHERE id IN (:ids) AND status = 'PENDING'
+            WHERE id IN (:ids)
+            AND status = 'PENDING'
             """, nativeQuery = true)
     int markPublishedIn(@Param("ids") List<Long> ids, @Param("now") LocalDateTime now);
 
