@@ -43,11 +43,8 @@ public class OutboxRelay {
     }
 
     private void publish(OutboxEvent outbox) {
-        producer.send(
-                EventType.valueOf(outbox.getEventType()).topic(),
-                outbox.getPartitionKey(),
-                outbox.getPayload()
-        );
+        sendInternal(outbox);
+
         log.info("[{}] Producer 메시지 전송 성공 : eventType={}, aggregateId={}",
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
 
@@ -61,6 +58,14 @@ public class OutboxRelay {
 
         log.info("[{}] PUBLISHED 상태 전이 완료 : eventType={}, aggregateId={}",
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
+    }
+
+    private void sendInternal(OutboxEvent outbox) {
+        producer.send(
+                EventType.valueOf(outbox.getEventType()).topic(),
+                outbox.getPartitionKey(),
+                outbox.getPayload()
+        );
     }
 
     @Value("${app.outbox.relay.batch-size}")
@@ -81,18 +86,20 @@ public class OutboxRelay {
             OutboxEvent outbox = pending.get(i);
 
             try {
-                publish(outbox);
+                sendInternal(outbox);
+                log.info("[Relay Fallback {}] Producer 메시지 전송 성공 : eventId={}", i + 1, outbox.getEventId());
+
                 publishedIds.add(outbox.getId());
             } catch (Exception e) {
                 if (isBrokerTimeout(e)) {
                     // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
-                    log.error("[Relay Fallback] Producer timeout으로 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
-                            pending.size() - i, outbox.getEventId(), e);
+                    log.error("[Relay Fallback {}] 타임아웃으로 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
+                            i + 1, pending.size() - i, outbox.getEventId(), e);
                     break;
                 } else {
                     // 타임아웃이 아니면, 이 레코드만 PENDING으로 남기고 계속 진행
-                    log.error("[Relay Fallback] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
-                            outbox.getEventId(), e);
+                    log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
+                            i + 1, outbox.getEventId(), e);
                 }
             }
         }
