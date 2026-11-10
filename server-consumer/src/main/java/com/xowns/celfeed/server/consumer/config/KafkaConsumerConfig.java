@@ -23,6 +23,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     public static final String LIKE_POST_CONTAINER_FACTORY = "likePostContainerFactory";
+    public static final String WRITE_POST_CONTAINER_FACTORY = "writePostContainerFactory";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -49,6 +50,8 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(likePostConsumerFactory());
+        factory.setConcurrency(1);
+
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
         return factory;

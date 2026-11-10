@@ -50,9 +50,9 @@ public class LikePostListener {
         process(event, ack);
     }
 
-    private void process(LikePostEvent likePostEvent, Acknowledgment ack) {
-        String eventId = likePostEvent.getEventId();
-        Long likeId = likePostEvent.getLikeId();
+    private void process(LikePostEvent event, Acknowledgment ack) {
+        String eventId = event.getEventId();
+        Long likeId = event.getLikeId();
 
         Like like = likeRepository.findGraphById(likeId).orElse(null); // graph로 조회 안해도 될 듯 (닉네임은?)
 
@@ -64,9 +64,9 @@ public class LikePostListener {
 
         // 알림 저장
         Long savedNotificationId = notificationService.saveLikePostNotification(
-                likePostEvent.getReceiverId(), // Shard Key
-                likePostEvent.getActorId(),
-                likePostEvent.getPostId()
+                event.getReceiverId(), // Shard Key
+                event.getActorId(),
+                event.getPostId()
         );
         log.info("[LIKE-POST] 알림 저장 : id={}", savedNotificationId);
 
