@@ -1,7 +1,6 @@
 package com.xowns.celfeed.server.social.config.kafka;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,9 +15,6 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 @EnableConfigurationProperties(KafkaProperties.class)
 public class KafkaProducerConfig {
-
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
 
     private final KafkaProperties kafkaProperties;
 

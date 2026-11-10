@@ -26,17 +26,30 @@ app:
       mod: 2
   #      sharding_key: receiver_id
   kafka:
-    topics:
-      write-post: write-post
-      like-post: like-post
-      noti-batch: noti-batch
+    consumer-defaults:
+      bootstrap.servers: kafka:9092
+      key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable.auto.commit: false
+      auto.offset.reset: earliest
     consumers:
-      noti-writepost:
-        group-id: noti-writepost
-      noti-likepost:
-        group-id: noti-likepost
-      noti-fanout:
-        group-id: noti-fanout
+      like-post:
+        group-id: like-post
+        properties: # 컨슈머 속성 (공통값 덮어쓰기 가능)
+          group.id: like-post
+        container: # 리스너 컨테이너 속성
+          ack-mode: manual_immediate
+          transactional: true
+      write-post:
+        group-id: write-post
+        properties:
+          group.id: write-post
+          isolation.level: read_committed
+        container:
+          ack-mode: manual_immediate
+          transactional: false
+      fanout:
+        group-id: fanout
 
 spring:
   application:

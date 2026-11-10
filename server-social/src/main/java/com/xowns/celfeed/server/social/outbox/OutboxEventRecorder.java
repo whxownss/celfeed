@@ -9,13 +9,14 @@ import com.xowns.celfeed.common.web.exception.ErrorCode;
 import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OutboxEventRecorder {
@@ -24,44 +25,45 @@ public class OutboxEventRecorder {
     private final OutboxRepository outboxRepository;
     private final ApplicationEventPublisher publisher;
 
-//    @Value("${app.kafka.topics.write-post}")
-//    private String writePostTopic;
-//
-//    @Value("${app.kafka.topics.like-post}")
-//    private String likePostTopic;
-
     @Transactional(propagation = Propagation.MANDATORY)
     public void record(SocialEvent socialEvent) {
-        Long outboxId = switch (socialEvent) {
-            case WritePostEvent writePostEvent -> recordWritePostEvent(writePostEvent);
-            case LikePostEvent likePostEvent -> recordLikePostEvent(likePostEvent);
+        OutboxEvent outbox = switch (socialEvent) {
+            case WritePostEvent writePostEvent -> writePostToOutbox(writePostEvent);
+            case LikePostEvent likePostEvent -> likePostToOutboxEvent(likePostEvent);
             default -> throw new ApiException(ErrorCode.UNSUPPORTED_EVENT_TYPE);
         };
 
-        publisher.publishEvent(new OutboxCreatedEvent(outboxId));
+        log.info("[OutboxEvent] 생성 : eventId={}, eventType={}, aggregateId={}",
+                outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
+
+        OutboxEvent savedOutbox = outboxRepository.save(outbox);
+
+        log.info("[OutboxEvent] 저장 : id={}, eventId={}, eventType={}, aggregateId={}",
+                outbox.getId(), outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
+
+        publisher.publishEvent(new OutboxCreatedEvent(savedOutbox.getId()));
+
+        log.info("[OutboxEvent] 발행 : eventId={}, eventType={}, aggregateId={}",
+                outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
     }
 
-    public Long recordWritePostEvent(WritePostEvent writePostEvent) {
-        OutboxEvent outbox = OutboxEvent.pending(
+    private OutboxEvent writePostToOutbox(WritePostEvent writePostEvent) {
+        return OutboxEvent.pending(
                 writePostEvent.getEventId(),
                 EventType.WRITE_POST.name(),
                 writePostEvent.getPostId(),
                 writePostEvent.getPostId().toString(),
                 objectMapper.writeValueAsString(writePostEvent)
         );
-
-        return outboxRepository.save(outbox).getId();
     }
 
-    public Long recordLikePostEvent(LikePostEvent likePostEvent) {
-        OutboxEvent outbox = OutboxEvent.pending(
+    private OutboxEvent likePostToOutboxEvent(LikePostEvent likePostEvent) {
+        return OutboxEvent.pending(
                 likePostEvent.getEventId(),
                 EventType.LIKE_POST.name(),
                 likePostEvent.getLikeId(),
                 likePostEvent.getPostId().toString(),
                 objectMapper.writeValueAsString(likePostEvent)
         );
-
-        return outboxRepository.save(outbox).getId();
     }
 }

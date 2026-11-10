@@ -3,7 +3,6 @@ package com.xowns.celfeed.server.social.config.kafka;
 import com.xowns.celfeed.common.event.KafkaTopic;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;

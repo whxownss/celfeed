@@ -2,11 +2,10 @@ package com.xowns.celfeed.server.consumer.listener;
 
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.common.event.LikePostEvent;
-import com.xowns.celfeed.domain.notification.entity.Notification;
-import com.xowns.celfeed.domain.notification.entity.NotificationType;
-import com.xowns.celfeed.domain.notification.repository.NotificationRepository;
 import com.xowns.celfeed.domain.social.entity.Like;
 import com.xowns.celfeed.domain.social.repository.LikeRepository;
+import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
+import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,9 +21,9 @@ public class LikePostListener {
 
     private final ObjectMapper objectMapper;
     private final LikeRepository likeRepository;
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
-    @KafkaListener(topics = KafkaTopic.LIKE_POST, groupId = "")
+    @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CONTAINER_FACTORY)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
         log.info("[LIKE-POST] 메시지 수신 : partition={}, offset={}, key={}",
                 record.partition(), record.offset(), record.key());
@@ -41,7 +40,7 @@ public class LikePostListener {
         LikePostEvent event = objectMapper.readValue(payload, LikePostEvent.class);
 
         log.info("[LIKE-POST] 페이로드 : eventId={}, likeId={}, postId={}, receiverId={}, actorId={}, occurredAt={}",
-                event.getEventId(), // 생성자 때문에 달라지는지 확인
+                event.getEventId(),
                 event.getLikeId(),
                 event.getPostId(),
                 event.getReceiverId(),
@@ -51,27 +50,29 @@ public class LikePostListener {
         process(event, ack);
     }
 
-    // 샤딩 처리는?
     private void process(LikePostEvent likePostEvent, Acknowledgment ack) {
         String eventId = likePostEvent.getEventId();
         Long likeId = likePostEvent.getLikeId();
 
-        Like like = likeRepository.findGraphById(likeId).orElse(null); // graph로 조회 안해도 될 듯
+        Like like = likeRepository.findGraphById(likeId).orElse(null); // graph로 조회 안해도 될 듯 (닉네임은?)
 
         if (like == null) {
             log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
+            ack.acknowledge();
             return;
         }
 
-        Notification notification = Notification.create(
-                likePostEvent.getReceiverId(),
+        // 알림 저장
+        Long savedNotificationId = notificationService.saveLikePostNotification(
+                likePostEvent.getReceiverId(), // Shard Key
                 likePostEvent.getActorId(),
-                NotificationType.LIKE_POST,
                 likePostEvent.getPostId()
         );
-
-        notificationRepository.save(notification);
+        log.info("[LIKE-POST] 알림 저장 : id={}", savedNotificationId);
 
         // 알림 전송
+        log.info("[LIKE-POST] 알림 전송 : id={}", savedNotificationId);
+
+        ack.acknowledge();
     }
 }

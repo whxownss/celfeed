@@ -7,14 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
-@Configuration
+//@Configuration
 public class KafkaTopicConfig {
 
     private static final long ONE_DAY =  1 * 24 * 60 * 60 * 1000L;
     private static final long ONE_HOUR =  1 * 60 * 60 * 1000L;
     private static final long ONE_MINUTE =  1 * 60 * 1000L;
 
-    @Bean
+    //@Bean
     public NewTopic notiBatchTopic(@Value("${app.kafka.topics.noti-batch}") String topic) {
         return TopicBuilder.name(topic)
                 .partitions(3)
