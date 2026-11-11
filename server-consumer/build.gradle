@@ -3,17 +3,18 @@ plugins {
 }
 
 dependencies {
+    implementation project(':common-event')
     implementation project(':domain-social')
     implementation project(':infra-sharding')
 
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
     // 여기서도 필요하나?
-//    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
 //    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 //    implementation 'io.micrometer:micrometer-registry-prometheus'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
-    implementation 'tools.jackson.core:jackson-databind'
+    implementation 'org.springframework.boot:spring-boot-starter-jackson'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
 }

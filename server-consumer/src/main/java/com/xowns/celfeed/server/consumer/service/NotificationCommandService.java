@@ -1,4 +1,4 @@
-package com.xowns.cefeed.server.consumer.service;
+package com.xowns.celfeed.server.consumer.service;
 
 import com.xowns.celfeed.domain.notification.common.annotation.NotificationTransactional;
 import com.xowns.celfeed.domain.notification.dto.NotificationBulkDTO;

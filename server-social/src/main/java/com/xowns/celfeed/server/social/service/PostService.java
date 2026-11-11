@@ -1,11 +1,11 @@
 package com.xowns.celfeed.server.social.service;
 
+import com.xowns.celfeed.common.event.LikePostEvent;
+import com.xowns.celfeed.common.event.WritePostEvent;
 import com.xowns.celfeed.domain.social.dto.PostDetail;
 import com.xowns.celfeed.server.social.dto.request.PostRequest;
 import com.xowns.celfeed.server.social.dto.response.PostDetailResponse;
 import com.xowns.celfeed.server.social.dto.response.PostResponse;
-import com.xowns.celfeed.server.social.event.payload.LikePostEvent;
-import com.xowns.celfeed.server.social.event.payload.WritePostEvent;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
 import com.xowns.celfeed.common.web.exception.ApiException;
 import com.xowns.celfeed.common.web.exception.ErrorCode;
@@ -16,6 +16,7 @@ import com.xowns.celfeed.domain.social.repository.LikeRepository;
 import com.xowns.celfeed.domain.social.repository.MemberRepository;
 import com.xowns.celfeed.domain.social.repository.PostQueryRepository;
 import com.xowns.celfeed.domain.social.repository.PostRepository;
+import com.xowns.celfeed.server.social.outbox.OutboxEventRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,16 +38,17 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     private final MemberRepository memberRepository;
-    //private final NotificationSender notificationSender;
-    private final ApplicationEventPublisher publisher;
+
+//    private final ApplicationEventPublisher publisher;
+    private final OutboxEventRecorder outboxEventRecorder;
 
     @Transactional
     public Long write(Long loginId, PostRequest postRequest) {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-        //notificationSender.sendWritePost(savedPost.getId());
-        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
+//        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
+        outboxEventRecorder.record(new WritePostEvent(savedPost.getId(), savedPost.getMember().getId()));
 
         return savedPost.getId();
     }
@@ -95,16 +97,26 @@ public class PostService {
 
     @Transactional
     public Long likePost(Long loginId, Long postId) {
-        Member member = getMemberOrThrow(loginId);
+        Member loginMember = getMemberOrThrow(loginId);
         Post findPost = getPostOrThrow(postId);
 
-         return likeRepository.findByPostAndMember(findPost, member)
+         return likeRepository.findByPostAndMember(findPost, loginMember)
                  .map(Like::getId)
                  .orElseGet(() -> {
-                     Like savedLike = likeRepository.save(Like.create(findPost, member));
+                     Like savedLike = likeRepository.save(Like.create(findPost, loginMember));
 
-                     //notificationSender.sendLikePost(savedLike.getId());
-                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
+                     // 자기 글의 경우 알림 보내지 않음
+                     if (loginMember.getId().equals(findPost.getMember().getId())) {
+                         return savedLike.getId();
+                     }
+
+//                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
+                     outboxEventRecorder.record(new LikePostEvent(
+                             savedLike.getId(),
+                             savedLike.getPost().getId(),
+                             savedLike.getPost().getMember().getId(), // TODO : 프록시 초기화 되는지 확인
+                             savedLike.getMember().getId()
+                     ));
 
                      return savedLike.getId();
                  });

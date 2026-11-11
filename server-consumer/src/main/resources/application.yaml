@@ -26,17 +26,14 @@ app:
       mod: 2
   #      sharding_key: receiver_id
   kafka:
-    topics:
-      write-post: write-post
-      like-post: like-post
-      noti-batch: noti-batch
     consumers:
-      noti-writepost:
-        group-id: noti-writepost
-      noti-likepost:
-        group-id: noti-likepost
-      noti-fanout:
-        group-id: noti-fanout
+      like-post:
+        group-id: like-post
+      write-post:
+        group-id: write-post
+        batch-size: 2
+      write-post-fanout:
+        group-id: write-post-fanout
 
 spring:
   application:
@@ -76,6 +73,18 @@ spring:
         enabled: false
   kafka:
     bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        max.block.ms: 3000
+        request.timeout.ms: 5000
+        delivery.timeout.ms: 10000
+        linger.ms: 5
 
 logging.level:
   #  com.xowns.celfeed: info

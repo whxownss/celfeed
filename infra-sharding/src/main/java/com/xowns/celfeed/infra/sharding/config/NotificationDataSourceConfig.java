@@ -7,7 +7,9 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
@@ -17,6 +19,8 @@ import java.util.Map;
 
 @Setter
 @Configuration
+@Import(ShardingPropertyInitializer.class)
+@ComponentScan(basePackages = "com.xowns.celfeed.infra.sharding.aop")
 @ConfigurationProperties(prefix = "app.datasource")
 public class NotificationDataSourceConfig {
 

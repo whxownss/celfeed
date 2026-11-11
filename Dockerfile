@@ -54,6 +54,9 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 ARG MODULE
 
+# 한국 시간대 설정
+ENV TZ=Asia/Seoul
+
 # 빌드된 JAR 파일 복사
 COPY --from=builder /workspace/${MODULE}/build/libs/*SNAPSHOT.jar app.jar
 
