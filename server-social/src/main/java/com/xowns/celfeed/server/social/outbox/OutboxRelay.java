@@ -35,7 +35,7 @@ public class OutboxRelay {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onCreated(OutboxCreatedEvent event) {
-        log.info("[OutboxEvent] 감지 : id={}", event.outboxId());
+        log.info("[Outbox] 이벤트 감지 : id={}", event.outboxId());
         publishOne(event.outboxId());
     }
 
@@ -48,19 +48,19 @@ public class OutboxRelay {
     private void publish(OutboxEvent outbox) {
         sendInternal(outbox);
 
-        log.info("[{}] Producer 메시지 전송 성공 : eventType={}, aggregateId={}",
+        log.info("[Outbox] Producer 메시지 전송 성공 : eventId={}, eventType={}, aggregateId={}",
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
 
         int updatedRow = outboxRepository.markPublished(outbox.getId(), LocalDateTime.now());
 
         // relay가 먼저 처리한 경우
         if (updatedRow == 0) {
-            log.info("[{}] 이미 Relay로 인해 PUBLISHED 상태 전이 완료 : eventType={}, aggregateId={}",
+            log.info("[Outbox] 이미 Relay로 인해 PUBLISHED 상태 전이 완료 : eventId={}, eventType={}, aggregateId={}",
                     outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
             return;
         }
 
-        log.info("[{}] PUBLISHED 상태 전이 완료 : eventType={}, aggregateId={}",
+        log.info("[Outbox] PUBLISHED 상태 전이 완료 : eventId={}, eventType={}, aggregateId={}",
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
     }
 

@@ -1,46 +1,42 @@
 package com.xowns.celfeed.server.consumer.config;
 
-import com.xowns.celfeed.server.consumer.listener.WritePostNotiMessage;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
+import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(KafkaProperties.class)
 public class KafkaProducerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+    private final KafkaProperties kafkaProperties;
 
     @Bean
-    public ProducerFactory<String, WritePostNotiMessage> wirtePostNotiProducerFactory() {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+    public ProducerFactory<String, WritePostFanoutEvent> producerFactory() {
+        DefaultKafkaProducerFactory<String, WritePostFanoutEvent> factory =
+                new DefaultKafkaProducerFactory<>(new HashMap<>(kafkaProperties.buildProducerProperties()));
 
-        DefaultKafkaProducerFactory<String, WritePostNotiMessage> factory = new DefaultKafkaProducerFactory<>(configs);
-        factory.setTransactionIdPrefix("tx-"); // 트랜잭션 기능 활성화;
+        factory.setTransactionIdPrefix("tx-"); // 트랜잭션 기능 활성화
 
         return factory;
     }
 
     @Bean
-    public KafkaTransactionManager<String, WritePostNotiMessage> kafkaTransactionManager() {
-        return new KafkaTransactionManager<>(wirtePostNotiProducerFactory());
+    public KafkaTemplate<String, WritePostFanoutEvent> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public KafkaTemplate<String, WritePostNotiMessage> writePostNotiKafkaTemplate() {
-        return new KafkaTemplate<>(wirtePostNotiProducerFactory());
+    public KafkaTransactionManager<String, WritePostFanoutEvent> kafkaTransactionManager() {
+        return new KafkaTransactionManager<>(producerFactory());
     }
 }

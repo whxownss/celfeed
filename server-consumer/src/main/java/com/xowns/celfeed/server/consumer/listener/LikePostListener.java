@@ -23,7 +23,7 @@ public class LikePostListener {
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
 
-    @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CONTAINER_FACTORY)
+    @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CF)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
         log.info("[LIKE-POST] 메시지 수신 : partition={}, offset={}, key={}",
                 record.partition(), record.offset(), record.key());
@@ -33,7 +33,6 @@ public class LikePostListener {
             log.warn("[LIKE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
                     record.partition(), record.offset(), record.key());
             ack.acknowledge();
-
             return;
         }
 

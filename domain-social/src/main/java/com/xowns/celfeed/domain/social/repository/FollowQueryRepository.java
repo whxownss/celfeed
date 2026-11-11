@@ -38,9 +38,9 @@ public class FollowQueryRepository {
         return fromId != null ? follow.fromMember.id.gt(fromId) : null;
     }
 
-    public List<FollowerDTO> findFollowerIds(Long toId, Long startFromId, Long endFromId) {
+    public List<Long> findFollowerIds(Long toId, Long startFromId, Long endFromId) {
         return queryFactory
-                .select(Projections.constructor(FollowerDTO.class, follow.id, follow.fromMember.id))
+                .select(follow.fromMember.id)
                 .from(follow)
                 .where(
                         follow.toMember.id.eq(toId),
