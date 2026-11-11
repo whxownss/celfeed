@@ -1,12 +1,9 @@
 package com.xowns.celfeed.server.consumer.config;
 
 import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
-import com.xowns.celfeed.server.consumer.listener.WritePostNotiMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.internals.AutoOffsetResetStrategy;
 import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

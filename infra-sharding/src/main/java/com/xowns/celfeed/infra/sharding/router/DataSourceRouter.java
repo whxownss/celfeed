@@ -4,12 +4,14 @@ import com.xowns.celfeed.infra.sharding.holder.UserHolder;
 import com.xowns.celfeed.infra.sharding.core.ShardingProperty;
 import com.xowns.celfeed.infra.sharding.core.ShardingPropertyMap;
 import com.xowns.celfeed.infra.sharding.core.ShardingStrategy;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class DataSourceRouter extends AbstractRoutingDataSource {
 
     private Map<Integer, String> shardDataSourceNames;
@@ -32,19 +34,23 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
     protected @Nullable Object determineCurrentLookupKey() {
         UserHolder.Sharding sharding = UserHolder.getSharding();
         int shardNo = getShardNo(sharding);
-
         return shardDataSourceNames.get(shardNo);
     }
 
     private int getShardNo(UserHolder.Sharding sharding) {
         if (sharding == null) {
+            log.warn("[Notification DataSourceRouter] 샤딩 정보 미존재");
             return 0;
         }
 
         int shardNo = 0;
         ShardingProperty shardingProperty = ShardingPropertyMap.get().get(sharding.getTarget());
+
         if (shardingProperty.getStrategy() == ShardingStrategy.MODULAR) {
             shardNo = getShardNoByModular(sharding.getShardKey(), shardingProperty.getMod());
+            log.info("[Notification DataSourceRouter] 샤딩 정보 : 전략=MODULAR, 샤드번호={}", shardNo);
+        } else {
+            log.warn("[Notification DataSourceRouter] 샤딩 정보 미존재");
         }
 
         return shardNo;

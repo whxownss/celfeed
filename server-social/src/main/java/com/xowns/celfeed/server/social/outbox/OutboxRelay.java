@@ -79,7 +79,7 @@ public class OutboxRelay {
     @Value("${app.outbox.relay.batch-size}")
     private int batchSize;
 
-    @Scheduled(fixedDelayString = "${app.outbox.relay.fixed-delay}")
+//    @Scheduled(fixedDelayString = "${app.outbox.relay.fixed-delay}")
     @Transactional
     public void relayFallback() {
         List<OutboxEvent> pending =

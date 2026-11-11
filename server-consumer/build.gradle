@@ -7,8 +7,8 @@ dependencies {
     implementation project(':domain-social')
     implementation project(':infra-sharding')
 
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
     // 여기서도 필요하나?
-//    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
 //    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 //    implementation 'io.micrometer:micrometer-registry-prometheus'
 

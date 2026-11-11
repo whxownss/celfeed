@@ -31,7 +31,7 @@ app:
         group-id: like-post
       write-post:
         group-id: write-post
-        batch-size: 1000
+        batch-size: 2
       write-post-fanout:
         group-id: write-post-fanout
 
@@ -75,7 +75,7 @@ spring:
     bootstrap-servers: kafka:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       acks: all
       retries: 3
       properties:
