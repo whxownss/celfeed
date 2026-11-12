@@ -82,7 +82,7 @@ public class OutboxRelay {
     @Transactional
     public void relayFallback() {
         List<OutboxEvent> pending =
-                outboxRepository.findPendingForRelay(batchSize); // 멀티 인스턴스 relay 대비 SKIP LOCKED
+                outboxRepository.findPendingForRelay(LocalDateTime.now(), batchSize);
 
         if (pending.isEmpty()) return;
 
@@ -141,25 +141,52 @@ public class OutboxRelay {
 
     private FailureAction handleFailure(OutboxEvent outbox, RuntimeException e, String tag) {
         LocalDateTime now = LocalDateTime.now();
-        String error = "";
+        String error = errorMessage(e);
 
-        // 브로커/인프라 장애 : 레코드 탓 아님 -> retryCount 증가 x, 배치 중단
+        // case 1) 브로커 장애 -> retryCount 증가 x, 배치 중단
         if (e instanceof ProducerTimeoutException || e instanceof ProducerInterruptedException) {
             log.error("{} 브로커 장애 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
             return FailureAction.ABORT;
         }
 
-        // 레코드 자체 영구 실패 -> 즉시 FAILED
+        // case 2) 레코드 자체 문제 -> 즉시 FAILED
         if (e instanceof ProducerNonRetriableException) {
             outboxRepository.markFailed(outbox.getId(), error, now);
-            log.error("{} 영구 실패로 FAILED 전이 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
+            log.error("{} 레코드 영구 실패로 FAILED 전이 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
             return FailureAction.CONTINUE;
         }
 
-        // 재시도 가능 + 분류되지 않은 예외 -> 백오프 후 재시도, 상한 도달 시 FAILED
-        int nextCount = outbox.RetryCount() + 1;
-        now.plusSeconds()
+        // case 3) 재시도 가능 + 분류되지 않은 예외 -> 백오프 후 재시도, 상한 도달 시 FAILED
+        int nextCount = outbox.getRetryCount() + 1;
+        LocalDateTime nextRetryAt = now.plusSeconds(backoffSeconds(nextCount));
+
+        outboxRepository.markRetry(outbox.getId(), nextRetryAt, maxRetry, error, now);
+
+        if (nextCount >= maxRetry) {
+            log.error("{} 재시도 한도({}) 초과로 FAILED 전이 : eventId={}", tag, maxRetry, outbox.getEventId(), e);
+        } else {
+            log.warn("{} 재시도 예약 ({}/{}) : eventId={}, nextRetryAt={}",
+                    tag, nextCount, maxRetry, outbox.getEventId(), nextRetryAt, e);
+        }
 
         return FailureAction.CONTINUE;
+    }
+
+    @Value("${app.outbox.relay.max-retry}")
+    private int maxRetry;
+
+    @Value("${app.outbox.relay.max-backoff-sec}")
+    private int maxBackoffSec;
+
+    private long backoffSeconds(int retryCount) {
+        return Math.min(1L << retryCount, maxBackoffSec);
+    }
+
+    private static final int MAX_ERROR_LENGTH = 255;
+
+    private String errorMessage(Throwable e) {
+        Throwable root = e.getCause() != null ? e.getCause() : e;
+        String msg = root.getClass().getSimpleName() + ": " + root.getMessage();
+        return msg.length() > MAX_ERROR_LENGTH ? msg.substring(0, MAX_ERROR_LENGTH) : msg;
     }
 }

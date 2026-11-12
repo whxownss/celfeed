@@ -68,6 +68,8 @@ app:
     relay:
       batch-size: 100
       fixed-delay: 3000
+      max-retry: 5
+      max-backoff-sec: 300
   kafka:
     producer:
       send-timeout: 5000
