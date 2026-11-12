@@ -1,4 +1,4 @@
-package com.xowns.celfeed.server.social.producer;
+package com.xowns.celfeed.server.social.producer.exception;
 
 public class ProducerSendException extends RuntimeException {
 

@@ -6,8 +6,9 @@ import com.xowns.celfeed.domain.social.entity.OutboxStatus;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import com.xowns.celfeed.server.social.config.async.AsyncConfig;
 import com.xowns.celfeed.server.social.producer.KafkaProducer;
-import com.xowns.celfeed.server.social.producer.ProducerInterruptedException;
-import com.xowns.celfeed.server.social.producer.ProducerTimeoutException;
+import com.xowns.celfeed.server.social.producer.exception.ProducerInterruptedException;
+import com.xowns.celfeed.server.social.producer.exception.ProducerNonRetriableException;
+import com.xowns.celfeed.server.social.producer.exception.ProducerTimeoutException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,26 +32,32 @@ public class OutboxRelay {
     private final OutboxRepository outboxRepository;
     private final KafkaProducer producer;
 
+    private enum FailureAction { ABORT, CONTINUE }
+
+    // ==============================================================================================
+    // =======================================    즉시 발행    =======================================
+    // ==============================================================================================
+
     @Async(AsyncConfig.OUTBOX_RELAY_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onCreated(OutboxCreatedEvent event) {
         log.info("[Outbox] 이벤트 감지 : id={}", event.outboxId());
-        publishOne(event.outboxId());
-    }
 
-    private void publishOne(Long outboxId) {
-        outboxRepository.findById(outboxId)
+        outboxRepository.findById(event.outboxId())
                 .filter(outbox -> outbox.getStatus() == OutboxStatus.PENDING)
-                .ifPresent(this::publish);
+                .ifPresent(outbox -> {
+                    try {
+                        sendInternal(outbox);
+                        markPublished(outbox);
+                    } catch (RuntimeException e) {
+                        // 즉시 발행에서 ABORT는 fallback에게 맡긴다는 의미 (상태 변경 x)
+                        handleFailure(outbox, e, "[Outbox]");
+                    }
+                });
     }
 
-    private void publish(OutboxEvent outbox) {
-        sendInternal(outbox);
-
-        log.info("[Outbox] Producer 메시지 전송 성공 : eventId={}, eventType={}, aggregateId={}",
-                outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
-
+    private void markPublished(OutboxEvent outbox) {
         int updatedRow = outboxRepository.markPublished(outbox.getId(), LocalDateTime.now());
 
         // relay가 먼저 처리한 경우
@@ -64,14 +71,6 @@ public class OutboxRelay {
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
     }
 
-    private void sendInternal(OutboxEvent outbox) {
-        producer.send(
-                EventType.valueOf(outbox.getEventType()).topic(),
-                outbox.getPartitionKey(),
-                outbox.getPayload()
-        );
-    }
-
     // ==============================================================================================
     // ======================================= Relay Fallback =======================================
     // ==============================================================================================
@@ -79,7 +78,7 @@ public class OutboxRelay {
     @Value("${app.outbox.relay.batch-size}")
     private int batchSize;
 
-//    @Scheduled(fixedDelayString = "${app.outbox.relay.fixed-delay}")
+    @Scheduled(fixedDelayString = "${app.outbox.relay.fixed-delay}")
     @Transactional
     public void relayFallback() {
         List<OutboxEvent> pending =
@@ -92,30 +91,75 @@ public class OutboxRelay {
         List<Long> publishedIds = new ArrayList<>(pending.size());
         for (int i = 0; i < pending.size(); i++) {
             OutboxEvent outbox = pending.get(i);
+            String tag = "[Relay Fallback " + (i + 1) +"]";
 
             try {
                 sendInternal(outbox);
-                log.info("[Relay Fallback {}] Producer 메시지 전송 성공 : eventId={}", i + 1, outbox.getEventId());
-
                 publishedIds.add(outbox.getId());
-            } catch (ProducerTimeoutException | ProducerInterruptedException e) {
-                // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
-                // 인터럽트도 인터럽트 플래그가 계속 켜져 있어서 계속 예외가 발생함
-                String errorMsg = e instanceof ProducerTimeoutException ? "타임아웃으로" : "인터럽트로";
-
-                log.error("[Relay Fallback {}] {} 인한 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
-                        i + 1, errorMsg, pending.size() - i, outbox.getEventId(), e);
-                break;
-            } catch (Exception e) {
-                // 타임아웃이 아니면(ProducerSendException), 이 레코드만 PENDING으로 남기고 계속 진행
-                log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
-                        i + 1, outbox.getEventId(), e);
+            } catch (RuntimeException e) {
+                if (handleFailure(outbox, e, tag) == FailureAction.ABORT) {
+                    log.error("{} 배치 중단, 남은 {}건은 다음 폴링에서 재시도", tag, pending.size() - i);
+                    break;
+                }
             }
+
+//            catch (ProducerTimeoutException | ProducerInterruptedException e) {
+//                // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
+//                // 인터럽트도 인터럽트 플래그가 계속 켜져 있어서 계속 예외가 발생함
+//                String errorMsg = e instanceof ProducerTimeoutException ? "타임아웃으로" : "인터럽트로";
+//
+//                log.error("[Relay Fallback {}] {} 인한 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
+//                        i + 1, errorMsg, pending.size() - i, outbox.getEventId(), e);
+//                break;
+//            } catch (Exception e) {
+//                // 타임아웃이 아니면(ProducerSendException), 이 레코드만 PENDING으로 남기고 계속 진행
+//                log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
+//                        i + 1, outbox.getEventId(), e);
+//            }
         }
 
         if (publishedIds.isEmpty()) return;
 
         int updated = outboxRepository.markPublishedIn(publishedIds, LocalDateTime.now());
         log.info("[Relay Fallback] 종료 : 발행 {}건, 전이 {}건", publishedIds.size(), updated);
+    }
+
+    // ==============================================================================================
+    // =======================================     Common     =======================================
+    // ==============================================================================================
+
+    private void sendInternal(OutboxEvent outbox) {
+        String topic;
+        try {
+            topic = EventType.valueOf(outbox.getEventType()).topic();
+        } catch (IllegalArgumentException e) {
+            // enum 변경/삭제 등 -> 레코드 자체 문제
+            throw new ProducerNonRetriableException(e);
+        }
+        producer.send(topic, outbox.getPartitionKey(), outbox.getPayload());
+    }
+
+    private FailureAction handleFailure(OutboxEvent outbox, RuntimeException e, String tag) {
+        LocalDateTime now = LocalDateTime.now();
+        String error = "";
+
+        // 브로커/인프라 장애 : 레코드 탓 아님 -> retryCount 증가 x, 배치 중단
+        if (e instanceof ProducerTimeoutException || e instanceof ProducerInterruptedException) {
+            log.error("{} 브로커 장애 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
+            return FailureAction.ABORT;
+        }
+
+        // 레코드 자체 영구 실패 -> 즉시 FAILED
+        if (e instanceof ProducerNonRetriableException) {
+            outboxRepository.markFailed(outbox.getId(), error, now);
+            log.error("{} 영구 실패로 FAILED 전이 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
+            return FailureAction.CONTINUE;
+        }
+
+        // 재시도 가능 + 분류되지 않은 예외 -> 백오프 후 재시도, 상한 도달 시 FAILED
+        int nextCount = outbox.RetryCount() + 1;
+        now.plusSeconds()
+
+        return FailureAction.CONTINUE;
     }
 }
