@@ -19,7 +19,6 @@ import com.xowns.celfeed.domain.social.repository.PostRepository;
 import com.xowns.celfeed.server.social.outbox.OutboxEventRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -36,10 +35,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostQueryRepository postQueryRepository;
     private final LikeRepository likeRepository;
-
     private final MemberRepository memberRepository;
-
-//    private final ApplicationEventPublisher publisher;
     private final OutboxEventRecorder outboxEventRecorder;
 
     @Transactional
@@ -47,7 +43,6 @@ public class PostService {
         Member loginMember = getMemberOrThrow(loginId);
         Post savedPost = postRepository.save(Post.create(loginMember, postRequest.getContent()));
 
-//        publisher.publishEvent(new WritePostEvent(savedPost.getId()));
         outboxEventRecorder.record(new WritePostEvent(savedPost.getId(), savedPost.getMember().getId()));
 
         return savedPost.getId();
@@ -110,7 +105,6 @@ public class PostService {
                          return savedLike.getId();
                      }
 
-//                     publisher.publishEvent(new LikePostEvent(savedLike.getId()));
                      outboxEventRecorder.record(new LikePostEvent(
                              savedLike.getId(),
                              savedLike.getPost().getId(),

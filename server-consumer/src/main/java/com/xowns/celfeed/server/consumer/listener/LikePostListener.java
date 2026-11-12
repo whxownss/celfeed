@@ -2,9 +2,12 @@ package com.xowns.celfeed.server.consumer.listener;
 
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.common.event.LikePostEvent;
+import com.xowns.celfeed.domain.notification.entity.Notification;
 import com.xowns.celfeed.domain.social.entity.Like;
 import com.xowns.celfeed.domain.social.repository.LikeRepository;
 import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
+import com.xowns.celfeed.server.consumer.dto.NotificationDto;
+import com.xowns.celfeed.server.consumer.sender.NotificationSender;
 import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,7 @@ public class LikePostListener {
     private final ObjectMapper objectMapper;
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
+    private final NotificationSender sender;
 
     @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CF)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
@@ -53,7 +57,7 @@ public class LikePostListener {
         String eventId = event.getEventId();
         Long likeId = event.getLikeId();
 
-        Like like = likeRepository.findGraphById(likeId).orElse(null); // graph로 조회 안해도 될 듯 (닉네임은?)
+        Like like = likeRepository.findGraphById(likeId).orElse(null);
 
         if (like == null) {
             log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
@@ -62,15 +66,16 @@ public class LikePostListener {
         }
 
         // 알림 저장
-        Long savedNotificationId = notificationService.saveLikePostNotification(
+        Notification savedNotification = notificationService.saveLikePostNotification(
                 event.getReceiverId(), // Shard Key
                 event.getActorId(),
                 event.getPostId()
         );
-        log.info("[LIKE-POST] 알림 저장 : id={}", savedNotificationId);
+        log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
 
         // 알림 전송
-        log.info("[LIKE-POST] 알림 전송 : id={}", savedNotificationId);
+        sender.send(NotificationDto.of(savedNotification, like.getMember().getNickname()));
+        log.info("[LIKE-POST] 알림 전송 : id={}", savedNotification.getId());
 
         ack.acknowledge();
     }

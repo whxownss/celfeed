@@ -3,6 +3,8 @@ package com.xowns.celfeed.server.consumer.listener;
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.domain.social.repository.FollowQueryRepository;
 import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
+import com.xowns.celfeed.server.consumer.dto.NotificationDto;
+import com.xowns.celfeed.server.consumer.sender.NotificationSender;
 import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class WritePostFanoutListener {
 
     private final FollowQueryRepository followQueryRepository;
     private final NotificationService notificationService;
+    private final NotificationSender sender;
 
     @KafkaListener(topics = KafkaTopic.WRITE_POST_FANOUT, containerFactory = KafkaConsumerConfig.WRITE_POST_FANOUT_CF)
     public void listener(ConsumerRecord<String, WritePostFanoutEvent> record, Acknowledgment ack) {
@@ -63,6 +66,7 @@ public class WritePostFanoutListener {
         followerIds.stream()
                 .collect(Collectors.groupingBy(followerId -> followerId % mod))
                 .forEach((shardKey, ids) -> {
+                    // 알림 저장
                     List<Long> savedNotificationIds =
                             notificationService.saveWritePostNotification(
                                     shardKey,
@@ -70,11 +74,14 @@ public class WritePostFanoutListener {
                                     event.authorId(),
                                     event.postId()
                             );
-
-                    // 알림 저장
                     log.info("[WRITE-POST-FANOUT] 알림 저장 : {}건", savedNotificationIds.size());
 
                     // 알림 전송
+                    List<NotificationDto> sendData = notificationService.findNotifications(savedNotificationIds)
+                            .stream()
+                            .map(notification -> NotificationDto.of(notification, event.authorNickname()))
+                            .toList();
+                    sender.send(sendData);
                     log.info("[WRITE-POST-FANOUT] 알림 전송 : {}건", savedNotificationIds.size());
                 });
 

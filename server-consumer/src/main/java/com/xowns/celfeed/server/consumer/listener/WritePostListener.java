@@ -71,7 +71,6 @@ public class WritePostListener {
             Long boundaryFollowerId =
                     followQueryRepository.findBoundaryFollowerId(event.getActorId(), cursorFollowerId, batchSize);
 
-            // 경계값(cursor, boundary)을 kafka로 전달해서 두 번째 Consumer에서 조회 후 처리
             log.info("[WRITE-POST] Producer 메시지 전송 : eventId={}, postId={}, authorId={}, startId={}, endId={}",
                     eventId, postId, event.getActorId(), cursorFollowerId, boundaryFollowerId);
 
@@ -82,7 +81,7 @@ public class WritePostListener {
                             eventId,
                             postId,
                             event.getActorId(),
-                            post.getMember().getNickname(), // 프록시 초기화 되는지 확인
+                            post.getMember().getNickname(),
                             cursorFollowerId,
                             boundaryFollowerId
                     )
