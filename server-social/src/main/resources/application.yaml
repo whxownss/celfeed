@@ -72,7 +72,7 @@ app:
       max-backoff-sec: 300
   kafka:
     producer:
-      send-timeout: 5000
+      send-timeout: 12000 # delivery-timeout 보다 크게
 
 logging.level:
 #  com.xowns.celfeed: info

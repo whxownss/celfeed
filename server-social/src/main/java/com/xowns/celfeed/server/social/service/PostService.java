@@ -108,7 +108,7 @@ public class PostService {
                      outboxEventRecorder.record(new LikePostEvent(
                              savedLike.getId(),
                              savedLike.getPost().getId(),
-                             savedLike.getPost().getMember().getId(), // TODO : 프록시 초기화 되는지 확인
+                             savedLike.getPost().getMember().getId(),
                              savedLike.getMember().getId()
                      ));
 

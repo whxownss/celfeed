@@ -83,7 +83,6 @@ public class OutboxRelay {
     public void relayFallback() {
         List<OutboxEvent> pending =
                 outboxRepository.findPendingForRelay(LocalDateTime.now(), batchSize);
-
         if (pending.isEmpty()) return;
 
         log.info("[Relay Fallback] 시작 : {}건 폴링", pending.size());
@@ -102,22 +101,7 @@ public class OutboxRelay {
                     break;
                 }
             }
-
-//            catch (ProducerTimeoutException | ProducerInterruptedException e) {
-//                // 타임아웃은 브로커 수준 장애라 나머지도 블로킹될 것이므로, 배치를 중단해 FOR UPDATE 락과 커넥션 보유 시간을 제한
-//                // 인터럽트도 인터럽트 플래그가 계속 켜져 있어서 계속 예외가 발생함
-//                String errorMsg = e instanceof ProducerTimeoutException ? "타임아웃으로" : "인터럽트로";
-//
-//                log.error("[Relay Fallback {}] {} 인한 배치 중단, 남은 {}건은 다음 폴링에서 재시도 : eventId={}",
-//                        i + 1, errorMsg, pending.size() - i, outbox.getEventId(), e);
-//                break;
-//            } catch (Exception e) {
-//                // 타임아웃이 아니면(ProducerSendException), 이 레코드만 PENDING으로 남기고 계속 진행
-//                log.error("[Relay Fallback {}] Outbox 발행 실패, 다음 폴링에서 재시도 : eventId={}",
-//                        i + 1, outbox.getEventId(), e);
-//            }
         }
-
         if (publishedIds.isEmpty()) return;
 
         int updated = outboxRepository.markPublishedIn(publishedIds, LocalDateTime.now());

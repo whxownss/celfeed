@@ -30,7 +30,11 @@ public class OutboxEventRecorder {
         OutboxEvent outbox = switch (socialEvent) {
             case WritePostEvent writePostEvent -> writePostToOutbox(writePostEvent);
             case LikePostEvent likePostEvent -> likePostToOutboxEvent(likePostEvent);
-            default -> throw new ApiException(ErrorCode.UNSUPPORTED_EVENT_TYPE);
+            default -> {
+                String message = "지원하지 않는 이벤트 타입";
+                log.error("{}", message);
+                throw new IllegalArgumentException(message);
+            }
         };
 
         log.info("[OutboxEvent] 생성 : eventId={}, eventType={}, aggregateId={}",
