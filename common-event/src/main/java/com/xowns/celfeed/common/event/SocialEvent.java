@@ -1,4 +1,4 @@
 package com.xowns.celfeed.common.event;
 
-public interface SocialEvent {
+public sealed interface SocialEvent permits WritePostEvent, LikePostEvent {
 }

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter @Setter
-public class LikePostEvent implements SocialEvent {
+public final class LikePostEvent implements SocialEvent {
     private String eventId;
     private Long likeId;
     private Long postId;
