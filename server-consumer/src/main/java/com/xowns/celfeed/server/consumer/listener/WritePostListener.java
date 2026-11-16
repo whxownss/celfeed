@@ -36,7 +36,7 @@ public class WritePostListener {
 
         String payload = record.value();
         if (payload == null) {
-            log.warn("[WRITE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
+            log.error("[WRITE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
                     record.partition(), record.offset(), record.key());
             ack.acknowledge();
             return;

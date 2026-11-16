@@ -39,7 +39,7 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
 
     private int getShardNo(UserHolder.Sharding sharding) {
         if (sharding == null) {
-            log.warn("[Notification DataSourceRouter] 샤딩 정보 미존재");
+            log.error("[Notification DataSourceRouter] 샤딩 정보 미존재");
             return 0;
         }
 
@@ -50,7 +50,7 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
             shardNo = getShardNoByModular(sharding.getShardKey(), shardingProperty.getMod());
             log.info("[Notification DataSourceRouter] 샤딩 정보 : 전략=MODULAR, 샤드번호={}", shardNo);
         } else {
-            log.warn("[Notification DataSourceRouter] 샤딩 정보 미존재");
+            log.error("[Notification DataSourceRouter] 샤딩 정보 미존재");
         }
 
         return shardNo;

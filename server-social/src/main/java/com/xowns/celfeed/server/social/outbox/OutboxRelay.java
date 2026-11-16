@@ -97,7 +97,7 @@ public class OutboxRelay {
                 publishedIds.add(outbox.getId());
             } catch (RuntimeException e) {
                 if (handleFailure(outbox, e, tag) == FailureAction.ABORT) {
-                    log.error("{} 배치 중단, 남은 {}건은 다음 폴링에서 재시도", tag, pending.size() - i);
+                    log.warn("{} 배치 중단, 남은 {}건은 다음 폴링에서 재시도", tag, pending.size() - i);
                     break;
                 }
             }
@@ -129,7 +129,7 @@ public class OutboxRelay {
 
         // case 1) 브로커 장애 -> retryCount 증가 x, 배치 중단
         if (e instanceof ProducerTimeoutException || e instanceof ProducerInterruptedException) {
-            log.error("{} 브로커 장애 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
+            log.warn("{} 브로커 장애 : eventId={}, error={}", tag, outbox.getEventId(), error, e);
             return FailureAction.ABORT;
         }
 

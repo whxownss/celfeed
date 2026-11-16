@@ -36,7 +36,7 @@ public class WritePostFanoutListener {
 
         WritePostFanoutEvent event = record.value();
         if (event == null) {
-            log.warn("[WRITE-POST-FANOUT] 빈 메시지 skip : partition={}, offset={}, key={}",
+            log.error("[WRITE-POST-FANOUT] 빈 메시지 skip : partition={}, offset={}, key={}",
                     record.partition(), record.offset(), record.key());
             ack.acknowledge();
             return;

@@ -34,7 +34,7 @@ public class LikePostListener {
 
         String payload = record.value();
         if (payload == null) {
-            log.warn("[LIKE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
+            log.error("[LIKE-POST] 빈 메시지 skip : partition={}, offset={}, key={}",
                     record.partition(), record.offset(), record.key());
             ack.acknowledge();
             return;
