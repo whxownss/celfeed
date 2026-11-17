@@ -22,7 +22,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationBulkRepository notificationBulkRepository;
 
-    public Long saveLikePostNotification(Long receiverId, Long actorId, Long postId) {
+    public Notification saveLikePostNotification(Long receiverId, Long actorId, Long postId) {
         Notification notification = Notification.create(
                 receiverId,
                 actorId,
@@ -30,7 +30,7 @@ public class NotificationService {
                 postId
         );
 
-        return notificationRepository.save(notification).getId();
+        return notificationRepository.save(notification);
     }
 
     public List<Long> saveWritePostNotification(Long shardKey, List<Long> receiverIds, Long actorId, Long postId) {
@@ -45,5 +45,10 @@ public class NotificationService {
                 ).toList();
 
         return notificationBulkRepository.batchInsert(bulkList);
+    }
+
+    @NotificationTransactional(readOnly = true)
+    public List<Notification> findNotifications(List<Long> ids) {
+        return notificationRepository.findByIdIn(ids);
     }
 }

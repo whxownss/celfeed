@@ -1,7 +1,7 @@
-package com.xowns.celfeed.server.social.producer;
+package com.xowns.celfeed.server.social.producer.exception;
 
 public class ProducerInterruptedException extends ProducerSendException {
     public ProducerInterruptedException(Throwable cause) {
-        super(cause);
+        super("인터럽트 발생", cause);
     }
 }

@@ -21,5 +21,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 //    @EntityGraph(attributePaths = {"actor"})
 //    List<Notification> findByTypeAndTargetId(NotificationType type, Long targetId);
 
-    List<Notification> findByIdIn(List<Long> generatedKeys);
+    List<Notification> findByIdIn(List<Long> ids);
 }

@@ -4,8 +4,6 @@ import com.xowns.celfeed.common.event.EventType;
 import com.xowns.celfeed.common.event.LikePostEvent;
 import com.xowns.celfeed.common.event.SocialEvent;
 import com.xowns.celfeed.common.event.WritePostEvent;
-import com.xowns.celfeed.common.web.exception.ApiException;
-import com.xowns.celfeed.common.web.exception.ErrorCode;
 import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,6 @@ public class OutboxEventRecorder {
         OutboxEvent outbox = switch (socialEvent) {
             case WritePostEvent writePostEvent -> writePostToOutbox(writePostEvent);
             case LikePostEvent likePostEvent -> likePostToOutboxEvent(likePostEvent);
-            default -> throw new ApiException(ErrorCode.UNSUPPORTED_EVENT_TYPE);
         };
 
         log.info("[OutboxEvent] 생성 : eventId={}, eventType={}, aggregateId={}",
@@ -62,7 +59,7 @@ public class OutboxEventRecorder {
                 likePostEvent.getEventId(),
                 EventType.LIKE_POST.name(),
                 likePostEvent.getLikeId(),
-                likePostEvent.getPostId().toString(),
+                likePostEvent.getPostId() + ":" + likePostEvent.getActorId(), // postId로 하면 핫파티션 발생
                 objectMapper.writeValueAsString(likePostEvent)
         );
     }

@@ -60,11 +60,24 @@ public class OutboxEvent {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    /** 재시도 횟수 */
+    @Column(nullable = false)
+    private int retryCount; // 기본 0
+
+    /** 다음 재시도 */
+    @Column(nullable = false)
+    private LocalDateTime retryAt;
+
+    /** 에러 원인 */
+    @Column(columnDefinition = "VARCHAR(255)", nullable = true)
+    private String lastError;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
+        retryAt = now;
     }
 
     @PreUpdate

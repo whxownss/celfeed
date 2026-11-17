@@ -68,9 +68,11 @@ app:
     relay:
       batch-size: 100
       fixed-delay: 3000
+      max-retry: 5
+      max-backoff-sec: 300
   kafka:
     producer:
-      send-timeout: 5000
+      send-timeout: 12000 # delivery-timeout 보다 크게
 
 logging.level:
 #  com.xowns.celfeed: info
