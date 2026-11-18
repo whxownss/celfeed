@@ -59,36 +59,27 @@ public class LikePostListener {
         String eventId = event.getEventId();
         Long likeId = event.getLikeId();
 
-        if (!idempotencyCache.tryLock(eventId)) {
-            log.info("[LIKE-POST] 다른 Consumer가 선점 중으로 Skip : eventId={}, likeId={}", eventId, likeId);
+        Like like = likeRepository.findGraphById(likeId).orElse(null);
+
+        if (like == null) {
+            log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
             ack.acknowledge();
             return;
         }
 
-        try {
-            Like like = likeRepository.findGraphById(likeId).orElse(null);
+        // 알림 저장
+        Notification savedNotification = notificationService.saveLikePostNotification(
+                event.getReceiverId(), // Shard Key
+                event.getActorId(),
+                event.getPostId(),
+                eventId
+        );
+        log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
 
-            if (like == null) {
-                log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
-                ack.acknowledge();
-                return;
-            }
+        // 알림 전송
+        sender.send(NotificationDto.of(savedNotification, like.getMember().getNickname()));
+        log.info("[LIKE-POST] 알림 전송 : id={}", savedNotification.getId());
 
-            // 알림 저장
-            Notification savedNotification = notificationService.saveLikePostNotification(
-                    event.getReceiverId(), // Shard Key
-                    event.getActorId(),
-                    event.getPostId(),
-                    eventId
-            );
-            log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
-
-            // 알림 전송
-            sender.send(NotificationDto.of(savedNotification, like.getMember().getNickname()));
-            log.info("[LIKE-POST] 알림 전송 : id={}", savedNotification.getId());
-        } finally {
-            idempotencyCache.releaseLock(eventId);
-        }
 
         ack.acknowledge();
     }
