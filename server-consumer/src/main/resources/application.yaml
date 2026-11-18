@@ -26,6 +26,8 @@ app:
       mod: 2
   #      sharding_key: receiver_id
   kafka:
+    consumer:
+      lock-ttl-seconds: 30
     consumers:
       like-post:
         group-id: like-post

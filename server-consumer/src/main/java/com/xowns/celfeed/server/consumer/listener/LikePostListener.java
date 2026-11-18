@@ -5,6 +5,7 @@ import com.xowns.celfeed.common.event.LikePostEvent;
 import com.xowns.celfeed.domain.notification.entity.Notification;
 import com.xowns.celfeed.domain.social.entity.Like;
 import com.xowns.celfeed.domain.social.repository.LikeRepository;
+import com.xowns.celfeed.server.consumer.cache.IdempotencyCache;
 import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
 import com.xowns.celfeed.server.consumer.dto.NotificationDto;
 import com.xowns.celfeed.server.consumer.sender.NotificationSender;
@@ -26,6 +27,7 @@ public class LikePostListener {
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
     private final NotificationSender sender;
+    private final IdempotencyCache idempotencyCache;
 
     @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CF)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
@@ -57,26 +59,36 @@ public class LikePostListener {
         String eventId = event.getEventId();
         Long likeId = event.getLikeId();
 
-        Like like = likeRepository.findGraphById(likeId).orElse(null);
-
-        if (like == null) {
-            log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
+        if (!idempotencyCache.tryLock(eventId)) {
+            log.info("[LIKE-POST] 다른 Consumer가 선점 중으로 Skip : eventId={}, likeId={}", eventId, likeId);
             ack.acknowledge();
             return;
         }
 
-        // 알림 저장
-        Notification savedNotification = notificationService.saveLikePostNotification(
-                event.getReceiverId(), // Shard Key
-                event.getActorId(),
-                event.getPostId(),
-                eventId
-        );
-        log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
+        try {
+            Like like = likeRepository.findGraphById(likeId).orElse(null);
 
-        // 알림 전송
-        sender.send(NotificationDto.of(savedNotification, like.getMember().getNickname()));
-        log.info("[LIKE-POST] 알림 전송 : id={}", savedNotification.getId());
+            if (like == null) {
+                log.error("[LIKE-POST] 존재하지 않는 좋아요 : eventId={}, likeId={}", eventId, likeId);
+                ack.acknowledge();
+                return;
+            }
+
+            // 알림 저장
+            Notification savedNotification = notificationService.saveLikePostNotification(
+                    event.getReceiverId(), // Shard Key
+                    event.getActorId(),
+                    event.getPostId(),
+                    eventId
+            );
+            log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
+
+            // 알림 전송
+            sender.send(NotificationDto.of(savedNotification, like.getMember().getNickname()));
+            log.info("[LIKE-POST] 알림 전송 : id={}", savedNotification.getId());
+        } finally {
+            idempotencyCache.releaseLock(eventId);
+        }
 
         ack.acknowledge();
     }
