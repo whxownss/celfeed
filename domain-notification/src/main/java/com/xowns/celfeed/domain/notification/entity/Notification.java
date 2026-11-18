@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
+@Table(uniqueConstraints =
+        @UniqueConstraint(
+                name = "uk_notification_event_receiver",
+                columnNames = {"event_id", "receiver_id"}
+        ))
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
 public class Notification {
@@ -19,7 +24,7 @@ public class Notification {
     @Id @SnowflakeId
     private Long id;
 
-    @Column(unique = true, columnDefinition = "CHAR(36)", nullable = false)
+    @Column(columnDefinition = "CHAR(36)", nullable = false)
     private String eventId; // eventId + receiverId 유니크 키 추가
 
 //    @ManyToOne(fetch = LAZY)
