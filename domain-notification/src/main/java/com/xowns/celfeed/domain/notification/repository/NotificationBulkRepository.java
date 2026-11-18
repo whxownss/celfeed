@@ -27,8 +27,8 @@ public class NotificationBulkRepository {
 
     public List<Long> batchInsert(List<NotificationBulkDTO> bulkList) {
         String sql = "insert into " +
-                        " notification (id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
-                        " values (?, ?, ?, ?, ?, 'N', ?)";
+                        " notification (id, event_id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
+                        " values (?, ?, ?, ?, ?, ?, 'N', ?)";
         LocalDateTime now = LocalDateTime.now();
 
         List<Long> result = new ArrayList<>();
@@ -38,11 +38,12 @@ public class NotificationBulkRepository {
             argument.setCreatedAt(now);
 
             ps.setLong(1, argument.getId());
-            ps.setLong(2, argument.getReceiverId());
-            ps.setLong(3, argument.getActorId());
-            ps.setString(4, argument.getType());
-            ps.setLong(5, argument.getTargetId());
-            ps.setTimestamp(6, Timestamp.valueOf(argument.getCreatedAt()));
+            ps.setString(2, argument.getEventId());
+            ps.setLong(3, argument.getReceiverId());
+            ps.setLong(4, argument.getActorId());
+            ps.setString(5, argument.getType());
+            ps.setLong(6, argument.getTargetId());
+            ps.setTimestamp(7, Timestamp.valueOf(argument.getCreatedAt()));
 
             result.add(argument.getId());
         });

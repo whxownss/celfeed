@@ -19,6 +19,9 @@ public class Notification {
     @Id @SnowflakeId
     private Long id;
 
+    @Column(unique = true, columnDefinition = "CHAR(36)", nullable = false)
+    private String eventId; // eventId + receiverId 유니크 키 추가
+
 //    @ManyToOne(fetch = LAZY)
 //    @JoinColumn(name = "receiver_id", nullable = false)
 //    private Member receiver;
@@ -50,7 +53,14 @@ public class Notification {
         createdAt = LocalDateTime.now();
     }
 
-    private Notification(Long receiverId, Long actorId, NotificationType type, Long targetId, boolean isRead) {
+    private Notification(String eventId,
+                         Long receiverId,
+                         Long actorId,
+                         NotificationType type,
+                         Long targetId,
+                         boolean isRead) {
+
+        this.eventId = eventId;
         this.receiverId = receiverId;
         this.actorId = actorId;
         this.type = type;
@@ -58,8 +68,13 @@ public class Notification {
         this.isRead = isRead;
     }
 
-    public static Notification create(Long receiverId, Long actorId, NotificationType type, Long targetId) {
-        return new Notification(receiverId, actorId, type, targetId, false);
+    public static Notification create(String eventId,
+                                      Long receiverId,
+                                      Long actorId,
+                                      NotificationType type,
+                                      Long targetId) {
+
+        return new Notification(eventId, receiverId, actorId, type, targetId, false);
     }
 
     public String createMessage(String actorNickname) {

@@ -7,13 +7,15 @@ import java.time.LocalDateTime;
 @Getter
 public class NotificationBulkDTO {
     private Long id;
+    private String eventId;
     private Long receiverId;
     private Long actorId;
     private String type;
     private Long targetId;
     private LocalDateTime createdAt;
 
-    public NotificationBulkDTO(Long receiverId, Long actorId, String type, Long targetId) {
+    public NotificationBulkDTO(String eventId, Long receiverId, Long actorId, String type, Long targetId) {
+        this.eventId = eventId;
         this.receiverId = receiverId;
         this.actorId = actorId;
         this.type = type;

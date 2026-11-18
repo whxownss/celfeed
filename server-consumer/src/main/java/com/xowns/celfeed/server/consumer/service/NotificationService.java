@@ -22,8 +22,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationBulkRepository notificationBulkRepository;
 
-    public Notification saveLikePostNotification(Long receiverId, Long actorId, Long postId) {
+    public Notification saveLikePostNotification(Long receiverId, Long actorId, Long postId, String eventId) {
         Notification notification = Notification.create(
+                eventId,
                 receiverId,
                 actorId,
                 NotificationType.LIKE_POST,
@@ -33,10 +34,16 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public List<Long> saveWritePostNotification(Long shardKey, List<Long> receiverIds, Long actorId, Long postId) {
+    public List<Long> saveWritePostNotification(Long shardKey,
+                                                List<Long> receiverIds,
+                                                Long actorId,
+                                                Long postId,
+                                                String eventId) {
+
         List<NotificationBulkDTO> bulkList = receiverIds.stream()
                 .map(receiverId ->
                         new NotificationBulkDTO(
+                                eventId,
                                 receiverId,
                                 actorId,
                                 NotificationType.WRITE_POST.name(),

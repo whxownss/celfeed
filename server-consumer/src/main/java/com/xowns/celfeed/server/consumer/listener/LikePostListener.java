@@ -69,7 +69,8 @@ public class LikePostListener {
         Notification savedNotification = notificationService.saveLikePostNotification(
                 event.getReceiverId(), // Shard Key
                 event.getActorId(),
-                event.getPostId()
+                event.getPostId(),
+                eventId
         );
         log.info("[LIKE-POST] 알림 저장 : id={}", savedNotification.getId());
 

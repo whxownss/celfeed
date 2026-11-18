@@ -72,7 +72,8 @@ public class WritePostFanoutListener {
                                     shardKey,
                                     ids,
                                     event.authorId(),
-                                    event.postId()
+                                    event.postId(),
+                                    event.eventId()
                             );
                     log.info("[WRITE-POST-FANOUT] 알림 저장 : {}건", savedNotificationIds.size());
 
