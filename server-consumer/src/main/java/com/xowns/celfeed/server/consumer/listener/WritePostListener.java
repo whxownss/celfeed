@@ -113,7 +113,7 @@ public class WritePostListener {
 
             kafkaTemplate.send(
                     KafkaTopic.WRITE_POST_FANOUT,
-                    eventId,
+                    eventId + ":" + cursorFollowerId,
                     new WritePostFanoutEvent(
                             eventId,
                             postId,

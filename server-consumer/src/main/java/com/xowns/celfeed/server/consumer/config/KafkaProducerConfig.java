@@ -49,7 +49,7 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, String> dltKafkaTemplate() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildAdminProperties());
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildProducerProperties());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(props));
