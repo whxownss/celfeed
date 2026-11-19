@@ -136,7 +136,7 @@ public class LikePostListener {
                     eventId
             );
         } catch (DataIntegrityViolationException e) {
-            if (isDuplicateEvent(e)) {
+            if (isDuplicateKey(e)) {
                 // Redis 장애 또는 TTL 만료된 경우
                 log.info("[LIKE-POST] DB 유니크 키 중복, 이미 처리된 이벤트 skip : eventId={}", eventId);
                 idempotencyCache.markProcessed(EVENT_TYPE, eventId);
@@ -164,7 +164,7 @@ public class LikePostListener {
         }
     }
 
-    private boolean isDuplicateEvent(DataIntegrityViolationException e) {
+    private boolean isDuplicateKey(DataIntegrityViolationException e) {
         Throwable t = e;
         while (t != null) {
             if (t.getMessage() != null && t.getMessage().contains(UNIQUE_KEY_NAME)) {

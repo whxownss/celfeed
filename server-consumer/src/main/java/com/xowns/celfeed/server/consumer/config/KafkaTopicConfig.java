@@ -31,4 +31,22 @@ public class KafkaTopicConfig {
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7)) // 원인 분석 시간 확보
                 .build();
     }
+
+    @Bean
+    public NewTopic writePostDltTopic() {
+        return TopicBuilder.name(KafkaTopic.WRITE_POST_DTL)
+                .partitions(1)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7))
+                .build();
+    }
+
+    @Bean
+    public NewTopic writePostFanoutDltTopic() {
+        return TopicBuilder.name(KafkaTopic.WRITE_POST_FANOUT_DLT)
+                .partitions(3)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7))
+                .build();
+    }
 }

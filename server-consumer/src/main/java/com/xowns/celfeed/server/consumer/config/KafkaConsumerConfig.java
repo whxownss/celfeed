@@ -17,10 +17,11 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultAfterRollbackProcessor;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
-import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
+import org.springframework.util.backoff.BackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +45,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> likePostConsumerFactory() {
-        return createConsumerFactory(
-                likePostGroupId,
-                false,
-                new StringDeserializer()
-        );
+        return createConsumerFactory(likePostGroupId, false);
     }
 
     @Bean(LIKE_POST_CF)
@@ -57,30 +54,9 @@ public class KafkaConsumerConfig {
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 createContainerFactory(likePostConsumerFactory(), 1, null);
-        factory.setCommonErrorHandler(likePostErrorHandler(dltKafkaTemplate));
+        factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.LIKE_POST_DLT));
 
         return factory;
-    }
-
-    private DefaultErrorHandler likePostErrorHandler(KafkaTemplate<String, String> dltKafkaTemplate) {
-        // 재시도를 다 써도 실패하면 DLQ로 전송
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
-                dltKafkaTemplate,
-                (record, ex) ->
-                        new TopicPartition(KafkaTopic.LIKE_POST_DLT, record.partition())
-        );
-
-        // 1초, 2초, 4초 간격으로 최대 3번 재시도
-        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
-        backOff.setInitialInterval(1_000L);
-        backOff.setMultiplier(2.0);
-        backOff.setMaxInterval(10_000L);
-
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
-        errorHandler.addNotRetryableExceptions(NonRetryableConsumerException.class);
-        errorHandler.setCommitRecovered(true); // DLQ에 보내고 기존 메시지의 offset 커밋
-
-        return errorHandler;
     }
 
     // ============================================================================================
@@ -92,22 +68,34 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> writePostConsumerFactory() {
-        return createConsumerFactory(
-                writePostGroupId,
-                false,
-                new StringDeserializer()
-        );
+        return createConsumerFactory(writePostGroupId, false);
     }
 
     @Bean(WRITE_POST_CF)
     public ConcurrentKafkaListenerContainerFactory<String, String> writePostContainerFactory(
-            KafkaTransactionManager<String, WritePostFanoutEvent> kafkaTransactionManager
+            KafkaTransactionManager<String, WritePostFanoutEvent> kafkaTransactionManager,
+            KafkaTemplate<String, WritePostFanoutEvent> kafkaTemplate,
+            KafkaTemplate<String, String> dltKafkaTemplate
+
     ) {
-        return createContainerFactory(
-                writePostConsumerFactory(),
-                1,
-                kafkaTransactionManager
-        );
+        // 해당 컨테이너에서는 트랜잭션으로 커밋되기 때문에 ack.acknowledge(), MANUAL_IMMEDIATE 등이 사실상 무시됨
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                createContainerFactory(writePostConsumerFactory(), 1, kafkaTransactionManager);
+
+        // Kafka 트랜잭션을 사용하기 때문에, DefaultErrorHandler를 붙이는 방식이 아닌,
+        // 트랜잭션 롤백 뒤에 동작하는 AfterRollbackProcessor로 재시도와 DLQ 설정
+        DefaultAfterRollbackProcessor<String, String> afterRollbackProcessor =
+                new DefaultAfterRollbackProcessor<>(
+                        deadLetterRecoverer(dltKafkaTemplate, KafkaTopic.WRITE_POST_DTL),
+                        retryBackOff(),
+                        kafkaTemplate, // 트랜잭션용 템플릿 : DLQ로 보낸 메시지의 offset을 트랜잭션으로 커밋
+                        true           // commitRecovered
+                );
+        afterRollbackProcessor.addNotRetryableExceptions(NonRetryableConsumerException.class);
+
+        factory.setAfterRollbackProcessor(afterRollbackProcessor);
+
+        return factory;
     }
 
     // ============================================================================================
@@ -118,47 +106,42 @@ public class KafkaConsumerConfig {
     private String writePostFanoutGroupId;
 
     @Bean
-    public ConsumerFactory<String, WritePostFanoutEvent> writePostFanoutConsumerFactory() {
-        return createConsumerFactory(
-                writePostFanoutGroupId,
-                true,
-                new JacksonJsonDeserializer<>(WritePostFanoutEvent.class)
-        );
+    public ConsumerFactory<String, String> writePostFanoutConsumerFactory() {
+        return createConsumerFactory(writePostFanoutGroupId, true);
     }
 
     @Bean(WRITE_POST_FANOUT_CF)
-    public ConcurrentKafkaListenerContainerFactory<String, WritePostFanoutEvent> writePostFanoutContainerFactory() {
-        return createContainerFactory(
-                writePostFanoutConsumerFactory(),
-                3,
-                null
-        );
+    public ConcurrentKafkaListenerContainerFactory<String, String> writePostFanoutContainerFactory(
+            KafkaTemplate<String, String> dltKafkaTemplate
+    ) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                createContainerFactory(writePostFanoutConsumerFactory(), 3, null);
+        factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.WRITE_POST_FANOUT_DLT));
+
+        return factory;
     }
 
     // ============================================================================================
     // default
     // ============================================================================================
 
-    private <T> ConsumerFactory<String, T> createConsumerFactory(
-            String groupId,
-            boolean readCommitted,
-            Deserializer<T> valueDeserializer
-    ) {
+    private <T> ConsumerFactory<String, T> createConsumerFactory(String groupId, boolean readCommitted) {
         Map<String, Object> props = new HashMap<>();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-//        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        // 역직렬화 실패 무한 루프 방지 및 DLQ 템플릿과 타입 호환을 위해, 전부 String 역직렬화로 고정
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         if (readCommitted) {
             props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, IsolationLevel.READ_COMMITTED.toString());
         }
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     private <T, V> ConcurrentKafkaListenerContainerFactory<String, T> createContainerFactory(
@@ -179,5 +162,31 @@ public class KafkaConsumerConfig {
         }
 
         return factory;
+    }
+
+    private DefaultErrorHandler errorHandler(KafkaTemplate<String, String> dltKafkaTemplate, String dltTopic) {
+        DefaultErrorHandler errorHandler =
+                new DefaultErrorHandler(deadLetterRecoverer(dltKafkaTemplate, dltTopic), retryBackOff());
+        errorHandler.addNotRetryableExceptions(NonRetryableConsumerException.class);
+        errorHandler.setCommitRecovered(true); // DLQ에 보내고 기존 메시지의 offset 커밋
+        return errorHandler;
+    }
+
+    private DeadLetterPublishingRecoverer deadLetterRecoverer(KafkaTemplate<String, String> dltKafkaTemplate,
+                                                              String dltTopic) {
+        // 재시도를 다 써도 실패하면 DLQ로 전송
+        return new DeadLetterPublishingRecoverer(
+                dltKafkaTemplate,
+                (record, ex) -> new TopicPartition(dltTopic, record.partition())
+        );
+    }
+
+    private BackOff retryBackOff() {
+        // 1초 → 2초 → 4초, 최대 3번
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
+        backOff.setInitialInterval(1_000L);
+        backOff.setMultiplier(2.0);
+        backOff.setMaxInterval(10_000L);
+        return backOff;
     }
 }
