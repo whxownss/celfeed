@@ -1,8 +1,11 @@
 package com.xowns.celfeed.server.consumer.config;
 
+import com.xowns.celfeed.common.event.KafkaTopic;
+import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
 import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.IsolationLevel;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +14,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
 
@@ -45,12 +52,35 @@ public class KafkaConsumerConfig {
     }
 
     @Bean(LIKE_POST_CF)
-    public ConcurrentKafkaListenerContainerFactory<String, String> likePostContainerFactory() {
-        return createContainerFactory(
-                likePostConsumerFactory(),
-                1,
-                null
+    public ConcurrentKafkaListenerContainerFactory<String, String> likePostContainerFactory(
+            KafkaTemplate<String, String> dltKafkaTemplate
+    ) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                createContainerFactory(likePostConsumerFactory(), 1, null);
+        factory.setCommonErrorHandler(likePostErrorHandler(dltKafkaTemplate));
+
+        return factory;
+    }
+
+    private DefaultErrorHandler likePostErrorHandler(KafkaTemplate<String, String> dltKafkaTemplate) {
+        // 재시도를 다 써도 실패하면 DLQ로 전송
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+                dltKafkaTemplate,
+                (record, ex) ->
+                        new TopicPartition(KafkaTopic.LIKE_POST_DLT, record.partition())
         );
+
+        // 1초, 2초, 4초 간격으로 최대 3번 재시도
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
+        backOff.setInitialInterval(1_000L);
+        backOff.setMultiplier(2.0);
+        backOff.setMaxInterval(10_000L);
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+        errorHandler.addNotRetryableExceptions(NonRetryableConsumerException.class);
+        errorHandler.setCommitRecovered(true); // DLQ에 보내고 기존 메시지의 offset 커밋
+
+        return errorHandler;
     }
 
     // ============================================================================================

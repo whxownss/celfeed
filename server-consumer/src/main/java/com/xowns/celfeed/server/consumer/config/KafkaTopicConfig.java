@@ -22,4 +22,13 @@ public class KafkaTopicConfig {
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
                 .build();
     }
+
+    @Bean
+    public NewTopic likePostDltTopic() {
+        return TopicBuilder.name(KafkaTopic.LIKE_POST_DLT)
+                .partitions(1) // 원본과 같은 파티션 수 (record.partition()으로 보내기 때문)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7)) // 원인 분석 시간 확보
+                .build();
+    }
 }

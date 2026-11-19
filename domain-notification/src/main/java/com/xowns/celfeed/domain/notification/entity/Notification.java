@@ -14,12 +14,14 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Table(uniqueConstraints =
         @UniqueConstraint(
-                name = "uk_notification_event_receiver",
+                name = Notification.UK_EVENT_RECEIVER,
                 columnNames = {"event_id", "receiver_id"}
         ))
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
 public class Notification {
+
+    public static final String UK_EVENT_RECEIVER = "uk_notification_event_receiver";
 
     @Id @SnowflakeId
     private Long id;
