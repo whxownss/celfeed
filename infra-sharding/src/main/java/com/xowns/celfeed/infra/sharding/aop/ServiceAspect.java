@@ -30,12 +30,12 @@ public class ServiceAspect {
         log.info("[Sharding AOP] 샤드키 설정 : 클래스={}, 메서드={}, 샤드키={}",
                 signature.getDeclaringTypeName(), ((MethodSignature) signature).getMethod().getName(), shardKey);
 
-        Object returnVal = pjp.proceed();
-
-        UserHolder.clearSharding();
-        log.info("[Sharding AOP] 샤드키 해제 : 클래스={}, 메서드={}, 샤드키={}",
-                signature.getDeclaringTypeName(), ((MethodSignature) signature).getMethod().getName(), shardKey);
-
-        return returnVal;
+        try {
+            return pjp.proceed();
+        } finally {
+            UserHolder.clearSharding();
+            log.info("[Sharding AOP] 샤드키 해제 : 클래스={}, 메서드={}, 샤드키={}",
+                    signature.getDeclaringTypeName(), ((MethodSignature) signature).getMethod().getName(), shardKey);
+        }
     }
 }

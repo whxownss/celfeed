@@ -70,6 +70,10 @@ app:
       fixed-delay: 3000
       max-retry: 5
       max-backoff-sec: 300
+    scheduler:
+      batch-size: 1000
+      ttl-hours: 24
+      fixed-delay: 3600000 # 1시간
   kafka:
     producer:
       send-timeout: 12000 # delivery-timeout 보다 크게

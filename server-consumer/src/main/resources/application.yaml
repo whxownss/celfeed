@@ -26,6 +26,9 @@ app:
       mod: 2
   #      sharding_key: receiver_id
   kafka:
+    consumer:
+      lock-ttl-seconds: 60 # Hikari connection-timeout 보다 길게
+      done-ttl-hours: 24   # 토픽 보관기간과 맞춤
     consumers:
       like-post:
         group-id: like-post

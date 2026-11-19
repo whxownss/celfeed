@@ -76,4 +76,17 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
             AND status = 'PENDING'
             """, nativeQuery = true)
     int markFailed(@Param("id") Long id, @Param("error") String error, @Param("now") LocalDateTime now);
+
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+            DELETE FROM outbox_event
+            WHERE status = :status
+            AND created_at < :threshold
+            ORDER BY created_at ASC
+            LIMIT :limit
+            """)
+    int deleteByStatusBefore(@Param("status") String status,
+                             @Param("threshold") LocalDateTime threshold,
+                             @Param("limit") int limit);
 }

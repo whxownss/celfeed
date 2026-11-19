@@ -12,9 +12,13 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_follow",
+                @UniqueConstraint( // 이거는 필요없나?
+                        name = "uk_follow_from_to",
                         columnNames = {"from_id", "to_id"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_follow_to_from",
+                        columnNames = {"to_id", "from_id"}
                 )
         }
 )

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -22,4 +23,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 //    List<Notification> findByTypeAndTargetId(NotificationType type, Long targetId);
 
     List<Notification> findByIdIn(List<Long> ids);
+
+    List<Notification> findByEventIdAndReceiverIdIn(String eventId, Collection<Long> receiversIds);
 }
