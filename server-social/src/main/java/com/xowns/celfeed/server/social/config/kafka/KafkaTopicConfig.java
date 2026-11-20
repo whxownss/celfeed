@@ -31,4 +31,13 @@ public class KafkaTopicConfig {
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
                 .build();
     }
+
+    @Bean
+    public NewTopic followMemberTopic() {
+        return TopicBuilder.name(KafkaTopic.FOLLOW_MEMBER)
+                .partitions(1)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
+                .build();
+    }
 }

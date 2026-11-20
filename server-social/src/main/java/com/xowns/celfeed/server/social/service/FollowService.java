@@ -1,5 +1,6 @@
 package com.xowns.celfeed.server.social.service;
 
+import com.xowns.celfeed.common.event.FollowMemberEvent;
 import com.xowns.celfeed.server.social.dto.response.MemberResponse;
 import com.xowns.celfeed.common.web.dto.SliceDTO;
 import com.xowns.celfeed.common.web.exception.ApiException;
@@ -8,6 +9,7 @@ import com.xowns.celfeed.domain.social.entity.Follow;
 import com.xowns.celfeed.domain.social.entity.Member;
 import com.xowns.celfeed.domain.social.repository.FollowRepository;
 import com.xowns.celfeed.domain.social.repository.MemberRepository;
+import com.xowns.celfeed.server.social.outbox.OutboxEventRecorder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -21,6 +23,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
+    private final OutboxEventRecorder outboxEventRecorder;
 
     @Transactional
     public Long followMember(Long loginId, Long targetMemberId) {
@@ -36,8 +39,15 @@ public class FollowService {
         return followRepository.findByFromMemberAndToMember(fromMember, toMember)
                 .map(Follow::getId)
                 .orElseGet(() -> {
-                    Follow follow = Follow.create(fromMember, toMember);
-                    return followRepository.save(follow).getId();
+                    Follow savedFollow = followRepository.save(Follow.create(fromMember, toMember));
+
+                    outboxEventRecorder.record(new FollowMemberEvent(
+                            savedFollow.getId(),
+                            savedFollow.getFromMember().getId(),
+                            savedFollow.getToMember().getId()
+                    ));
+
+                    return savedFollow.getId();
                 });
     }
 
