@@ -12,12 +12,14 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Table(
         name = "likes",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_likes",
-                        columnNames = {"post_id", "member_id"}
-                )
-        }
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_likes",
+                columnNames = {"post_id", "member_id"}
+        ),
+        indexes = @Index(
+                name = "idx_likes_member_created_post",
+                columnList = "member_id, created_at DESC, post_id"
+        )
 )
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString

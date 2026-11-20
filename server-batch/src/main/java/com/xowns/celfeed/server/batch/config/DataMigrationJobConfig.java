@@ -88,12 +88,13 @@ public class DataMigrationJobConfig {
                 .parameterValues(parameterValues)
                 .rowMapper((rs, rowNum) -> new Notification(
                         rs.getLong(1),
-                        rs.getLong(2),
+                        rs.getString(2),
                         rs.getLong(3),
-                        rs.getString(4),
-                        rs.getLong(5),
-                        rs.getString(6),
-                        rs.getTimestamp(7)
+                        rs.getLong(4),
+                        rs.getString(5),
+                        rs.getLong(6),
+                        rs.getString(7),
+                        rs.getTimestamp(8)
                 ))
                 .pageSize(CHUNK_SIZE)
                 .build();
@@ -105,7 +106,7 @@ public class DataMigrationJobConfig {
         SqlPagingQueryProviderFactoryBean provider = new SqlPagingQueryProviderFactoryBean();
         provider.setDataSource(dataSource);
 
-        provider.setSelectClause("select id, receiver_id, actor_id, type, target_id, is_read, created_at");
+        provider.setSelectClause("select id, event_id, receiver_id, actor_id, type, target_id, is_read, created_at");
         provider.setFromClause("from notification");
         provider.setWhereClause("created_at < :date");
         provider.setSortKey("id");
@@ -118,8 +119,8 @@ public class DataMigrationJobConfig {
         return new JdbcBatchItemWriterBuilder<Notification>()
                 .dataSource(dataSource)
                 .sql(
-                        "insert into notification(id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
-                                "values(:id, :receiverId, :actorId, :type, :targetId, :isRead, :createdAt)"
+                        "insert into notification(id, event_id, receiver_id, actor_id, type, target_id, is_read, created_at) " +
+                                "values(:id, :eventId, :receiverId, :actorId, :type, :targetId, :isRead, :createdAt)"
                 )
                 .beanMapped()
                 .build();
@@ -130,6 +131,7 @@ public class DataMigrationJobConfig {
     @AllArgsConstructor
     public static class Notification {
         private Long id;
+        private String eventId;
         private Long receiverId;
         private Long actorId;
         private String type;

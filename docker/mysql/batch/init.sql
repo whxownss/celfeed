@@ -98,3 +98,17 @@ CREATE TABLE BATCH_JOB_INSTANCE_SEQ (
 ) ENGINE=InnoDB;
 
 INSERT INTO BATCH_JOB_INSTANCE_SEQ (ID, UNIQUE_KEY) select * from (select 0 as ID, '0' as UNIQUE_KEY) as tmp where not exists(select * from BATCH_JOB_INSTANCE_SEQ);
+
+CREATE TABLE notification (
+    id          BIGINT      NOT NULL,
+    event_id    CHAR(36)    NOT NULL,
+    receiver_id BIGINT      NOT NULL,
+    actor_id    BIGINT      NOT NULL,
+    type        VARCHAR(20) NOT NULL,
+    target_id   BIGINT      NOT NULL,
+    is_read     VARCHAR(1)  NOT NULL,
+    created_at  DATETIME(6) NOT NULL,
+
+    PRIMARY KEY (id),
+    INDEX idx_notification_receiver_created (receiver_id, created_at DESC)
+) ENGINE=InnoDB;
