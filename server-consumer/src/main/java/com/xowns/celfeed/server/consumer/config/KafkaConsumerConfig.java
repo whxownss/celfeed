@@ -32,6 +32,7 @@ public class KafkaConsumerConfig {
     public static final String LIKE_POST_CF = "likePostContainerFactory";
     public static final String WRITE_POST_CF = "writePostContainerFactory";
     public static final String WRITE_POST_FANOUT_CF = "writePostFanoutContainerFactory";
+    public static final String FOLLOW_MEMBER_CF = "followMemberContainerFactory";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -117,6 +118,29 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 createContainerFactory(writePostFanoutConsumerFactory(), 3, null);
         factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.WRITE_POST_FANOUT_DLT));
+
+        return factory;
+    }
+
+    // ============================================================================================
+    // follow-member
+    // ============================================================================================
+
+    @Value("${app.kafka.consumers.follow-member.group-id}")
+    private String followMemberGroupId;
+
+    @Bean
+    public ConsumerFactory<String, String> followMemberConsumerFactory() {
+        return createConsumerFactory(followMemberGroupId, false);
+    }
+
+    @Bean(FOLLOW_MEMBER_CF)
+    public ConcurrentKafkaListenerContainerFactory<String, String> followMemberContainerFactory(
+            KafkaTemplate<String, String> dltKafkaTemplate
+    ) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                createContainerFactory(followMemberConsumerFactory(), 1, null);
+        factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.LIKE_POST_DLT));
 
         return factory;
     }

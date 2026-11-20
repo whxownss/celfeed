@@ -37,6 +37,8 @@ app:
         batch-size: 2
       write-post-fanout:
         group-id: write-post-fanout
+      follow-member:
+        group-id: follow-member
 
 spring:
   application:

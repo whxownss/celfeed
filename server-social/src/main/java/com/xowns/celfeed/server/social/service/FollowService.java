@@ -34,8 +34,6 @@ public class FollowService {
         Member fromMember = getMemberOrThrow(loginId);
         Member toMember = getMemberOrThrow(targetMemberId);
 
-        // TODO : 팔로우 시에도 알림 기능 구현
-
         return followRepository.findByFromMemberAndToMember(fromMember, toMember)
                 .map(Follow::getId)
                 .orElseGet(() -> {

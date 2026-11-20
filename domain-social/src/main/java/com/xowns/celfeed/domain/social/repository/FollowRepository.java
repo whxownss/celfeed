@@ -4,6 +4,7 @@ import com.xowns.celfeed.domain.social.entity.Follow;
 import com.xowns.celfeed.domain.social.entity.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +25,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("select f.fromMember.id from Follow f where f.toMember = :toMember")
     List<Long> findFollowerIdsByOffset(@Param("toMember") Member toMember, Pageable pageable);
+
+    @EntityGraph(attributePaths = "fromMember")
+    Optional<Follow> findGraphById(Long id);
 }
 
 

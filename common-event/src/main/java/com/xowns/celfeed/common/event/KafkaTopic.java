@@ -11,5 +11,6 @@ public abstract class KafkaTopic {
     public static final String WRITE_POST_FANOUT_DLT = "write-post-fanout.DLT";
 
     public static final String FOLLOW_MEMBER = "follow-member";
+    public static final String FOLLOW_MEMBER_DLT = "follow-member.DLT";
 
 }

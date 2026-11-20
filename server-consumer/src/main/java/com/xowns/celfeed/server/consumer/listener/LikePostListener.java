@@ -31,10 +31,11 @@ public class LikePostListener {
     private static final String UNIQUE_KEY_NAME = Notification.UK_EVENT_RECEIVER;
 
     private final ObjectMapper objectMapper;
+    private final IdempotencyCache idempotencyCache;
+    private final NotificationSender sender;
+
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
-    private final NotificationSender sender;
-    private final IdempotencyCache idempotencyCache;
 
     @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CF)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
