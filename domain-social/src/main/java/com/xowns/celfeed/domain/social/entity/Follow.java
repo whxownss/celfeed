@@ -11,16 +11,15 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Table(
-        uniqueConstraints = {
-                @UniqueConstraint( // 이거는 필요없나?
-                        name = "uk_follow_from_to",
-                        columnNames = {"from_id", "to_id"}
-                ),
-                @UniqueConstraint(
-                        name = "uk_follow_to_from",
-                        columnNames = {"to_id", "from_id"}
-                )
-        }
+        name = "follow",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_follow_from_to",
+                columnNames = {"from_id", "to_id"}
+        ),
+        indexes = @Index(
+                name = "idx_follow_to_from",
+                columnList = "to_id, from_id"
+        )
 )
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString

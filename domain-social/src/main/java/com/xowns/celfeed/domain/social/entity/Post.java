@@ -11,6 +11,13 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
+@Table(
+        name = "post",
+        indexes = @Index(
+                name = "idx_post_member_deleted_created",
+                columnList = "member_id, is_deleted, created_at DESC"
+        )
+)
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString
 public class Post extends BaseEntity {

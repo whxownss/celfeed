@@ -62,7 +62,7 @@ public class OutboxEvent {
 
     /** 재시도 횟수 */
     @Column(nullable = false)
-    private int retryCount; // 기본 0
+    private int retryCount;
 
     /** 다음 재시도 */
     @Column(nullable = false)
