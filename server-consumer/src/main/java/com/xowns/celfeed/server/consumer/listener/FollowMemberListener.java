@@ -52,7 +52,7 @@ public class FollowMemberListener {
 
         FollowMemberEvent event = parse(payload);
 
-        log.info("[FOLLOW-MEMBER] 페이로드 : eventId={}, follow={}, fromId={}, toId={}, occurredAt={}",
+        log.info("[FOLLOW-MEMBER] 페이로드 : eventId={}, followId={}, fromId={}, toId={}, occurredAt={}",
                 event.getEventId(),
                 event.getFollowId(),
                 event.getFromId(),
@@ -73,7 +73,9 @@ public class FollowMemberListener {
             throw new NonRetryableConsumerException("[FOLLOW-MEMBER] 역직렬화 실패 : payload=" + payload, e);
         }
 
-        if (event.getEventId() == null || event.getFollowId() == null || event.getToId() == null) {
+        if (event.getEventId() == null || event.getFollowId() == null
+                || event.getFromId() == null || event.getToId() == null || event.getOccurredAt() == null) {
+
             throw new NonRetryableConsumerException("[FOLLOW-MEMBER] 필수 값 누락 : payload=" + payload);
         }
 

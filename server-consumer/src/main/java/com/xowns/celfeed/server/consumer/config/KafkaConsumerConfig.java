@@ -2,7 +2,7 @@ package com.xowns.celfeed.server.consumer.config;
 
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
-import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
+import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.TopicPartition;

@@ -1,4 +1,4 @@
-package com.xowns.celfeed.server.consumer.listener;
+package com.xowns.celfeed.server.consumer.listener.event;
 
 public record WritePostFanoutEvent(
         String eventId,

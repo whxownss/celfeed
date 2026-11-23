@@ -8,6 +8,7 @@ import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
 import com.xowns.celfeed.server.consumer.dto.NotificationDto;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
 import com.xowns.celfeed.server.consumer.exception.RetryableConsumerException;
+import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
 import com.xowns.celfeed.server.consumer.sender.NotificationSender;
 import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,9 @@ public class WritePostFanoutListener {
             throw new NonRetryableConsumerException("[WRITE-POST-FANOUT] 역직렬화 실패 : payload=" + payload, e);
         }
 
-        if (event.eventId() == null || event.postId() == null || event.authorId() == null) {
+        if (event.eventId() == null || event.postId() == null || event.authorId() == null
+                || event.authorNickname() == null || event.startFollowerId() == null || event.endFollowerId() == null) {
+
             throw new NonRetryableConsumerException("[WRITE-POST-FANOUT] 필수 값 누락 : payload=" + payload);
         }
 

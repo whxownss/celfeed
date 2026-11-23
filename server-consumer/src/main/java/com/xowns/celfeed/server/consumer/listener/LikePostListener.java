@@ -76,7 +76,9 @@ public class LikePostListener {
             throw new NonRetryableConsumerException("[LIKE-POST] 역직렬화 실패 : payload=" + payload, e);
         }
 
-        if (event.getEventId() == null || event.getLikeId() == null || event.getReceiverId() == null) {
+        if (event.getEventId() == null || event.getLikeId() == null || event.getPostId() == null
+                || event.getReceiverId() == null || event.getActorId() == null || event.getOccurredAt() == null) {
+
             throw new NonRetryableConsumerException("[LIKE-POST] 필수 값 누락 : payload=" + payload);
         }
 

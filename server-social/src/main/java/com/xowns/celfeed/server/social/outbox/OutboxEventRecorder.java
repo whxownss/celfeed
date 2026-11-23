@@ -3,6 +3,7 @@ package com.xowns.celfeed.server.social.outbox;
 import com.xowns.celfeed.common.event.*;
 import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
+import com.xowns.celfeed.server.social.outbox.event.OutboxCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
