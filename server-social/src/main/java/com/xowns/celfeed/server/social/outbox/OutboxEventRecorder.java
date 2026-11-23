@@ -1,11 +1,9 @@
 package com.xowns.celfeed.server.social.outbox;
 
-import com.xowns.celfeed.common.event.EventType;
-import com.xowns.celfeed.common.event.LikePostEvent;
-import com.xowns.celfeed.common.event.SocialEvent;
-import com.xowns.celfeed.common.event.WritePostEvent;
+import com.xowns.celfeed.common.event.*;
 import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
+import com.xowns.celfeed.server.social.outbox.event.OutboxCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,7 +25,8 @@ public class OutboxEventRecorder {
     public void record(SocialEvent socialEvent) {
         OutboxEvent outbox = switch (socialEvent) {
             case WritePostEvent writePostEvent -> writePostToOutbox(writePostEvent);
-            case LikePostEvent likePostEvent -> likePostToOutboxEvent(likePostEvent);
+            case LikePostEvent likePostEvent -> likePostToOutbox(likePostEvent);
+            case FollowMemberEvent followMemberEvent -> followMemberToOutbox(followMemberEvent);
         };
 
         log.info("[OutboxEvent] 생성 : eventId={}, eventType={}, aggregateId={}",
@@ -44,23 +43,33 @@ public class OutboxEventRecorder {
                 outbox.getEventId(), outbox.getEventType(), outbox.getAggregateId());
     }
 
-    private OutboxEvent writePostToOutbox(WritePostEvent writePostEvent) {
+    private OutboxEvent writePostToOutbox(WritePostEvent event) {
         return OutboxEvent.pending(
-                writePostEvent.getEventId(),
+                event.getEventId(),
                 EventType.WRITE_POST.name(),
-                writePostEvent.getPostId(),
-                writePostEvent.getPostId().toString(),
-                objectMapper.writeValueAsString(writePostEvent)
+                event.getPostId(),
+                event.getPostId().toString(),
+                objectMapper.writeValueAsString(event)
         );
     }
 
-    private OutboxEvent likePostToOutboxEvent(LikePostEvent likePostEvent) {
+    private OutboxEvent likePostToOutbox(LikePostEvent event) {
         return OutboxEvent.pending(
-                likePostEvent.getEventId(),
+                event.getEventId(),
                 EventType.LIKE_POST.name(),
-                likePostEvent.getLikeId(),
-                likePostEvent.getPostId() + ":" + likePostEvent.getActorId(), // postId로 하면 핫파티션 발생
-                objectMapper.writeValueAsString(likePostEvent)
+                event.getLikeId(),
+                event.getPostId() + ":" + event.getActorId(), // postId로 하면 핫파티션 발생
+                objectMapper.writeValueAsString(event)
+        );
+    }
+
+    private OutboxEvent followMemberToOutbox(FollowMemberEvent event) {
+        return OutboxEvent.pending(
+                event.getEventId(),
+                EventType.FOLLOW_MEMBER.name(),
+                event.getFollowId(),
+                event.getToId() + ":" + event.getFromId(),
+                objectMapper.writeValueAsString(event)
         );
     }
 }

@@ -8,6 +8,7 @@ import com.xowns.celfeed.domain.social.repository.PostRepository;
 import com.xowns.celfeed.server.consumer.cache.IdempotencyCache;
 import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
+import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -84,7 +85,9 @@ public class WritePostListener {
             throw new NonRetryableConsumerException("[WRITE-POST] 역직렬화 실패 : payload=" + payload, e);
         }
 
-        if (event.getEventId() == null || event.getPostId() == null || event.getActorId() == null) {
+        if (event.getEventId() == null || event.getPostId() == null
+                || event.getActorId() == null || event.getOccurredAt() == null) {
+
             throw new NonRetryableConsumerException("[WRITE-POST] 필수 값 누락 : payload=" + payload);
         }
 

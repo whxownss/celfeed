@@ -34,7 +34,7 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic writePostDltTopic() {
-        return TopicBuilder.name(KafkaTopic.WRITE_POST_DTL)
+        return TopicBuilder.name(KafkaTopic.WRITE_POST_DLT)
                 .partitions(1)
                 .replicas(1)
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7))
@@ -49,4 +49,14 @@ public class KafkaTopicConfig {
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7))
                 .build();
     }
+
+    @Bean
+    public NewTopic followMemberDltTopic() {
+        return TopicBuilder.name(KafkaTopic.FOLLOW_MEMBER_DLT)
+                .partitions(1)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY * 7))
+                .build();
+    }
+
 }

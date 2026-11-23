@@ -65,4 +65,16 @@ public class NotificationService {
     public List<Notification> findNotifications(List<Long> ids) {
         return notificationRepository.findByIdIn(ids);
     }
+
+    public Notification saveFollowMemberNotification(Long receiverId, Long actorId, Long followId, String eventId) {
+        Notification notification = Notification.create(
+                eventId,
+                receiverId,
+                actorId,
+                NotificationType.FOLLOW_MEMBER,
+                followId
+        );
+
+        return notificationRepository.save(notification);
+    }
 }

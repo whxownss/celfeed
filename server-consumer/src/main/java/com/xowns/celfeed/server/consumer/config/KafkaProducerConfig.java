@@ -1,6 +1,6 @@
 package com.xowns.celfeed.server.consumer.config;
 
-import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
+import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

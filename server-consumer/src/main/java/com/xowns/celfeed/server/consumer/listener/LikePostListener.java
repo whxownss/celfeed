@@ -31,10 +31,11 @@ public class LikePostListener {
     private static final String UNIQUE_KEY_NAME = Notification.UK_EVENT_RECEIVER;
 
     private final ObjectMapper objectMapper;
+    private final IdempotencyCache idempotencyCache;
+    private final NotificationSender sender;
+
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
-    private final NotificationSender sender;
-    private final IdempotencyCache idempotencyCache;
 
     @KafkaListener(topics = KafkaTopic.LIKE_POST, containerFactory = KafkaConsumerConfig.LIKE_POST_CF)
     public void listener(ConsumerRecord<String, String> record, Acknowledgment ack) {
@@ -75,7 +76,9 @@ public class LikePostListener {
             throw new NonRetryableConsumerException("[LIKE-POST] 역직렬화 실패 : payload=" + payload, e);
         }
 
-        if (event.getEventId() == null || event.getLikeId() == null || event.getReceiverId() == null) {
+        if (event.getEventId() == null || event.getLikeId() == null || event.getPostId() == null
+                || event.getReceiverId() == null || event.getActorId() == null || event.getOccurredAt() == null) {
+
             throw new NonRetryableConsumerException("[LIKE-POST] 필수 값 누락 : payload=" + payload);
         }
 

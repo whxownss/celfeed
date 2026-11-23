@@ -5,6 +5,7 @@ import com.xowns.celfeed.domain.social.entity.OutboxEvent;
 import com.xowns.celfeed.domain.social.entity.OutboxStatus;
 import com.xowns.celfeed.domain.social.repository.OutboxRepository;
 import com.xowns.celfeed.server.social.config.async.AsyncConfig;
+import com.xowns.celfeed.server.social.outbox.event.OutboxCreatedEvent;
 import com.xowns.celfeed.server.social.producer.KafkaProducer;
 import com.xowns.celfeed.server.social.producer.exception.ProducerInterruptedException;
 import com.xowns.celfeed.server.social.producer.exception.ProducerNonRetriableException;

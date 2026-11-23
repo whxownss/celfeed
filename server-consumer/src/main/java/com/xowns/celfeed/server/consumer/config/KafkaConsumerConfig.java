@@ -2,11 +2,10 @@ package com.xowns.celfeed.server.consumer.config;
 
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
-import com.xowns.celfeed.server.consumer.listener.WritePostFanoutEvent;
+import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +31,7 @@ public class KafkaConsumerConfig {
     public static final String LIKE_POST_CF = "likePostContainerFactory";
     public static final String WRITE_POST_CF = "writePostContainerFactory";
     public static final String WRITE_POST_FANOUT_CF = "writePostFanoutContainerFactory";
+    public static final String FOLLOW_MEMBER_CF = "followMemberContainerFactory";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -86,7 +86,7 @@ public class KafkaConsumerConfig {
         // 트랜잭션 롤백 뒤에 동작하는 AfterRollbackProcessor로 재시도와 DLQ 설정
         DefaultAfterRollbackProcessor<String, String> afterRollbackProcessor =
                 new DefaultAfterRollbackProcessor<>(
-                        deadLetterRecoverer(dltKafkaTemplate, KafkaTopic.WRITE_POST_DTL),
+                        deadLetterRecoverer(dltKafkaTemplate, KafkaTopic.WRITE_POST_DLT),
                         retryBackOff(),
                         kafkaTemplate, // 트랜잭션용 템플릿 : DLQ로 보낸 메시지의 offset을 트랜잭션으로 커밋
                         true           // commitRecovered
@@ -117,6 +117,29 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 createContainerFactory(writePostFanoutConsumerFactory(), 3, null);
         factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.WRITE_POST_FANOUT_DLT));
+
+        return factory;
+    }
+
+    // ============================================================================================
+    // follow-member
+    // ============================================================================================
+
+    @Value("${app.kafka.consumers.follow-member.group-id}")
+    private String followMemberGroupId;
+
+    @Bean
+    public ConsumerFactory<String, String> followMemberConsumerFactory() {
+        return createConsumerFactory(followMemberGroupId, false);
+    }
+
+    @Bean(FOLLOW_MEMBER_CF)
+    public ConcurrentKafkaListenerContainerFactory<String, String> followMemberContainerFactory(
+            KafkaTemplate<String, String> dltKafkaTemplate
+    ) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                createContainerFactory(followMemberConsumerFactory(), 1, null);
+        factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.FOLLOW_MEMBER_DLT));
 
         return factory;
     }
