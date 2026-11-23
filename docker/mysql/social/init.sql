@@ -32,7 +32,7 @@ CREATE TABLE follow (
     CONSTRAINT fk_follow_from    FOREIGN KEY (from_id) REFERENCES member (id),
     CONSTRAINT fk_follow_to      FOREIGN KEY (to_id)   REFERENCES member (id),
     CONSTRAINT uk_follow_from_to UNIQUE (from_id, to_id),
-    INDEX idx_follow_to_from (from_id, to_id)
+    INDEX idx_follow_to_from (to_id, from_id)
 ) ENGINE=InnoDB;
 
 
@@ -79,6 +79,7 @@ CREATE TABLE outbox_event (
     created_at    DATETIME(6)  NOT NULL,
     updated_at    DATETIME(6)  NOT NULL,
 
+    PRIMARY KEY (id),
     CONSTRAINT uk_outbox_event UNIQUE (event_id),
     INDEX idx_outbox_status_craeted (status, created_at)
 ) ENGINE=InnoDB;

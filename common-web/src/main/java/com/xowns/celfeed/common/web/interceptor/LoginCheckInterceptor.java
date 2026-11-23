@@ -25,7 +25,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute(SessionConst.LOGIN_MEMBER) == null) {
-            if (request.getHeader(HttpHeaders.ACCEPT).equals(MediaType.TEXT_EVENT_STREAM_VALUE)) {
+            if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(request.getHeader(HttpHeaders.ACCEPT))) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
