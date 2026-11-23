@@ -24,8 +24,8 @@ public class OutboxEventRecorder {
     public void record(SocialEvent socialEvent) {
         OutboxEvent outbox = switch (socialEvent) {
             case WritePostEvent writePostEvent -> writePostToOutbox(writePostEvent);
-            case LikePostEvent likePostEvent -> likePostToOutboxEvent(likePostEvent);
-            case FollowMemberEvent followMemberEvent -> followMemberEvent(followMemberEvent);
+            case LikePostEvent likePostEvent -> likePostToOutbox(likePostEvent);
+            case FollowMemberEvent followMemberEvent -> followMemberToOutbox(followMemberEvent);
         };
 
         log.info("[OutboxEvent] 생성 : eventId={}, eventType={}, aggregateId={}",
@@ -52,7 +52,7 @@ public class OutboxEventRecorder {
         );
     }
 
-    private OutboxEvent likePostToOutboxEvent(LikePostEvent event) {
+    private OutboxEvent likePostToOutbox(LikePostEvent event) {
         return OutboxEvent.pending(
                 event.getEventId(),
                 EventType.LIKE_POST.name(),
@@ -62,7 +62,7 @@ public class OutboxEventRecorder {
         );
     }
 
-    private OutboxEvent followMemberEvent(FollowMemberEvent event) {
+    private OutboxEvent followMemberToOutbox(FollowMemberEvent event) {
         return OutboxEvent.pending(
                 event.getEventId(),
                 EventType.FOLLOW_MEMBER.name(),
