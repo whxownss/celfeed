@@ -9,7 +9,7 @@ import com.xowns.celfeed.server.consumer.dto.NotificationDto;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
 import com.xowns.celfeed.server.consumer.exception.RetryableConsumerException;
 import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
-import com.xowns.celfeed.server.consumer.sender.NotificationSender;
+import com.xowns.celfeed.server.consumer.sender.NotificationSenderResolver;
 import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class WritePostFanoutListener {
     private final ObjectMapper objectMapper;
     private final FollowQueryRepository followQueryRepository;
     private final NotificationService notificationService;
-    private final NotificationSender sender;
+    private final NotificationSenderResolver senderResolver;
     private final IdempotencyCache idempotencyCache;
 
     @KafkaListener(topics = KafkaTopic.WRITE_POST_FANOUT, containerFactory = KafkaConsumerConfig.WRITE_POST_FANOUT_CF)
@@ -182,7 +182,7 @@ public class WritePostFanoutListener {
             List<NotificationDto> sendData = notifications.stream()
                     .map(notification -> NotificationDto.of(notification, authorNickname))
                     .toList();
-            sender.send(sendData);
+            senderResolver.resolve().send(sendData);
             log.info("[WRITE-POST-FANOUT] 알림 전송 : {}건", sendData.size());
         } catch (Exception e) {
             // 알림은 이미 DB 에 저장됨 (best-effort)
