@@ -1,0 +1,31 @@
+# Git / IDE
+.git
+.gitignore
+.gitattributes
+.idea
+*.iml
+*.iws
+out/
+
+# Gradle 빌드 결과물과 캐시 (컨테이너 안에서 새로 빌드함)
+.gradle
+**/build/
+
+# Docker 관련 파일 (이미지 빌드에는 필요 없음)
+docker-compose*.yaml
+docker/
+
+# 문서와 이미지
+docs/
+*.md
+
+# 로그, 덤프, OS 파일
+**/*.log
+*.hprof
+hs_err_pid*
+Thumbs.db
+.DS_Store
+
+# 민감 정보
+.env
+**/*.env
