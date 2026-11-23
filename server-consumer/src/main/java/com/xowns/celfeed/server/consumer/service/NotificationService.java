@@ -61,11 +61,6 @@ public class NotificationService {
                 .toList();
     }
 
-    @NotificationTransactional(readOnly = true)
-    public List<Notification> findNotifications(List<Long> ids) {
-        return notificationRepository.findByIdIn(ids);
-    }
-
     public Notification saveFollowMemberNotification(Long receiverId, Long actorId, Long followId, String eventId) {
         Notification notification = Notification.create(
                 eventId,

@@ -16,7 +16,7 @@ CREATE TABLE notification (
 	created_at  DATETIME(6) NOT NULL,
 
 	PRIMARY KEY (id, created_at),
-    CONSTRAINT uk_notification_event_receiver UNIQUE (event_id, receiver_id),
+    CONSTRAINT uk_notification_event_receiver UNIQUE (event_id, receiver_id, created_at),
     INDEX idx_notification_receiver_created (receiver_id, created_at DESC)
 ) ENGINE=InnoDB
 PARTITION BY RANGE (TO_DAYS(created_at)) (

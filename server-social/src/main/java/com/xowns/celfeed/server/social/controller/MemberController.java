@@ -36,7 +36,7 @@ public class MemberController {
     @GetMapping("/validation/email")
     @ResponseStatus(OK)
     public ApiResponse<Void> validateEmail(@RequestParam String email) {
-        memberService.validateDuplicateNickname(email);
+        memberService.validateDuplicateEmail(email);
         return ApiResponse.of("사용 가능한 이메일입니다.");
     }
 

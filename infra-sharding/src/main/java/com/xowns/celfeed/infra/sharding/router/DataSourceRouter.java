@@ -33,27 +33,34 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
     @Override
     protected @Nullable Object determineCurrentLookupKey() {
         UserHolder.Sharding sharding = UserHolder.getSharding();
+
+        if (sharding == null) {
+            throw new IllegalStateException("[DataSourceRouter] 샤딩 정보 없이 DB 접근");
+        }
+
         int shardNo = getShardNo(sharding);
-        return shardDataSourceNames.get(shardNo);
+        String key = shardDataSourceNames.get(shardNo);
+
+        if (key == null) {
+            throw new IllegalStateException("[DataSourceRouter] 존재하지 않는 샤드 : " + shardNo);
+        }
+
+        return key;
     }
 
     private int getShardNo(UserHolder.Sharding sharding) {
-        if (sharding == null) {
-            log.error("[Notification DataSourceRouter] 샤딩 정보 미존재");
-            return 0;
+        ShardingProperty property = ShardingPropertyMap.get().get(sharding.getTarget());
+
+        if (property == null) {
+            throw new IllegalStateException("[DataSourceRouter] 지원하지 않는 샤딩 설정 : " + sharding.getTarget());
         }
 
-        int shardNo = 0;
-        ShardingProperty shardingProperty = ShardingPropertyMap.get().get(sharding.getTarget());
-
-        if (shardingProperty.getStrategy() == ShardingStrategy.MODULAR) {
-            shardNo = getShardNoByModular(sharding.getShardKey(), shardingProperty.getMod());
+        if (property.getStrategy() == ShardingStrategy.MODULAR) {
+            int shardNo = getShardNoByModular(sharding.getShardKey(), property.getMod());
             log.info("[Notification DataSourceRouter] 샤딩 정보 : 전략=MODULAR, 샤드번호={}", shardNo);
-        } else {
-            log.error("[Notification DataSourceRouter] 샤딩 정보 미존재");
         }
 
-        return shardNo;
+        throw new IllegalStateException("[DataSourceRouter] 지원하지 않는 샤딩 전략 : " + property.getStrategy());
     }
 
     private int getShardNoByModular(long shardKey, int modulus) {

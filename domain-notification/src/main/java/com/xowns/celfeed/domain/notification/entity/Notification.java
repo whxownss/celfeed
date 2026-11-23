@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(uniqueConstraints =
         @UniqueConstraint(
                 name = Notification.UK_EVENT_RECEIVER,
-                columnNames = {"event_id", "receiver_id"}
+                columnNames = {"event_id", "receiver_id", "created_at"}
         ))
 @NoArgsConstructor(access = PROTECTED)
 @Getter @ToString

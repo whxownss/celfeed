@@ -18,11 +18,7 @@ import org.springframework.stereotype.Component;
 @Order(1) // 순서 유의
 public class ServiceAspect {
 
-    @Pointcut("execution(public * com.xowns.celfeed.server.consumer.service..Notification*Service.*(..))")
-    private void service() {
-    }
-
-    @Around("service() && @within(sharding) && args(shardKey,..)")
+    @Around("execution(public * *(..)) && @within(sharding) && args(shardKey,..)")
     public Object handler(ProceedingJoinPoint pjp, Sharding sharding, long shardKey) throws Throwable {
         Signature signature = pjp.getSignature();
 

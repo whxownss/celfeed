@@ -85,7 +85,7 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
             AND created_at < :threshold
             ORDER BY created_at ASC
             LIMIT :limit
-            """)
+            """, nativeQuery = true)
     int deleteByStatusBefore(@Param("status") String status,
                              @Param("threshold") LocalDateTime threshold,
                              @Param("limit") int limit);
