@@ -10,7 +10,7 @@ import com.xowns.celfeed.server.consumer.config.KafkaConsumerConfig;
 import com.xowns.celfeed.server.consumer.dto.NotificationDto;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
 import com.xowns.celfeed.server.consumer.exception.RetryableConsumerException;
-import com.xowns.celfeed.server.consumer.sender.NotificationSender;
+import com.xowns.celfeed.server.consumer.sender.NotificationSenderResolver;
 import com.xowns.celfeed.server.consumer.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class FollowMemberListener {
     
     private final ObjectMapper objectMapper;
     private final IdempotencyCache idempotencyCache;
-    private final NotificationSender sender;
+    private final NotificationSenderResolver senderResolver;
 
     private final FollowRepository followRepository;
     private final NotificationService notificationService;
@@ -156,7 +156,7 @@ public class FollowMemberListener {
 
     private void send(Notification notification, String actorNickname) {
         try {
-            sender.send(NotificationDto.of(notification, actorNickname));
+            senderResolver.resolve().send(NotificationDto.of(notification, actorNickname));
             log.info("[FOLLOW-MEMBER] 알림 전송 : id={}", notification.getId());
         } catch (Exception e) {
             // 알림은 이미 DB에 저장된 상태
