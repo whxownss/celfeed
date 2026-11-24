@@ -43,6 +43,11 @@ public class NotificationJpaConfig {
                 new HibernateSettings()
         );
 
+        // 샤딩 라우터는 부팅 시점에 커넥션을 줄 수 없으므로 메타데이터 조회를 항상 끈다
+        properties.put("hibernate.boot.allow_jdbc_metadata_access", false);
+        // yml에 dialect가 없으면 기본값 사용 (yml 값이 있으면 그쪽이 우선)
+        properties.putIfAbsent("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+
         return builder
                 .dataSource(dataSource)
                 .packages("com.xowns.celfeed.domain.notification.entity")

@@ -44,7 +44,7 @@ spring:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: none # create는 서버 실행 시 샤딩 정보 없어서 예외 발생
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy

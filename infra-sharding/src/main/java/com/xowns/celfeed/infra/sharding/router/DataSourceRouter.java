@@ -58,6 +58,7 @@ public class DataSourceRouter extends AbstractRoutingDataSource {
         if (property.getStrategy() == ShardingStrategy.MODULAR) {
             int shardNo = getShardNoByModular(sharding.getShardKey(), property.getMod());
             log.info("[Notification DataSourceRouter] 샤딩 정보 : 전략=MODULAR, 샤드번호={}", shardNo);
+            return shardNo;
         }
 
         throw new IllegalStateException("[DataSourceRouter] 지원하지 않는 샤딩 전략 : " + property.getStrategy());
