@@ -32,7 +32,9 @@ import static org.mockito.Mockito.*;
 
 /**
  * write-post 리스너 : 게시글 이벤트를 팔로워 구간(fanout) 메시지로 나눠 보낸다 (Kafka 트랜잭션 안에서 실행)
- * 실제 컨테이너는 Kafka 트랜잭션을 쓰므로, 테스트에서는 트랜잭션 동기화를 직접 열어 커밋/롤백 콜백을 흉내 낸다.
+ * 리스너 로직만 검증하기 위해 트랜잭션 동기화를 직접 열어 커밋 콜백을 흉내 낸다.
+ * 주의 : 실제 컨테이너(KafkaTransactionManager 기본 설정)에서는 동기화가 활성화되지 않아 이 리스너가 항상 실패한다.
+ *       → ConsumerIntegrationTest#writePostAlwaysRollsBack 참고
  */
 class WritePostListenerTest {
 
