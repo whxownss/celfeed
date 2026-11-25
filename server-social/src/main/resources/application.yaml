@@ -7,9 +7,9 @@ spring:
       username: root
       password: root
       driver-class-name: com.mysql.cj.jdbc.Driver
-      maximum-pool-size: 10
-      minimum-idle: 10
-      connection-timeout: 30000
+      maximum-pool-size: 30
+      minimum-idle: 30
+      connection-timeout: 1000
   jpa:
     open-in-view: false
     properties:
@@ -48,12 +48,15 @@ spring:
       properties:
         enable.idempotence: true                 # 파티션별 배치마다 순번을 부여하여 +1 순번만 받아서 중복 방지 및 순서 보장
         max.in.flight.requests.per.connection: 5 # 응답 없이 보낼 수 있는 최대 요청 수 (브로커 캐시가 최근 5개 배치 정보 기억)
-        max.block.ms: 3000                       # 메시지 전송 전에 메타데이터를 가져오거나 버퍼 공간 확보를 위해 기다리는 시간
-        request.timeout.ms: 5000                 # 브로커에 요청을 보낸 후 응답을 기다리는 최대 시간 (이후 실패로 보고 재시도)
-        delivery.timeout.ms: 10000               # 전송하기 시작한 시점부터 최종 성공/실패로 판단하기까지 보는 전체 시간
+        max.block.ms: 2000                       # 메시지 전송 전에 메타데이터를 가져오거나 버퍼 공간 확보를 위해 기다리는 시간
+        request.timeout.ms: 3000                 # 브로커에 요청을 보낸 후 응답을 기다리는 최대 시간 (이후 실패로 보고 재시도)
+        delivery.timeout.ms: 5000                # 전송하기 시작한 시점부터 최종 성공/실패로 판단하기까지 보는 전체 시간
         linger.ms: 5                             # 메시지 Batch를 구성하기 위해 기다리는 최대 시간
         # delivery >= request + linger (max.block 시간은 delivery에 포함 되지 않음)
-
+  task:
+    scheduling:
+      pool:
+        size: 2 # relay, cleanup
   web:
     error:
       whitelabel:
@@ -65,24 +68,42 @@ spring:
 
 app:
   outbox:
+    async:
+      core-pool-size: 5
+      max-pool-size: 10
+      queue-capacity: 500
+      await-termination-seconds: 30
     relay:
       batch-size: 100
       fixed-delay: 3000
       max-retry: 5
       max-backoff-sec: 300
     scheduler:
-      batch-size: 1000
-      ttl-hours: 24
-      fixed-delay: 3600000 # 1시간
+      batch-size: 5000
+      ttl-hours: 6
+      fixed-delay: 30000 # 30초
   kafka:
     producer:
-      send-timeout: 12000 # delivery-timeout 보다 크게
+      send-timeout: 6000 # delivery-timeout 보다 크게
+    topics:
+      write-post:
+        partitions: 1
+        replicas: 1
+        retention: 3d
+      like-post:
+        partitions: 3
+        replicas: 1
+        retention: 3d
+      follow-member:
+        partitions: 2
+        replicas: 1
+        retention: 3d
 
-logging.level:
+#logging.level:
 #  com.xowns.celfeed: info
-  org.hibernate.SQL: debug
-  org.springframework.transaction.interceptor: TRACE
-  org.springframework.data.redis: DEBUG
+#  org.hibernate.SQL: debug
+#  org.springframework.transaction.interceptor: TRACE
+#  org.springframework.data.redis: DEBUG
 #  org.apache.kafka: INFO
 #  org.springframework.kafka: INFO
 #  org.springframework.kafka.transaction: DEBUG
@@ -95,7 +116,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info,prometheus,metrics
 
 server:
   port: 8080

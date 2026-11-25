@@ -42,10 +42,10 @@ spring:
     job:
       enabled: false
 
-logging.level:
+#logging.level:
   #  com.xowns.celfeed: info
-  org.hibernate.SQL: debug
-  org.springframework.transaction.interceptor: TRACE
+#  org.hibernate.SQL: debug
+#  org.springframework.transaction.interceptor: TRACE
 #  org.springframework.data.redis: DEBUG
 #  org.apache.kafka: INFO
 #  org.springframework.kafka: INFO

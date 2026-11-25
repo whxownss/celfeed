@@ -8,18 +8,18 @@ app:
           username: root
           password: root
           driver-name: com.mysql.cj.jdbc.Driver
-          max-pool: 10
-          min-idle: 10
-          timeout: 30000
+          max-pool: 20
+          min-idle: 20
+          timeout: 1000
         - shard-no: 1
           name: notification-shard-1
           url: jdbc:mysql://mysql-notification2:3306/celfeed_notification2?rewriteBatchedStatements=true
           username: root
           password: root
           driver-name: com.mysql.cj.jdbc.Driver
-          max-pool: 10
-          min-idle: 10
-          timeout: 30000
+          max-pool: 20
+          min-idle: 20
+          timeout: 1000
   sharding:
     notification:
       strategy: MODULAR
@@ -35,9 +35,9 @@ spring:
       username: root
       password: root
       driver-class-name: com.mysql.cj.jdbc.Driver
-      maximum-pool-size: 10
-      minimum-idle: 10
-      connection-timeout: 30000
+      maximum-pool-size: 20
+      minimum-idle: 20
+      connection-timeout: 1000
   jpa:
     open-in-view: false
     properties:
@@ -75,11 +75,11 @@ spring:
       include-stacktrace: never
       include-binding-errors: never
 
-logging.level:
+#logging.level:
 #  com.xowns.celfeed: info
-  org.hibernate.SQL: debug
-  org.springframework.transaction.interceptor: TRACE
-  org.springframework.data.redis: DEBUG
+#  org.hibernate.SQL: debug
+#  org.springframework.transaction.interceptor: TRACE
+#  org.springframework.data.redis: DEBUG
 #  org.apache.kafka: INFO
 #  org.springframework.kafka: INFO
 #  org.springframework.kafka.transaction: DEBUG
@@ -92,7 +92,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info,prometheus,metrics
 
 server:
   port: 8081
