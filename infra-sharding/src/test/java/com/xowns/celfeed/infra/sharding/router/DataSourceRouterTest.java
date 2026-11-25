@@ -33,9 +33,13 @@ class DataSourceRouterTest {
     private final Connection shard1Connection = mock(Connection.class);
 
     private DataSourceRouter router;
+    private Map<ShardingTarget, ShardingProperty> originalProperties;
 
     @BeforeEach
     void setUp() throws Exception {
+        // ShardingPropertyMap 은 static 전역 상태 → 다른 테스트(Spring 컨텍스트)가 등록한 값을 보관했다가 복원
+        originalProperties = new LinkedHashMap<>(ShardingPropertyMap.get());
+
         when(shard0.getConnection()).thenReturn(shard0Connection);
         when(shard1.getConnection()).thenReturn(shard1Connection);
 
@@ -54,7 +58,8 @@ class DataSourceRouterTest {
     @AfterEach
     void tearDown() {
         UserHolder.clearSharding();
-        ShardingPropertyMap.get().clear(); // static 전역 상태라 다른 테스트에 영향 없게 정리
+        ShardingPropertyMap.get().clear();
+        ShardingPropertyMap.get().putAll(originalProperties);
     }
 
     private static ShardingProperty modular(int mod) {

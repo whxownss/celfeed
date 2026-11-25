@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.TransactionDefinition;
@@ -234,7 +233,12 @@ class ServiceAspectTest {
         }
     }
 
-    @Configuration
+    /**
+     * 주의 : @Configuration 을 붙이지 않는다.
+     * NotificationDataSourceConfig 가 이 패키지(..sharding.aop)를 @ComponentScan 하므로,
+     * @Configuration 이면 통합 테스트 컨텍스트에 이 가짜 트랜잭션 매니저가 같이 등록된다.
+     * (@SpringJUnitConfig 에 직접 지정한 클래스는 @Configuration 없이도 설정 클래스로 처리됨)
+     */
     @EnableAspectJAutoProxy(proxyTargetClass = true)
     @EnableTransactionManagement(proxyTargetClass = true)
     static class AopTestConfig {
