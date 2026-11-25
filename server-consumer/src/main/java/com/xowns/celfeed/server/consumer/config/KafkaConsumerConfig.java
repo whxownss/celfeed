@@ -3,11 +3,13 @@ package com.xowns.celfeed.server.consumer.config;
 import com.xowns.celfeed.common.event.KafkaTopic;
 import com.xowns.celfeed.server.consumer.exception.NonRetryableConsumerException;
 import com.xowns.celfeed.server.consumer.listener.event.WritePostFanoutEvent;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -26,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(KafkaConsumerRetryProperties.class)
 public class KafkaConsumerConfig {
 
     public static final String LIKE_POST_CF = "likePostContainerFactory";
@@ -45,15 +49,16 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> likePostConsumerFactory() {
-        return createConsumerFactory(likePostGroupId, false);
+        return consumerFactory(likePostGroupId, false);
     }
 
     @Bean(LIKE_POST_CF)
     public ConcurrentKafkaListenerContainerFactory<String, String> likePostContainerFactory(
-            KafkaTemplate<String, String> dltKafkaTemplate
+            KafkaTemplate<String, String> dltKafkaTemplate,
+            @Value("${app.kafka.consumers.like-post.concurrency}") int concurrency
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                createContainerFactory(likePostConsumerFactory(), 1, null);
+                containerFactory(likePostConsumerFactory(), concurrency, null);
         factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.LIKE_POST_DLT));
 
         return factory;
@@ -68,19 +73,20 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> writePostConsumerFactory() {
-        return createConsumerFactory(writePostGroupId, false);
+        return consumerFactory(writePostGroupId, false);
     }
 
     @Bean(WRITE_POST_CF)
     public ConcurrentKafkaListenerContainerFactory<String, String> writePostContainerFactory(
             KafkaTransactionManager<String, WritePostFanoutEvent> kafkaTransactionManager,
             KafkaTemplate<String, WritePostFanoutEvent> kafkaTemplate,
-            KafkaTemplate<String, String> dltKafkaTemplate
+            KafkaTemplate<String, String> dltKafkaTemplate,
+            @Value("${app.kafka.consumers.write-post.concurrency}") int concurrency
 
     ) {
         // 해당 컨테이너에서는 트랜잭션으로 커밋되기 때문에 ack.acknowledge(), MANUAL_IMMEDIATE 등이 사실상 무시됨
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                createContainerFactory(writePostConsumerFactory(), 1, kafkaTransactionManager);
+                containerFactory(writePostConsumerFactory(), concurrency, kafkaTransactionManager);
 
         // Kafka 트랜잭션을 사용하기 때문에, DefaultErrorHandler를 붙이는 방식이 아닌,
         // 트랜잭션 롤백 뒤에 동작하는 AfterRollbackProcessor로 재시도와 DLQ 설정
@@ -105,17 +111,21 @@ public class KafkaConsumerConfig {
     @Value("${app.kafka.consumers.write-post-fanout.group-id}")
     private String writePostFanoutGroupId;
 
+    @Value("${app.kafka.consumers.write-post-fanout.max-poll-record}")
+    private int writePostFanoutMaxPollRecord;
+
     @Bean
     public ConsumerFactory<String, String> writePostFanoutConsumerFactory() {
-        return createConsumerFactory(writePostFanoutGroupId, true);
+        return consumerFactory(writePostFanoutGroupId, true, writePostFanoutMaxPollRecord);
     }
 
     @Bean(WRITE_POST_FANOUT_CF)
     public ConcurrentKafkaListenerContainerFactory<String, String> writePostFanoutContainerFactory(
-            KafkaTemplate<String, String> dltKafkaTemplate
+            KafkaTemplate<String, String> dltKafkaTemplate,
+            @Value("${app.kafka.consumers.write-post-fanout.concurrency}") int concurrency
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                createContainerFactory(writePostFanoutConsumerFactory(), 3, null);
+                containerFactory(writePostFanoutConsumerFactory(), concurrency, null);
         factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.WRITE_POST_FANOUT_DLT));
 
         return factory;
@@ -130,15 +140,16 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> followMemberConsumerFactory() {
-        return createConsumerFactory(followMemberGroupId, false);
+        return consumerFactory(followMemberGroupId, false);
     }
 
     @Bean(FOLLOW_MEMBER_CF)
     public ConcurrentKafkaListenerContainerFactory<String, String> followMemberContainerFactory(
-            KafkaTemplate<String, String> dltKafkaTemplate
+            KafkaTemplate<String, String> dltKafkaTemplate,
+            @Value("${app.kafka.consumers.follow-member.concurrency}") int concurrency
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                createContainerFactory(followMemberConsumerFactory(), 1, null);
+                containerFactory(followMemberConsumerFactory(), concurrency, null);
         factory.setCommonErrorHandler(errorHandler(dltKafkaTemplate, KafkaTopic.FOLLOW_MEMBER_DLT));
 
         return factory;
@@ -148,7 +159,11 @@ public class KafkaConsumerConfig {
     // default
     // ============================================================================================
 
-    private <T> ConsumerFactory<String, T> createConsumerFactory(String groupId, boolean readCommitted) {
+    private <T> ConsumerFactory<String, T> consumerFactory(String groupId, boolean readCommitted) {
+        return consumerFactory(groupId, readCommitted, 0);
+    }
+
+    private <T> ConsumerFactory<String, T> consumerFactory(String groupId, boolean readCommitted, int maxPollRecord) {
         Map<String, Object> props = new HashMap<>();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -163,11 +178,15 @@ public class KafkaConsumerConfig {
             props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, IsolationLevel.READ_COMMITTED.toString());
         }
 
+        if (maxPollRecord > 0) {
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecord);
+        }
+
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    private <T, V> ConcurrentKafkaListenerContainerFactory<String, T> createContainerFactory(
+    private <T, V> ConcurrentKafkaListenerContainerFactory<String, T> containerFactory(
             ConsumerFactory<String, T> consumerFactory,
             int concurrency,
             KafkaTransactionManager<String, V> kafkaTransactionManager
@@ -204,12 +223,16 @@ public class KafkaConsumerConfig {
         );
     }
 
+    private final KafkaConsumerRetryProperties retryProps;
+
     private BackOff retryBackOff() {
-        // 1초 → 2초 → 4초, 최대 3번
-        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
-        backOff.setInitialInterval(1_000L);
-        backOff.setMultiplier(2.0);
-        backOff.setMaxInterval(10_000L);
+        // 1초 → 2초 → 4초 → 8초 → 10초, 최대 5번 (총 대기 약 25초)
+        // 총 대기 시간 > lock-ttl(20초) 이어야 함
+        // 처리 중 죽은 Consumer의 락이 만료된 뒤에도 재시도 기회가 남아야 DLT로 잘못 가지 않음
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(retryProps.maxRetries());
+        backOff.setInitialInterval(retryProps.initialInterval().toMillis());
+        backOff.setMultiplier(retryProps.multiplier());
+        backOff.setMaxInterval(retryProps.maxInterval().toMillis());
         return backOff;
     }
 }

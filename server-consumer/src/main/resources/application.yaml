@@ -26,19 +26,50 @@ app:
       mod: 2
   #      sharding_key: receiver_id
   kafka:
+    topics:
+      write-post-fanout:
+        partitions: 3
+        replicas: 1
+        retention: 3d
+      write-post-dlt:
+        partitions: 1
+        replicas: 1
+        retention: 7d
+      like-post-dlt:
+        partitions: 3
+        replicas: 1
+        retention: 7d
+      write-post-fanout-dlt:
+        partitions: 3
+        replicas: 1
+        retention: 7d
+      follow-member-dlt:
+        partitions: 2
+        replicas: 1
+        retention: 7d
     consumer:
-      lock-ttl-seconds: 60 # Hikari connection-timeout 보다 길게
-      done-ttl-hours: 24   # 토픽 보관기간과 맞춤
+      done-ttl-hours: 24
+      lock-ttl-seconds: 20 # Hikari connection-timeout 보다 길게
+      retry:
+        max-retries: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 10s
     consumers:
       like-post:
         group-id: like-post
+        concurrency: 3
       write-post:
         group-id: write-post
-        batch-size: 2
+        concurrency: 1
+        batch-size: 1000
       write-post-fanout:
         group-id: write-post-fanout
+        concurrency: 3
+        max-poll-record: 50
       follow-member:
         group-id: follow-member
+        concurrency: 2
 
 spring:
   application:
@@ -91,11 +122,11 @@ spring:
         delivery.timeout.ms: 10000
         linger.ms: 5
 
-logging.level:
-  #  com.xowns.celfeed: info
-  org.hibernate.SQL: debug
-  org.springframework.transaction.interceptor: TRACE
-  org.springframework.data.redis: DEBUG
+#logging.level:
+#  com.xowns.celfeed: info
+#  org.hibernate.SQL: debug
+#  org.springframework.transaction.interceptor: TRACE
+#  org.springframework.data.redis: DEBUG
 #  org.apache.kafka: INFO
 #  org.springframework.kafka: INFO
 #  org.springframework.kafka.transaction: DEBUG

@@ -3,41 +3,48 @@ package com.xowns.celfeed.server.social.config.kafka;
 import com.xowns.celfeed.common.event.KafkaTopic;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
+import java.time.Duration;
+
 @Configuration
 public class KafkaTopicConfig {
 
-    private static final long ONE_DAY =  1 * 24 * 60 * 60 * 1000L;
-    private static final long ONE_HOUR =  1 * 60 * 60 * 1000L;
-    private static final long ONE_MINUTE =  1 * 60 * 1000L;
-
     @Bean
-    public NewTopic writePostTopic() {
-        return TopicBuilder.name(KafkaTopic.WRITE_POST)
-                .partitions(1)
-                .replicas(1)
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
-                .build();
+    public NewTopic writePostTopic(
+            @Value("${app.kafka.topics.write-post.partitions}") int partitions,
+            @Value("${app.kafka.topics.write-post.replicas}") int replicas,
+            @Value("${app.kafka.topics.write-post.retention}") Duration retention
+    ) {
+        return buildTopic(KafkaTopic.WRITE_POST, partitions, replicas, retention);
     }
 
     @Bean
-    public NewTopic likePostTopic() {
-        return TopicBuilder.name(KafkaTopic.LIKE_POST)
-                .partitions(1)
-                .replicas(1)
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
-                .build();
+    public NewTopic likePostTopic(
+            @Value("${app.kafka.topics.like-post.partitions}") int partitions,
+            @Value("${app.kafka.topics.like-post.replicas}") int replicas,
+            @Value("${app.kafka.topics.like-post.retention}") Duration retention
+    ) {
+        return buildTopic(KafkaTopic.LIKE_POST, partitions, replicas, retention);
     }
 
     @Bean
-    public NewTopic followMemberTopic() {
-        return TopicBuilder.name(KafkaTopic.FOLLOW_MEMBER)
-                .partitions(1)
-                .replicas(1)
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(ONE_DAY))
+    public NewTopic followMemberTopic(
+            @Value("${app.kafka.topics.follow-member.partitions}") int partitions,
+            @Value("${app.kafka.topics.follow-member.replicas}") int replicas,
+            @Value("${app.kafka.topics.follow-member.retention}") Duration retention
+    ) {
+        return buildTopic(KafkaTopic.FOLLOW_MEMBER, partitions, replicas, retention);
+    }
+
+    private NewTopic buildTopic(String topic, int partitions, int replicas, Duration retention) {
+        return TopicBuilder.name(topic)
+                .partitions(partitions)
+                .replicas(replicas)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(retention.toMillis()))
                 .build();
     }
 }
