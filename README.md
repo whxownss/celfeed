@@ -7,14 +7,14 @@ docker compose up --build
 docker compose -f docker-compose.yaml -f docker-compose-monitoring.yaml up --build
 ```
 
-<br><br>
+<br>
 
 ## 1. 소개
 
 ---
 **CelFeed**(Celeb + Feed)는 셀럽 전용 SNS를 가정해 개발한 백엔드 API 프로젝트입니다.
 
-셀럽이 게시글을 작성하면 팬들에게 알림이 전송되고, 팬이 팔로우하거나 게시글에 좋아요를 누르면 셀럽에게 알림이 전송됩니다.
+셀럽이 `게시글을 작성`하면 팬들에게 알림이 전송되고, 팬이 `팔로우`하거나 `게시글에 좋아요`를 누르면 셀럽에게 알림이 전송됩니다.
 
 이처럼 알림 이벤트를 중심으로 알림 기능 구현에 중점을 두었습니다.
 
@@ -55,7 +55,49 @@ docker compose -f docker-compose.yaml -f docker-compose-monitoring.yaml up --bui
 
 <br>
 
+**알림 발생 흐름**
+```mermaid
+flowchart LR
+    CLIENT["Client"]
+    
+    subgraph SERVER-SOCIAL["server-social"]
+        POST-CONTROLLER["PostController"]
+        POST-SERVICE["PostService"]
+        OUTBOX-RELAY["OutboxRelay"]
+    end
+
+    subgraph MySQL
+       DB-SOCIAL[("기본 DB<br>(회원, 게시글, 아웃박스 등)")]
+       DB-NOTIFICATION[("알림 DB")]
+    end
+
+    KAFKA[/"Kafka"/]
+    
+    subgraph SERVER-CONSUMER["server-consumer"]
+        WRITE-POST-LISTENER["WritePostListener"]
+        NOTIFICATION-SENDER["NotificationSender"]
+    end
+    
+    
+    CLIENT -- "POST /posts" --> POST-CONTROLLER
+    POST-CONTROLLER --> POST-SERVICE
+    POST-SERVICE -- "① 게시글 저장,<br>아웃박스(PENDING) 저장" --> DB-SOCIAL
+    POST-CONTROLLER -- "② 201 CREATED" --> CLIENT
+    POST-SERVICE -. "③ AFTER_COMMIT 이벤트<br>(@Async)" .-> OUTBOX-RELAY
+    OUTBOX-RELAY -- "④ publish" --> KAFKA
+    OUTBOX-RELAY -- "⑤ 아웃박스 상태 변경<br>(PENDING → PUBLISHED)" --> DB-SOCIAL
+    WRITE-POST-LISTENER --> KAFKA
+    WRITE-POST-LISTENER --> DB-NOTIFICATION
+    WRITE-POST-LISTENER --> NOTIFICATION-SENDER
+
+    SERVER-SOCIAL ~~~ SERVER-CONSUMER
+```
+
+<br>
+
 ## 3. ERD
+
+---
 <img width="588" height="388" alt="erd" src="docs/img/erd.png" />
 
 - [ERD 설계 및 근거](docs/erd/erd.md)
